@@ -1,2 +1,0 @@
-CCFs_subclone	index	cluster
-0.173374303737914	1	1
