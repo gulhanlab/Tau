@@ -1,0 +1,43 @@
+host: compute-a-16-164.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Conda environments: ignored
+Job stats:
+job                                count
+-------------------------------  -------
+all                                    1
+calculate_clonal_multiplicities        1
+calculate_likelihoods                  1
+normalize                              1
+revise                                 1
+total                                  5
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 13 16:11:01 2025]
+localrule revise:
+    input: output/categorize/0009b464-b376-4fbc-8a56-da538269a02f_categorize.txt
+    output: output/revise/0009b464-b376-4fbc-8a56-da538269a02f_revise.txt
+    jobid: 4
+    reason: Missing output files: output/revise/0009b464-b376-4fbc-8a56-da538269a02f_revise.txt; Code has changed since last execution
+    wildcards: sample=0009b464-b376-4fbc-8a56-da538269a02f
+    resources: tmpdir=/tmp, mem_mb=30000, mem_mib=28611, time=30:00
+
+[Thu Feb 13 16:11:05 2025]
+Error in rule revise:
+    jobid: 4
+    input: output/categorize/0009b464-b376-4fbc-8a56-da538269a02f_categorize.txt
+    output: output/revise/0009b464-b376-4fbc-8a56-da538269a02f_revise.txt
+    conda-env: tau
+    shell:
+        python scripts/revise.py output/categorize/0009b464-b376-4fbc-8a56-da538269a02f_categorize.txt output/revise/0009b464-b376-4fbc-8a56-da538269a02f_revise.txt 0009b464-b376-4fbc-8a56-da538269a02f
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-02-13T161101.863847.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

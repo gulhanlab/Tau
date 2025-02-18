@@ -64,7 +64,7 @@ rule revise:
     conda:
         "tau"
     shell:
-        "Rscript scripts/revise.R {input.categorize_file} {output.revise_file} {wildcards.sample}"
+        "python scripts/revise.py {wildcards.sample} {input.categorize_file} {output.revise_file}"
 
 rule normalize:
     input:
@@ -77,7 +77,7 @@ rule normalize:
     conda:
         "tau"
     shell:
-        "Rscript scripts/normalize.R {input.revise_file} {output.normalize_file}"
+        "python scripts/normalize.py {input.revise_file} {output.normalize_file}"
 
 rule annotate_vcf:
     input:
