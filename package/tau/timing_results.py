@@ -54,13 +54,6 @@ def parse_chromosome(chrom):
     # X = 23, Y = 24, MT = 25 (for example)
     return {"X": 23, "Y": 24, "MT": 25}.get(chrom, 26)  # Default to 26 for unhandled cases
 
-sorted_segments = dict(
-    sorted(
-        segment_solutions.items(),
-        key=lambda item: (parse_chromosome(item[0].split(':')[0]), int(item[0].split(':')[1].split('-')[0]))
-    )
-)
-
 def calculate_timing_solutions(multiplicities_file=None, output_name=None, multiplicities_df=None):
     if multiplicities_df is None:
         multiplicities_df = pd.read_csv(multiplicities_file, sep='\t')
