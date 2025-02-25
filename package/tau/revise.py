@@ -57,7 +57,7 @@ def clon_sub_distance(df, by_state=True):
 
     return df
 
-def cluster_subclones(df, sample, output_dir, min_vaf_diff=0.05):
+def cluster_subclones(df, sample, output_dir=None, min_vaf_diff=0.05):
     subclonal_rows = df['categ'].str.contains('subclonal')
     vals = (1 / df.loc[subclonal_rows, 'vaf']) / df.loc[subclonal_rows, 'total_cn']
 
@@ -82,7 +82,9 @@ def cluster_subclones(df, sample, output_dir, min_vaf_diff=0.05):
     if len(df_subclonal_CCF) > 1:
         df_subclonal_CCF = df_subclonal_CCF.sort_values(by='CCFs_subclone', ascending=False)
     df_subclonal_CCF['cluster'] = range(1, len(df_subclonal_CCF) + 1)
-    df_subclonal_CCF.to_csv(os.path.join(output_dir, f'{sample}_CCF_subclones.txt'), sep='\t', index=False)
+
+    if output_dir is not None:
+        df_subclonal_CCF.to_csv(os.path.join(output_dir, f'{sample}_CCF_subclones.txt'), sep='\t', index=False)
 
     indices = df_subclonal_CCF['cluster'].values[cluster_inds - 1]
     replacement_indices = subclonal_rows[valid_indices].index
@@ -90,21 +92,23 @@ def cluster_subclones(df, sample, output_dir, min_vaf_diff=0.05):
         raise ValueError("Replacement length mismatch: check indices and subclonal categories.")
     df.loc[replacement_indices, 'categ'] = ['subclonal' + str(i) for i in indices]
 
-    return df
+    return df, df_subclonal_CCF
 
 def revise(sample, input_file=None, output_file=None, n_sub_thresh=20, distance_scale=3, df=None):
     if df is None:
         df = pd.read_csv(input_file, sep='\t')
 
+    output_dir = os.path.dirname(output_file) if output_file else None
+
     has_subclone = False
     if df['categ'].str.contains('subclonal').sum() > n_sub_thresh:
         print('Clustering subclones (Step 1)')
-        df = cluster_subclones(df, sample, output_dir=os.path.dirname(output_file))
+        df, df_subclonal_CCF = cluster_subclones(df, sample, output_dir)
         has_subclone = True
     else:
         df.loc[df['categ'].str.contains('subclonal'), 'categ'] = 'undefined'
 
-    if not has_subclone:
+    if not has_subclone and output_file is not None:
         df.to_csv(output_file, sep='\t', index=False)
         return 0
 
@@ -114,25 +118,25 @@ def revise(sample, input_file=None, output_file=None, n_sub_thresh=20, distance_
     if len(inds) > 0:
         df.loc[inds, 'categ'] = 'clonal'
         print('Re-clustering subclones (Step 2)')
-        df = cluster_subclones(df, sample, output_dir=os.path.dirname(output_file))
+        df, df_subclonal_CCF = cluster_subclones(df, sample, output_dir)
         df = clon_sub_distance(df)
 
     inds = df[(df['dist_clon'] > distance_scale * df['dist_sub']) & (~df['categ'].str.contains('subclonal')) & (df['dist_clon'] > 0) & (df['vaf'] < 1 / df['total_cn'])].index
     if len(inds) > 0:
         df.loc[inds, 'categ'] = 'subclonal1'
         print('Re-clustering subclones (Step 3)')
-        df = cluster_subclones(df, sample, output_dir=os.path.dirname(output_file))
+        df, df_subclonal_CCF = cluster_subclones(df, sample, output_dir)
         df = clon_sub_distance(df)
 
     if df['categ'].str.contains('subclonal').sum() > n_sub_thresh:
         print('Final subclone clustering (Step 4)')
-        df = cluster_subclones(df, sample, output_dir=os.path.dirname(output_file))
+        df, df_subclonal_CCF = cluster_subclones(df, sample, output_dir)
  
     if output_file:
         df.to_csv(output_file, sep='\t', index=False)
         print(f"Revise step completed successfully. Output saved to {output_file}")
 
-    return df
+    return df, df_subclonal_CCF
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Revise script for Tau workflow")

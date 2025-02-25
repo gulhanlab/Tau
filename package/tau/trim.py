@@ -3,7 +3,7 @@ import numpy as np
 import pysam
 import argparse
 
-def trim(sample, snv_file, cnv_file, purity_file, output_file):
+def trim(sample, snv_file, cnv_file, purity_file, output_file=None):
     print(f"Processing sample: {sample}")
     print(f"SNV file: {snv_file}")
     print(f"CNV file: {cnv_file}")

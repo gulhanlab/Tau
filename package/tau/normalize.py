@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import sys
 
-def normalize(input_file, output_file, df = None):
+def normalize(input_file, output_file=None, df = None):
     # Read input file
     if df is None:
         df = pd.read_csv(input_file, sep='\t')

@@ -113,8 +113,31 @@ def get_context_96(df, ref_genome_path, ref_col="ref", alt_col="alt"):
     df['index_spectrum'] = index_spectrum_list
     return df
 
-def sig_likelihoods(sample=None, norm_file=None, exposures=None, signatures=None,
+def sig_likelihoods(sample=None, norm_file=None, exposure_file=None, signature_file=None,
                     state=None, best_cn=None, df=None, ref_genome_path=None, output_file=None):
+    
+    if norm_file is not None and sample is None:
+        sample_id = os.path.basename(norm_file).replace("_normalize.txt", "")
+    else:
+        sample_id = sample
+
+    print("sample:",sample_id)
+
+    # Load exposures
+    df_exposure = pd.read_csv(exposure_file, sep="\t")
+    df_exposure = df_exposure.rename(columns={'aliquot_id': 'sample_id', 'sample_id': 'icgc_specimen_id'})
+
+    # Load signatures and ensure the correct order
+    catalog = pd.read_csv(signature_file)
+    catalog = ensure_signature_order(catalog)
+    signames = catalog.columns[1:]  # Exclude the 'Type' column
+
+    # Filter exposures for the current sample
+    exposures = df_exposure.query('sample_id == @sample_id')[signames]
+
+    # Filter signatures for non-zero exposures
+    exposures = exposures.loc[:, (exposures > 0).values.flatten()]
+    signatures = catalog.loc[:, exposures.columns]
 
     if (state is None) ^ (best_cn is None):
         sys.exit('Provide state and best_cn together or set both to None')
@@ -124,9 +147,6 @@ def sig_likelihoods(sample=None, norm_file=None, exposures=None, signatures=None
 
     # Get context for mutations
     df = get_context_96(df, ref_genome_path)
-
-    print("context df:")
-    print(df.head())
 
     # Filter by state and best_cn if provided
     if state is not None and best_cn is not None:
@@ -185,36 +205,13 @@ if __name__ == "__main__":
     parser.add_argument("--normalize_file", required=True, help="Normalized file with mutation information")
     parser.add_argument("--ref_path", default='/n/data1/hms/dbmi/park/jbrew/ref/hg19_decoy/human_g1k_v37_decoy.fasta', help="Path to indexed reference genome")
     args = parser.parse_args()
-
-    #print("TESTING")
-    # Extract sample_id from the VCF filename
-    sample_id = os.path.basename(args.normalize_file).replace("_normalize.txt", "")
-    print("sample:",sample_id)
-
-    # Load exposures
-    df_exposure = pd.read_csv(args.exposure, sep="\t")
-    df_exposure = df_exposure.rename(columns={'aliquot_id': 'sample_id', 'sample_id': 'icgc_specimen_id'})
-
-    # Load signatures and ensure the correct order
-    catalog = pd.read_csv(args.signature)
-    print(catalog.head())
-    catalog = ensure_signature_order(catalog)
-    
-    signames = catalog.columns[1:]  # Exclude the 'Type' column
-
-    # Filter exposures for the current sample
-    exposures = df_exposure.query('sample_id == @sample_id')[signames]
-
-    # Filter signatures for non-zero exposures
-    exposures = exposures.loc[:, (exposures > 0).values.flatten()]
-    signatures = catalog.loc[:, exposures.columns]
-
+ 
     # Call the sig_likelihoods function
     sig_likelihoods(
         sample=sample_id,
         norm_file=args.normalize_file,
-        exposures=exposures,
-        signatures=signatures,
+        exposures=args.exposure,
+        signatures=args.signature,
         ref_genome_path=args.ref_path,
         output_file=args.output
     )

@@ -42,7 +42,7 @@ def calculate_multiplicities(df):
     
     return results_df
 
-def process_likelihood_file(input_file, output_file, df=None):
+def process_likelihood_file(input_file=None, output_file=None, df=None):
     """
     Process a likelihood file to calculate clonal multiplicities and
     add minor/major allele copy number summaries.
