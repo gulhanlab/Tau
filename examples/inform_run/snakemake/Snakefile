@@ -1,0 +1,91 @@
+# Configuration
+import pandas as pd
+
+configfile: "config.yaml"
+metadata_file = config["input_meta"]
+metadata = pd.read_csv(metadata_file, sep="\t")
+samples = metadata["sample"].tolist()
+
+# Helper function to retrieve file paths from metadata
+def get_file(sample, column):
+    file_path = metadata.loc[metadata["sample"] == sample, column].values[0]
+    return file_path if pd.notna(file_path) else None
+
+rule all:
+    input:
+        expand("output/clonal_multiplicities/{sample}_multiplicities.tsv", sample=samples)
+
+#1. Preprocessing data
+rule preprocess:
+    input:
+        snv_file=lambda wildcards: get_file(wildcards.sample, "snv"),
+        cnv_file=lambda wildcards: get_file(wildcards.sample, "cnv"),
+        purity_file=config["purity_file"]
+    output:
+        preprocessed_file="output/preprocessed/{sample}_preprocessed.tsv"
+    resources:
+        mem_mb = lambda wildcards, attempt: 1000*attempt,
+        time = "5:00"
+    shell:
+        """
+        python scripts/preprocess.py \
+            --sample {wildcards.sample} \
+            --snv {input.snv_file} \
+            --cnv {input.cnv_file} \
+            --purity {input.purity_file} \
+            --output {output.preprocessed_file}
+        """
+             
+#2. Signature likelihood calculation
+rule calculate_likelihoods:
+    input:
+        preprocessed_file="output/preprocessed/{sample}_preprocessed.tsv",
+        exposure_file=config["exposure_file"],
+        signature_file=config["signature_file"]
+        ref_genome=config['sig_ref_genome']
+    output:
+        likelihood_file="output/likelihoods/{sample}_likelihoods.tsv"
+    resources:
+        mem_mb= lambda wildcards, attempt: 1000 * attempt,
+        time = "5:00"
+    shell:
+        """
+        python scripts/calculate_likelihoods.py \
+            --sample {wildcards.sample} \
+            --preprocessed_file {input.preprocessed_file} \
+            --exposure {input.exposure_file} \
+            --signature {input.signature_file} \
+            --output {output.likelihood_file} \
+            --ref_genome {input.ref_genome}
+        """
+
+#3. Count clonal multiplicities
+rule count_multiplicities:
+    input:
+        likelihood_file="output/likelihoods/{sample}_likelihoods.tsv"
+    output:
+        multiplicities="output/multiplicities/{sample}_multiplicities.tsv"
+    resources:
+        mem_mb= lambda wildcards, attempt: 1000 * attempt,
+        time = "5:00"
+    shell:
+        """
+        python scripts/count_multiplicities.py \
+            --likelihood_file {input.likelihood_file} \
+            --output {output.multiplicities}
+        """
+
+#4. Estimate timing of copy number gains
+rule estimate_timing:
+    input:
+        multiplicities="output/multiplicities/{sample}_multiplicities.tsv"
+    output:
+        timing_results="output/timing_results/{sample}_timing.tsv", 
+        timing_plot="output/timing_plots/{sample}_timing_plot.pdf"
+    shell:
+        """
+        python scripts/estimate_timing.py \
+            --multiplicities {input.multiplicities} \
+            --output_tsv {output.timing_results} \
+            --output_plot {output.timing_plot}
+        """
