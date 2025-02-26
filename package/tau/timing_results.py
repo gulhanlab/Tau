@@ -7,9 +7,16 @@ import numpy as np
 import os
 import pickle
 import matplotlib.pyplot as plt
+from scipy.stats import ranksums 
+import time
+from scipy.optimize import minimize
+import math
+from scipy.stats import poisson
+import operator
 
-def get_solutions(major, minor):
+def get_solutions(major, minor, solutions_dir):
     #get only solution files compatible with copy number state 
+    all_solutions = os.listdir(solutions_dir)
     pattern = f"{major}_{minor}.*_solutions.sobj"
     sols = [solutions_dir + '/' + re.match(pattern, sol).group() for sol in all_solutions if re.match(pattern, sol) is not None]
     return sols
@@ -54,7 +61,8 @@ def parse_chromosome(chrom):
     # X = 23, Y = 24, MT = 25 (for example)
     return {"X": 23, "Y": 24, "MT": 25}.get(chrom, 26)  # Default to 26 for unhandled cases
 
-def calculate_timing_solutions(multiplicities_file=None, output_name=None, multiplicities_df=None):
+def calculate_timing_solutions(multiplicities_file=None, output_name=None, multiplicities_df=None,
+        solutions_dir = '/n/data1/hms/dbmi/park/jbrew/matrices/new_solutions'):
     if multiplicities_df is None:
         multiplicities_df = pd.read_csv(multiplicities_file, sep='\t')
 
@@ -64,8 +72,8 @@ def calculate_timing_solutions(multiplicities_file=None, output_name=None, multi
     signature_tag = '_'.join(signatures)
     SBS_df = multiplicities_df.query('sig_max in @signatures')
 
-    solutions_dir = '/n/data1/hms/dbmi/park/jbrew/matrices/new_solutions' #CHANGE TO DOWNSIZED WHEN COMPLETE
-    all_solutions = os.listdir(solutions_dir)
+    #solutions_dir = '/n/data1/hms/dbmi/park/jbrew/matrices/new_solutions' #CHANGE TO DOWNSIZED WHEN COMPLETE
+    #all_solutions = os.listdir(solutions_dir)
 
     segment_solutions = defaultdict(lambda: defaultdict(dict))
 
@@ -93,7 +101,7 @@ def calculate_timing_solutions(multiplicities_file=None, output_name=None, multi
             for i in range(max_in_row+1, major+1):
                 N_values[var(f'N{i}')] = 0
 
-        sols = get_solutions(major, minor) 
+        sols = get_solutions(major, minor, solutions_dir) 
         unfit = defaultdict(list)
         unfit_constraints = defaultdict(list)
 
@@ -234,7 +242,7 @@ def calculate_timing_solutions(multiplicities_file=None, output_name=None, multi
                 print(no_variable)
                 break
             if all(no_variable):
-                print("PASSED!")
+                #print("PASSED!")
                 #solution_found = True
                 #split into equalities and inequalities
                 equalities = [var for var in variable if var.operator() == operator.eq]
@@ -259,7 +267,7 @@ def calculate_timing_solutions(multiplicities_file=None, output_name=None, multi
                     operators = [ineq.operator() for ineq in relevant_ineqs]
                     indep_min = float('inf')
                     indep_max = -float('inf')
-                    print(relevant_ineqs, operators)
+                    #print(relevant_ineqs, operators)
                     for ineq, _operator in zip(relevant_ineqs, operators):
                         if not len(ineq.lhs().variables()):
                             if _operator == operator.le:
@@ -275,7 +283,7 @@ def calculate_timing_solutions(multiplicities_file=None, output_name=None, multi
                 curr_sol = {'constants': constants, 
                         'non-constants': nonconstants,
                         'min_max': indep_min_max}
-                print(curr_sol)
+                #print(curr_sol)
                 #if len(inequalities) > 0: 
                     #print(f"{major}_{minor}, with {N_vars} and {t_vars}")
                     #print("N values:", N_values)
@@ -296,7 +304,7 @@ def calculate_timing_solutions(multiplicities_file=None, output_name=None, multi
         key=lambda item: (parse_chromosome(item[0].split(':')[0]), int(item[0].split(':')[1].split('-')[0]))))
     return sorted_segments
 
-def process_solutions(segment_solutions):
+def process_solutions(data):
     # Collect all unique t variables across the dataset
     all_t_vars = set()
     for region_data in data.values():
@@ -503,11 +511,10 @@ def calculate_breakpoints(sorted_segments):
     else:
         all_breakpoints = np.nan
 
-    return all_breakpoints
+    return all_breakpoints, all_segments
 
-def plot_timing_results(all_segments, median_breakpoint):
+def plot_timing_results(all_segments, median_breakpoint, output_path, average=False):
     ### PLOTTING SEGMENT TIMINGS
-    average = False
     fig, ax = plt.subplots(figsize=(30, 15))
 
     # Define a list of colormaps to use for gradations
@@ -691,6 +698,5 @@ def plot_timing_results(all_segments, median_breakpoint):
     plt.ylim(-0.1999,1.05)
     ax.set_xticks([])
     plt.tight_layout()
-    #plt.savefig(f"{directory}/{output_name}_segment_plot_{signature_tag}.png", dpi=300)
-    plt.show()
+    plt.savefig(output_path, dpi=300)
     plt.close()
