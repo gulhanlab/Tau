@@ -1,0 +1,2538 @@
+host: compute-p-17-174.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+You are running snakemake in a SLURM job context. This is not recommended, as it may lead to unexpected behavior. Please run Snakemake directly on the login node.
+SLURM run ID: 1a489fb3-db71-4997-b107-c478f6003389
+Using shell: /usr/bin/bash
+Provided remote nodes: 300
+Job stats:
+job                      count
+---------------------  -------
+all                          1
+calculate_likelihoods        3
+count_multiplicities        31
+estimate_timing             33
+preprocess                   3
+total                       71
+
+Select jobs to execute...
+Execute 33 jobs...
+
+[Thu Feb 27 13:14:17 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient57_likelihoods.tsv
+    output: output/multiplicities/Patient57_multiplicities.tsv
+    jobid: 74
+    reason: Missing output files: output/multiplicities/Patient57_multiplicities.tsv
+    wildcards: sample=Patient57
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 74 has been submitted with SLURM jobid 60683228 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient57/60683228.log).
+
+[Thu Feb 27 13:14:23 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient50_likelihoods.tsv
+    output: output/multiplicities/Patient50_multiplicities.tsv
+    jobid: 66
+    reason: Missing output files: output/multiplicities/Patient50_multiplicities.tsv
+    wildcards: sample=Patient50
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 66 has been submitted with SLURM jobid 60683229 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient50/60683229.log).
+
+[Thu Feb 27 13:14:27 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient77.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient77.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient77_preprocessed.tsv
+    jobid: 100
+    reason: Missing output files: output/preprocessed/Patient77_preprocessed.tsv
+    wildcards: sample=Patient77
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 100 has been submitted with SLURM jobid 60683230 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient77/60683230.log).
+
+[Thu Feb 27 13:14:29 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient90_likelihoods.tsv
+    output: output/multiplicities/Patient90_multiplicities.tsv
+    jobid: 126
+    reason: Missing output files: output/multiplicities/Patient90_multiplicities.tsv
+    wildcards: sample=Patient90
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 126 has been submitted with SLURM jobid 60683231 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient90/60683231.log).
+
+[Thu Feb 27 13:14:30 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient109_likelihoods.tsv
+    output: output/multiplicities/Patient109_multiplicities.tsv
+    jobid: 6
+    reason: Missing output files: output/multiplicities/Patient109_multiplicities.tsv
+    wildcards: sample=Patient109
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 6 has been submitted with SLURM jobid 60683232 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient109/60683232.log).
+
+[Thu Feb 27 13:14:31 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient47_multiplicities.tsv
+    output: output/timing_results/Patient47_timing.tsv, output/timing_plots/Patient47_timing_plot.pdf
+    jobid: 61
+    reason: Missing output files: output/timing_plots/Patient47_timing_plot.pdf
+    wildcards: sample=Patient47
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 61 has been submitted with SLURM jobid 60683234 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient47/60683234.log).
+
+[Thu Feb 27 13:14:42 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient87_multiplicities.tsv
+    output: output/timing_results/Patient87_timing.tsv, output/timing_plots/Patient87_timing_plot.pdf
+    jobid: 121
+    reason: Missing output files: output/timing_plots/Patient87_timing_plot.pdf
+    wildcards: sample=Patient87
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 121 has been submitted with SLURM jobid 60683236 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient87/60683236.log).
+
+[Thu Feb 27 13:14:44 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient44_likelihoods.tsv
+    output: output/multiplicities/Patient44_multiplicities.tsv
+    jobid: 58
+    reason: Missing output files: output/multiplicities/Patient44_multiplicities.tsv
+    wildcards: sample=Patient44
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 58 has been submitted with SLURM jobid 60683238 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient44/60683238.log).
+
+[Thu Feb 27 13:14:44 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient81_likelihoods.tsv
+    output: output/multiplicities/Patient81_multiplicities.tsv
+    jobid: 110
+    reason: Missing output files: output/multiplicities/Patient81_multiplicities.tsv
+    wildcards: sample=Patient81
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 110 has been submitted with SLURM jobid 60683242 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient81/60683242.log).
+
+[Thu Feb 27 13:14:46 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient37_likelihoods.tsv
+    output: output/multiplicities/Patient37_multiplicities.tsv
+    jobid: 50
+    reason: Missing output files: output/multiplicities/Patient37_multiplicities.tsv
+    wildcards: sample=Patient37
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 50 has been submitted with SLURM jobid 60683244 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient37/60683244.log).
+
+[Thu Feb 27 13:14:46 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient7_likelihoods.tsv
+    output: output/multiplicities/Patient7_multiplicities.tsv
+    jobid: 102
+    reason: Missing output files: output/multiplicities/Patient7_multiplicities.tsv
+    wildcards: sample=Patient7
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 102 has been submitted with SLURM jobid 60683246 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient7/60683246.log).
+
+[Thu Feb 27 13:14:51 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient15_preprocessed.tsv
+    jobid: 16
+    reason: Missing output files: output/preprocessed/Patient15_preprocessed.tsv
+    wildcards: sample=Patient15
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 16 has been submitted with SLURM jobid 60683249 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient15/60683249.log).
+
+[Thu Feb 27 13:14:53 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient33_likelihoods.tsv
+    output: output/multiplicities/Patient33_multiplicities.tsv
+    jobid: 42
+    reason: Missing output files: output/multiplicities/Patient33_multiplicities.tsv
+    wildcards: sample=Patient33
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 42 has been submitted with SLURM jobid 60683251 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient33/60683251.log).
+
+[Thu Feb 27 13:14:55 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient101_likelihoods.tsv
+    output: output/multiplicities/Patient101_multiplicities.tsv
+    jobid: 2
+    reason: Missing output files: output/multiplicities/Patient101_multiplicities.tsv
+    wildcards: sample=Patient101
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 2 has been submitted with SLURM jobid 60683254 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient101/60683254.log).
+
+[Thu Feb 27 13:14:58 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient76_likelihoods.tsv
+    output: output/multiplicities/Patient76_multiplicities.tsv
+    jobid: 94
+    reason: Missing output files: output/multiplicities/Patient76_multiplicities.tsv
+    wildcards: sample=Patient76
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 94 has been submitted with SLURM jobid 60683257 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient76/60683257.log).
+
+[Thu Feb 27 13:14:58 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient25_likelihoods.tsv
+    output: output/multiplicities/Patient25_multiplicities.tsv
+    jobid: 34
+    reason: Missing output files: output/multiplicities/Patient25_multiplicities.tsv
+    wildcards: sample=Patient25
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 34 has been submitted with SLURM jobid 60683258 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient25/60683258.log).
+
+[Thu Feb 27 13:15:00 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient86.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient86.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient86_preprocessed.tsv
+    jobid: 120
+    reason: Missing output files: output/preprocessed/Patient86_preprocessed.tsv
+    wildcards: sample=Patient86
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 120 has been submitted with SLURM jobid 60683261 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient86/60683261.log).
+
+[Thu Feb 27 13:15:01 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient1_likelihoods.tsv
+    output: output/multiplicities/Patient1_multiplicities.tsv
+    jobid: 26
+    reason: Missing output files: output/multiplicities/Patient1_multiplicities.tsv
+    wildcards: sample=Patient1
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 26 has been submitted with SLURM jobid 60683264 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient1/60683264.log).
+
+[Thu Feb 27 13:15:07 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient65_likelihoods.tsv
+    output: output/multiplicities/Patient65_multiplicities.tsv
+    jobid: 86
+    reason: Missing output files: output/multiplicities/Patient65_multiplicities.tsv
+    wildcards: sample=Patient65
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 86 has been submitted with SLURM jobid 60683266 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient65/60683266.log).
+
+[Thu Feb 27 13:15:08 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient17_likelihoods.tsv
+    output: output/multiplicities/Patient17_multiplicities.tsv
+    jobid: 18
+    reason: Missing output files: output/multiplicities/Patient17_multiplicities.tsv
+    wildcards: sample=Patient17
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 18 has been submitted with SLURM jobid 60683268 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient17/60683268.log).
+
+[Thu Feb 27 13:15:08 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient58_likelihoods.tsv
+    output: output/multiplicities/Patient58_multiplicities.tsv
+    jobid: 78
+    reason: Missing output files: output/multiplicities/Patient58_multiplicities.tsv
+    wildcards: sample=Patient58
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 78 has been submitted with SLURM jobid 60683271 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient58/60683271.log).
+
+[Thu Feb 27 13:15:08 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient113_likelihoods.tsv
+    output: output/multiplicities/Patient113_multiplicities.tsv
+    jobid: 10
+    reason: Missing output files: output/multiplicities/Patient113_multiplicities.tsv
+    wildcards: sample=Patient113
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 10 has been submitted with SLURM jobid 60683274 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient113/60683274.log).
+
+[Thu Feb 27 13:15:08 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient94_likelihoods.tsv
+    output: output/multiplicities/Patient94_multiplicities.tsv
+    jobid: 130
+    reason: Missing output files: output/multiplicities/Patient94_multiplicities.tsv
+    wildcards: sample=Patient94
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 130 has been submitted with SLURM jobid 60683276 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient94/60683276.log).
+
+[Thu Feb 27 13:15:09 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient55_likelihoods.tsv
+    output: output/multiplicities/Patient55_multiplicities.tsv
+    jobid: 70
+    reason: Missing output files: output/multiplicities/Patient55_multiplicities.tsv
+    wildcards: sample=Patient55
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 70 has been submitted with SLURM jobid 60683280 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient55/60683280.log).
+
+[Thu Feb 27 13:15:09 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient43_likelihoods.tsv
+    output: output/multiplicities/Patient43_multiplicities.tsv
+    jobid: 54
+    reason: Missing output files: output/multiplicities/Patient43_multiplicities.tsv
+    wildcards: sample=Patient43
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 54 has been submitted with SLURM jobid 60683283 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient43/60683283.log).
+
+[Thu Feb 27 13:15:10 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient82_likelihoods.tsv
+    output: output/multiplicities/Patient82_multiplicities.tsv
+    jobid: 114
+    reason: Missing output files: output/multiplicities/Patient82_multiplicities.tsv
+    wildcards: sample=Patient82
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 114 has been submitted with SLURM jobid 60683286 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient82/60683286.log).
+
+[Thu Feb 27 13:15:11 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient34_likelihoods.tsv
+    output: output/multiplicities/Patient34_multiplicities.tsv
+    jobid: 46
+    reason: Missing output files: output/multiplicities/Patient34_multiplicities.tsv
+    wildcards: sample=Patient34
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 46 has been submitted with SLURM jobid 60683288 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient34/60683288.log).
+
+[Thu Feb 27 13:15:11 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient80_likelihoods.tsv
+    output: output/multiplicities/Patient80_multiplicities.tsv
+    jobid: 106
+    reason: Missing output files: output/multiplicities/Patient80_multiplicities.tsv
+    wildcards: sample=Patient80
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 106 has been submitted with SLURM jobid 60683290 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient80/60683290.log).
+
+[Thu Feb 27 13:15:11 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient26_likelihoods.tsv
+    output: output/multiplicities/Patient26_multiplicities.tsv
+    jobid: 38
+    reason: Missing output files: output/multiplicities/Patient26_multiplicities.tsv
+    wildcards: sample=Patient26
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 38 has been submitted with SLURM jobid 60683292 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient26/60683292.log).
+
+[Thu Feb 27 13:15:11 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient20_likelihoods.tsv
+    output: output/multiplicities/Patient20_multiplicities.tsv
+    jobid: 30
+    reason: Missing output files: output/multiplicities/Patient20_multiplicities.tsv
+    wildcards: sample=Patient20
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 30 has been submitted with SLURM jobid 60683295 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient20/60683295.log).
+
+[Thu Feb 27 13:15:35 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient68_likelihoods.tsv
+    output: output/multiplicities/Patient68_multiplicities.tsv
+    jobid: 90
+    reason: Missing output files: output/multiplicities/Patient68_multiplicities.tsv
+    wildcards: sample=Patient68
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 90 has been submitted with SLURM jobid 60683297 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient68/60683297.log).
+
+[Thu Feb 27 13:15:36 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient64_likelihoods.tsv
+    output: output/multiplicities/Patient64_multiplicities.tsv
+    jobid: 82
+    reason: Missing output files: output/multiplicities/Patient64_multiplicities.tsv
+    wildcards: sample=Patient64
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 82 has been submitted with SLURM jobid 60683300 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient64/60683300.log).
+
+[Thu Feb 27 13:15:36 2025]
+rule count_multiplicities:
+    input: output/likelihoods/Patient18_likelihoods.tsv
+    output: output/multiplicities/Patient18_multiplicities.tsv
+    jobid: 22
+    reason: Missing output files: output/multiplicities/Patient18_multiplicities.tsv
+    wildcards: sample=Patient18
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 22 has been submitted with SLURM jobid 60683303 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_count_multiplicities/Patient18/60683303.log).
+[Thu Feb 27 13:17:12 2025]
+Finished job 74.
+1 of 71 steps (1%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:17:12 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient57_multiplicities.tsv
+    output: output/timing_results/Patient57_timing.tsv, output/timing_plots/Patient57_timing_plot.pdf
+    jobid: 73
+    reason: Missing output files: output/timing_plots/Patient57_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient57_multiplicities.tsv
+    wildcards: sample=Patient57
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+[Thu Feb 27 13:17:12 2025]
+Error in rule preprocess:
+    message: SLURM-job '60683230' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 100
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient77.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient77.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient77_preprocessed.tsv
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient77/60683230.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/preprocess.py             --sample Patient77             --snv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient77.vcf             --cnv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient77.tsv             --purity ../inform_data/purity_ploidy_inform.txt             --output output/preprocessed/Patient77_preprocessed.tsv
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683230
+
+[Thu Feb 27 13:17:12 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683234' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 61
+    input: output/multiplicities/Patient47_multiplicities.tsv
+    output: output/timing_results/Patient47_timing.tsv, output/timing_plots/Patient47_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient47/60683234.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient47_multiplicities.tsv             --output_tsv output/timing_results/Patient47_timing.tsv             --output_plot output/timing_plots/Patient47_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683234
+
+[Thu Feb 27 13:17:12 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683236' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 121
+    input: output/multiplicities/Patient87_multiplicities.tsv
+    output: output/timing_results/Patient87_timing.tsv, output/timing_plots/Patient87_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient87/60683236.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient87_multiplicities.tsv             --output_tsv output/timing_results/Patient87_timing.tsv             --output_plot output/timing_plots/Patient87_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683236
+
+[Thu Feb 27 13:17:12 2025]
+Error in rule preprocess:
+    message: SLURM-job '60683249' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 16
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient15_preprocessed.tsv
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient15/60683249.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/preprocess.py             --sample Patient15             --snv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf             --cnv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv             --purity ../inform_data/purity_ploidy_inform.txt             --output output/preprocessed/Patient15_preprocessed.tsv
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683249
+
+[Thu Feb 27 13:17:12 2025]
+Error in rule preprocess:
+    message: SLURM-job '60683261' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 120
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient86.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient86.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient86_preprocessed.tsv
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient86/60683261.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/preprocess.py             --sample Patient86             --snv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient86.vcf             --cnv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient86.tsv             --purity ../inform_data/purity_ploidy_inform.txt             --output output/preprocessed/Patient86_preprocessed.tsv
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683261
+
+Job 73 has been submitted with SLURM jobid 60683360 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient57/60683360.log).
+[Thu Feb 27 13:17:13 2025]
+Finished job 66.
+2 of 71 steps (3%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 126.
+3 of 71 steps (4%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 6.
+4 of 71 steps (6%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 58.
+5 of 71 steps (7%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 110.
+6 of 71 steps (8%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 50.
+7 of 71 steps (10%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 102.
+8 of 71 steps (11%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 42.
+9 of 71 steps (13%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 2.
+10 of 71 steps (14%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 94.
+11 of 71 steps (15%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 34.
+12 of 71 steps (17%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 26.
+13 of 71 steps (18%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 86.
+14 of 71 steps (20%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 18.
+15 of 71 steps (21%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 78.
+16 of 71 steps (23%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 10.
+17 of 71 steps (24%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 130.
+18 of 71 steps (25%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 70.
+19 of 71 steps (27%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 54.
+20 of 71 steps (28%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 114.
+21 of 71 steps (30%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 46.
+22 of 71 steps (31%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 106.
+23 of 71 steps (32%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 38.
+24 of 71 steps (34%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 30.
+25 of 71 steps (35%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 90.
+26 of 71 steps (37%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 82.
+27 of 71 steps (38%) done
+[Thu Feb 27 13:17:13 2025]
+Finished job 22.
+28 of 71 steps (39%) done
+Trying to restart job 100.
+Trying to restart job 61.
+Trying to restart job 121.
+Trying to restart job 16.
+Trying to restart job 120.
+Select jobs to execute...
+Execute 32 jobs...
+
+[Thu Feb 27 13:17:13 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient43_multiplicities.tsv
+    output: output/timing_results/Patient43_timing.tsv, output/timing_plots/Patient43_timing_plot.pdf
+    jobid: 53
+    reason: Missing output files: output/timing_plots/Patient43_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient43_multiplicities.tsv
+    wildcards: sample=Patient43
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 53 has been submitted with SLURM jobid 60683361 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient43/60683361.log).
+
+[Thu Feb 27 13:17:13 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient82_multiplicities.tsv
+    output: output/timing_results/Patient82_timing.tsv, output/timing_plots/Patient82_timing_plot.pdf
+    jobid: 113
+    reason: Missing output files: output/timing_plots/Patient82_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient82_multiplicities.tsv
+    wildcards: sample=Patient82
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 113 has been submitted with SLURM jobid 60683362 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient82/60683362.log).
+
+[Thu Feb 27 13:17:13 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient77.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient77.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient77_preprocessed.tsv
+    jobid: 100
+    reason: Missing output files: output/preprocessed/Patient77_preprocessed.tsv
+    wildcards: sample=Patient77
+    resources: mem_mb=2000, mem_mib=1908, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 100 has been submitted with SLURM jobid 60683363 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient77/60683363.log).
+
+[Thu Feb 27 13:17:14 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient44_multiplicities.tsv
+    output: output/timing_results/Patient44_timing.tsv, output/timing_plots/Patient44_timing_plot.pdf
+    jobid: 57
+    reason: Missing output files: output/timing_plots/Patient44_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient44_multiplicities.tsv
+    wildcards: sample=Patient44
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 57 has been submitted with SLURM jobid 60683364 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient44/60683364.log).
+
+[Thu Feb 27 13:17:14 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient101_multiplicities.tsv
+    output: output/timing_results/Patient101_timing.tsv, output/timing_plots/Patient101_timing_plot.pdf
+    jobid: 1
+    reason: Missing output files: output/timing_plots/Patient101_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient101_multiplicities.tsv
+    wildcards: sample=Patient101
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 1 has been submitted with SLURM jobid 60683365 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient101/60683365.log).
+
+[Thu Feb 27 13:17:14 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient47_multiplicities.tsv
+    output: output/timing_results/Patient47_timing.tsv, output/timing_plots/Patient47_timing_plot.pdf
+    jobid: 61
+    reason: Missing output files: output/timing_plots/Patient47_timing_plot.pdf
+    wildcards: sample=Patient47
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 61 has been submitted with SLURM jobid 60683366 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient47/60683366.log).
+
+[Thu Feb 27 13:17:15 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient87_multiplicities.tsv
+    output: output/timing_results/Patient87_timing.tsv, output/timing_plots/Patient87_timing_plot.pdf
+    jobid: 121
+    reason: Missing output files: output/timing_plots/Patient87_timing_plot.pdf
+    wildcards: sample=Patient87
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 121 has been submitted with SLURM jobid 60683367 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient87/60683367.log).
+
+[Thu Feb 27 13:17:15 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient109_multiplicities.tsv
+    output: output/timing_results/Patient109_timing.tsv, output/timing_plots/Patient109_timing_plot.pdf
+    jobid: 5
+    reason: Missing output files: output/timing_plots/Patient109_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient109_multiplicities.tsv
+    wildcards: sample=Patient109
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 5 has been submitted with SLURM jobid 60683368 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient109/60683368.log).
+
+[Thu Feb 27 13:17:15 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient50_multiplicities.tsv
+    output: output/timing_results/Patient50_timing.tsv, output/timing_plots/Patient50_timing_plot.pdf
+    jobid: 65
+    reason: Missing output files: output/timing_plots/Patient50_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient50_multiplicities.tsv
+    wildcards: sample=Patient50
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 65 has been submitted with SLURM jobid 60683369 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient50/60683369.log).
+
+[Thu Feb 27 13:17:15 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient90_multiplicities.tsv
+    output: output/timing_results/Patient90_timing.tsv, output/timing_plots/Patient90_timing_plot.pdf
+    jobid: 125
+    reason: Missing output files: output/timing_plots/Patient90_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient90_multiplicities.tsv
+    wildcards: sample=Patient90
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 125 has been submitted with SLURM jobid 60683370 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient90/60683370.log).
+
+[Thu Feb 27 13:17:16 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient113_multiplicities.tsv
+    output: output/timing_results/Patient113_timing.tsv, output/timing_plots/Patient113_timing_plot.pdf
+    jobid: 9
+    reason: Missing output files: output/timing_plots/Patient113_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient113_multiplicities.tsv
+    wildcards: sample=Patient113
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 9 has been submitted with SLURM jobid 60683371 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient113/60683371.log).
+
+[Thu Feb 27 13:17:16 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient94_multiplicities.tsv
+    output: output/timing_results/Patient94_timing.tsv, output/timing_plots/Patient94_timing_plot.pdf
+    jobid: 129
+    reason: Missing output files: output/timing_plots/Patient94_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient94_multiplicities.tsv
+    wildcards: sample=Patient94
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 129 has been submitted with SLURM jobid 60683372 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient94/60683372.log).
+
+[Thu Feb 27 13:17:16 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient55_multiplicities.tsv
+    output: output/timing_results/Patient55_timing.tsv, output/timing_plots/Patient55_timing_plot.pdf
+    jobid: 69
+    reason: Missing output files: output/timing_plots/Patient55_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient55_multiplicities.tsv
+    wildcards: sample=Patient55
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 69 has been submitted with SLURM jobid 60683373 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient55/60683373.log).
+
+[Thu Feb 27 13:17:17 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient15_preprocessed.tsv
+    jobid: 16
+    reason: Missing output files: output/preprocessed/Patient15_preprocessed.tsv
+    wildcards: sample=Patient15
+    resources: mem_mb=2000, mem_mib=1908, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 16 has been submitted with SLURM jobid 60683374 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient15/60683374.log).
+
+[Thu Feb 27 13:17:17 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient86.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient86.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient86_preprocessed.tsv
+    jobid: 120
+    reason: Missing output files: output/preprocessed/Patient86_preprocessed.tsv
+    wildcards: sample=Patient86
+    resources: mem_mb=2000, mem_mib=1908, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 120 has been submitted with SLURM jobid 60683375 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient86/60683375.log).
+
+[Thu Feb 27 13:17:17 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient58_multiplicities.tsv
+    output: output/timing_results/Patient58_timing.tsv, output/timing_plots/Patient58_timing_plot.pdf
+    jobid: 77
+    reason: Missing output files: output/timing_plots/Patient58_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient58_multiplicities.tsv
+    wildcards: sample=Patient58
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 77 has been submitted with SLURM jobid 60683376 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient58/60683376.log).
+
+[Thu Feb 27 13:17:17 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient17_multiplicities.tsv
+    output: output/timing_results/Patient17_timing.tsv, output/timing_plots/Patient17_timing_plot.pdf
+    jobid: 17
+    reason: Missing output files: output/timing_plots/Patient17_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient17_multiplicities.tsv
+    wildcards: sample=Patient17
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 17 has been submitted with SLURM jobid 60683377 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient17/60683377.log).
+
+[Thu Feb 27 13:17:18 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient64_multiplicities.tsv
+    output: output/timing_results/Patient64_timing.tsv, output/timing_plots/Patient64_timing_plot.pdf
+    jobid: 81
+    reason: Missing output files: output/timing_plots/Patient64_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient64_multiplicities.tsv
+    wildcards: sample=Patient64
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 81 has been submitted with SLURM jobid 60683378 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient64/60683378.log).
+
+[Thu Feb 27 13:17:18 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient18_multiplicities.tsv
+    output: output/timing_results/Patient18_timing.tsv, output/timing_plots/Patient18_timing_plot.pdf
+    jobid: 21
+    reason: Missing output files: output/timing_plots/Patient18_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient18_multiplicities.tsv
+    wildcards: sample=Patient18
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 21 has been submitted with SLURM jobid 60683379 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient18/60683379.log).
+
+[Thu Feb 27 13:17:18 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient1_multiplicities.tsv
+    output: output/timing_results/Patient1_timing.tsv, output/timing_plots/Patient1_timing_plot.pdf
+    jobid: 25
+    reason: Missing output files: output/timing_plots/Patient1_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient1_multiplicities.tsv
+    wildcards: sample=Patient1
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 25 has been submitted with SLURM jobid 60683380 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient1/60683380.log).
+
+[Thu Feb 27 13:17:18 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient65_multiplicities.tsv
+    output: output/timing_results/Patient65_timing.tsv, output/timing_plots/Patient65_timing_plot.pdf
+    jobid: 85
+    reason: Missing output files: output/timing_plots/Patient65_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient65_multiplicities.tsv
+    wildcards: sample=Patient65
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 85 has been submitted with SLURM jobid 60683381 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient65/60683381.log).
+
+[Thu Feb 27 13:17:19 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient20_multiplicities.tsv
+    output: output/timing_results/Patient20_timing.tsv, output/timing_plots/Patient20_timing_plot.pdf
+    jobid: 29
+    reason: Missing output files: output/timing_plots/Patient20_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient20_multiplicities.tsv
+    wildcards: sample=Patient20
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 29 has been submitted with SLURM jobid 60683382 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient20/60683382.log).
+
+[Thu Feb 27 13:17:19 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient68_multiplicities.tsv
+    output: output/timing_results/Patient68_timing.tsv, output/timing_plots/Patient68_timing_plot.pdf
+    jobid: 89
+    reason: Missing output files: output/timing_plots/Patient68_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient68_multiplicities.tsv
+    wildcards: sample=Patient68
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 89 has been submitted with SLURM jobid 60683383 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient68/60683383.log).
+
+[Thu Feb 27 13:17:19 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient25_multiplicities.tsv
+    output: output/timing_results/Patient25_timing.tsv, output/timing_plots/Patient25_timing_plot.pdf
+    jobid: 33
+    reason: Missing output files: output/timing_plots/Patient25_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient25_multiplicities.tsv
+    wildcards: sample=Patient25
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 33 has been submitted with SLURM jobid 60683384 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient25/60683384.log).
+
+[Thu Feb 27 13:17:19 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient76_multiplicities.tsv
+    output: output/timing_results/Patient76_timing.tsv, output/timing_plots/Patient76_timing_plot.pdf
+    jobid: 93
+    reason: Missing output files: output/timing_plots/Patient76_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient76_multiplicities.tsv
+    wildcards: sample=Patient76
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 93 has been submitted with SLURM jobid 60683385 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient76/60683385.log).
+
+[Thu Feb 27 13:17:20 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient26_multiplicities.tsv
+    output: output/timing_results/Patient26_timing.tsv, output/timing_plots/Patient26_timing_plot.pdf
+    jobid: 37
+    reason: Missing output files: output/timing_plots/Patient26_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient26_multiplicities.tsv
+    wildcards: sample=Patient26
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 37 has been submitted with SLURM jobid 60683386 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient26/60683386.log).
+
+[Thu Feb 27 13:17:20 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient7_multiplicities.tsv
+    output: output/timing_results/Patient7_timing.tsv, output/timing_plots/Patient7_timing_plot.pdf
+    jobid: 101
+    reason: Missing output files: output/timing_plots/Patient7_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient7_multiplicities.tsv
+    wildcards: sample=Patient7
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 101 has been submitted with SLURM jobid 60683387 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient7/60683387.log).
+
+[Thu Feb 27 13:17:20 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient33_multiplicities.tsv
+    output: output/timing_results/Patient33_timing.tsv, output/timing_plots/Patient33_timing_plot.pdf
+    jobid: 41
+    reason: Missing output files: output/timing_plots/Patient33_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient33_multiplicities.tsv
+    wildcards: sample=Patient33
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 41 has been submitted with SLURM jobid 60683388 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient33/60683388.log).
+
+[Thu Feb 27 13:17:20 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient34_multiplicities.tsv
+    output: output/timing_results/Patient34_timing.tsv, output/timing_plots/Patient34_timing_plot.pdf
+    jobid: 45
+    reason: Missing output files: output/timing_plots/Patient34_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient34_multiplicities.tsv
+    wildcards: sample=Patient34
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 45 has been submitted with SLURM jobid 60683389 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient34/60683389.log).
+
+[Thu Feb 27 13:17:21 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient80_multiplicities.tsv
+    output: output/timing_results/Patient80_timing.tsv, output/timing_plots/Patient80_timing_plot.pdf
+    jobid: 105
+    reason: Missing output files: output/timing_plots/Patient80_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient80_multiplicities.tsv
+    wildcards: sample=Patient80
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 105 has been submitted with SLURM jobid 60683390 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient80/60683390.log).
+
+[Thu Feb 27 13:17:21 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient81_multiplicities.tsv
+    output: output/timing_results/Patient81_timing.tsv, output/timing_plots/Patient81_timing_plot.pdf
+    jobid: 109
+    reason: Missing output files: output/timing_plots/Patient81_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient81_multiplicities.tsv
+    wildcards: sample=Patient81
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 109 has been submitted with SLURM jobid 60683391 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient81/60683391.log).
+
+[Thu Feb 27 13:17:21 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient37_multiplicities.tsv
+    output: output/timing_results/Patient37_timing.tsv, output/timing_plots/Patient37_timing_plot.pdf
+    jobid: 49
+    reason: Missing output files: output/timing_plots/Patient37_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient37_multiplicities.tsv
+    wildcards: sample=Patient37
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 49 has been submitted with SLURM jobid 60683392 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient37/60683392.log).
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683360' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 73
+    input: output/multiplicities/Patient57_multiplicities.tsv
+    output: output/timing_results/Patient57_timing.tsv, output/timing_plots/Patient57_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient57/60683360.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient57_multiplicities.tsv             --output_tsv output/timing_results/Patient57_timing.tsv             --output_plot output/timing_plots/Patient57_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683360
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683361' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 53
+    input: output/multiplicities/Patient43_multiplicities.tsv
+    output: output/timing_results/Patient43_timing.tsv, output/timing_plots/Patient43_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient43/60683361.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient43_multiplicities.tsv             --output_tsv output/timing_results/Patient43_timing.tsv             --output_plot output/timing_plots/Patient43_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683361
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683362' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 113
+    input: output/multiplicities/Patient82_multiplicities.tsv
+    output: output/timing_results/Patient82_timing.tsv, output/timing_plots/Patient82_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient82/60683362.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient82_multiplicities.tsv             --output_tsv output/timing_results/Patient82_timing.tsv             --output_plot output/timing_plots/Patient82_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683362
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule preprocess:
+    message: SLURM-job '60683363' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 100
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient77.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient77.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient77_preprocessed.tsv
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient77/60683363.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/preprocess.py             --sample Patient77             --snv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient77.vcf             --cnv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient77.tsv             --purity ../inform_data/purity_ploidy_inform.txt             --output output/preprocessed/Patient77_preprocessed.tsv
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683363
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683364' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 57
+    input: output/multiplicities/Patient44_multiplicities.tsv
+    output: output/timing_results/Patient44_timing.tsv, output/timing_plots/Patient44_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient44/60683364.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient44_multiplicities.tsv             --output_tsv output/timing_results/Patient44_timing.tsv             --output_plot output/timing_plots/Patient44_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683364
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683365' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 1
+    input: output/multiplicities/Patient101_multiplicities.tsv
+    output: output/timing_results/Patient101_timing.tsv, output/timing_plots/Patient101_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient101/60683365.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient101_multiplicities.tsv             --output_tsv output/timing_results/Patient101_timing.tsv             --output_plot output/timing_plots/Patient101_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683365
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683366' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 61
+    input: output/multiplicities/Patient47_multiplicities.tsv
+    output: output/timing_results/Patient47_timing.tsv, output/timing_plots/Patient47_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient47/60683366.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient47_multiplicities.tsv             --output_tsv output/timing_results/Patient47_timing.tsv             --output_plot output/timing_plots/Patient47_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683366
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683367' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 121
+    input: output/multiplicities/Patient87_multiplicities.tsv
+    output: output/timing_results/Patient87_timing.tsv, output/timing_plots/Patient87_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient87/60683367.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient87_multiplicities.tsv             --output_tsv output/timing_results/Patient87_timing.tsv             --output_plot output/timing_plots/Patient87_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683367
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683368' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 5
+    input: output/multiplicities/Patient109_multiplicities.tsv
+    output: output/timing_results/Patient109_timing.tsv, output/timing_plots/Patient109_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient109/60683368.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient109_multiplicities.tsv             --output_tsv output/timing_results/Patient109_timing.tsv             --output_plot output/timing_plots/Patient109_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683368
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683369' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 65
+    input: output/multiplicities/Patient50_multiplicities.tsv
+    output: output/timing_results/Patient50_timing.tsv, output/timing_plots/Patient50_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient50/60683369.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient50_multiplicities.tsv             --output_tsv output/timing_results/Patient50_timing.tsv             --output_plot output/timing_plots/Patient50_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683369
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683370' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 125
+    input: output/multiplicities/Patient90_multiplicities.tsv
+    output: output/timing_results/Patient90_timing.tsv, output/timing_plots/Patient90_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient90/60683370.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient90_multiplicities.tsv             --output_tsv output/timing_results/Patient90_timing.tsv             --output_plot output/timing_plots/Patient90_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683370
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683371' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 9
+    input: output/multiplicities/Patient113_multiplicities.tsv
+    output: output/timing_results/Patient113_timing.tsv, output/timing_plots/Patient113_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient113/60683371.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient113_multiplicities.tsv             --output_tsv output/timing_results/Patient113_timing.tsv             --output_plot output/timing_plots/Patient113_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683371
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683372' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 129
+    input: output/multiplicities/Patient94_multiplicities.tsv
+    output: output/timing_results/Patient94_timing.tsv, output/timing_plots/Patient94_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient94/60683372.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient94_multiplicities.tsv             --output_tsv output/timing_results/Patient94_timing.tsv             --output_plot output/timing_plots/Patient94_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683372
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683373' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 69
+    input: output/multiplicities/Patient55_multiplicities.tsv
+    output: output/timing_results/Patient55_timing.tsv, output/timing_plots/Patient55_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient55/60683373.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient55_multiplicities.tsv             --output_tsv output/timing_results/Patient55_timing.tsv             --output_plot output/timing_plots/Patient55_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683373
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule preprocess:
+    message: SLURM-job '60683374' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 16
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient15_preprocessed.tsv
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient15/60683374.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/preprocess.py             --sample Patient15             --snv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf             --cnv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv             --purity ../inform_data/purity_ploidy_inform.txt             --output output/preprocessed/Patient15_preprocessed.tsv
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683374
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule preprocess:
+    message: SLURM-job '60683375' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 120
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient86.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient86.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient86_preprocessed.tsv
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient86/60683375.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/preprocess.py             --sample Patient86             --snv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient86.vcf             --cnv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient86.tsv             --purity ../inform_data/purity_ploidy_inform.txt             --output output/preprocessed/Patient86_preprocessed.tsv
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683375
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683376' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 77
+    input: output/multiplicities/Patient58_multiplicities.tsv
+    output: output/timing_results/Patient58_timing.tsv, output/timing_plots/Patient58_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient58/60683376.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient58_multiplicities.tsv             --output_tsv output/timing_results/Patient58_timing.tsv             --output_plot output/timing_plots/Patient58_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683376
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683377' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 17
+    input: output/multiplicities/Patient17_multiplicities.tsv
+    output: output/timing_results/Patient17_timing.tsv, output/timing_plots/Patient17_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient17/60683377.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient17_multiplicities.tsv             --output_tsv output/timing_results/Patient17_timing.tsv             --output_plot output/timing_plots/Patient17_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683377
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683378' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 81
+    input: output/multiplicities/Patient64_multiplicities.tsv
+    output: output/timing_results/Patient64_timing.tsv, output/timing_plots/Patient64_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient64/60683378.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient64_multiplicities.tsv             --output_tsv output/timing_results/Patient64_timing.tsv             --output_plot output/timing_plots/Patient64_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683378
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683379' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 21
+    input: output/multiplicities/Patient18_multiplicities.tsv
+    output: output/timing_results/Patient18_timing.tsv, output/timing_plots/Patient18_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient18/60683379.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient18_multiplicities.tsv             --output_tsv output/timing_results/Patient18_timing.tsv             --output_plot output/timing_plots/Patient18_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683379
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683380' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 25
+    input: output/multiplicities/Patient1_multiplicities.tsv
+    output: output/timing_results/Patient1_timing.tsv, output/timing_plots/Patient1_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient1/60683380.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient1_multiplicities.tsv             --output_tsv output/timing_results/Patient1_timing.tsv             --output_plot output/timing_plots/Patient1_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683380
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683381' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 85
+    input: output/multiplicities/Patient65_multiplicities.tsv
+    output: output/timing_results/Patient65_timing.tsv, output/timing_plots/Patient65_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient65/60683381.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient65_multiplicities.tsv             --output_tsv output/timing_results/Patient65_timing.tsv             --output_plot output/timing_plots/Patient65_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683381
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683383' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 89
+    input: output/multiplicities/Patient68_multiplicities.tsv
+    output: output/timing_results/Patient68_timing.tsv, output/timing_plots/Patient68_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient68/60683383.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient68_multiplicities.tsv             --output_tsv output/timing_results/Patient68_timing.tsv             --output_plot output/timing_plots/Patient68_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683383
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683384' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 33
+    input: output/multiplicities/Patient25_multiplicities.tsv
+    output: output/timing_results/Patient25_timing.tsv, output/timing_plots/Patient25_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient25/60683384.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient25_multiplicities.tsv             --output_tsv output/timing_results/Patient25_timing.tsv             --output_plot output/timing_plots/Patient25_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683384
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683385' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 93
+    input: output/multiplicities/Patient76_multiplicities.tsv
+    output: output/timing_results/Patient76_timing.tsv, output/timing_plots/Patient76_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient76/60683385.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient76_multiplicities.tsv             --output_tsv output/timing_results/Patient76_timing.tsv             --output_plot output/timing_plots/Patient76_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683385
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683387' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 101
+    input: output/multiplicities/Patient7_multiplicities.tsv
+    output: output/timing_results/Patient7_timing.tsv, output/timing_plots/Patient7_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient7/60683387.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient7_multiplicities.tsv             --output_tsv output/timing_results/Patient7_timing.tsv             --output_plot output/timing_plots/Patient7_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683387
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683388' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 41
+    input: output/multiplicities/Patient33_multiplicities.tsv
+    output: output/timing_results/Patient33_timing.tsv, output/timing_plots/Patient33_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient33/60683388.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient33_multiplicities.tsv             --output_tsv output/timing_results/Patient33_timing.tsv             --output_plot output/timing_plots/Patient33_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683388
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683389' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 45
+    input: output/multiplicities/Patient34_multiplicities.tsv
+    output: output/timing_results/Patient34_timing.tsv, output/timing_plots/Patient34_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient34/60683389.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient34_multiplicities.tsv             --output_tsv output/timing_results/Patient34_timing.tsv             --output_plot output/timing_plots/Patient34_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683389
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683390' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 105
+    input: output/multiplicities/Patient80_multiplicities.tsv
+    output: output/timing_results/Patient80_timing.tsv, output/timing_plots/Patient80_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient80/60683390.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient80_multiplicities.tsv             --output_tsv output/timing_results/Patient80_timing.tsv             --output_plot output/timing_plots/Patient80_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683390
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683391' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 109
+    input: output/multiplicities/Patient81_multiplicities.tsv
+    output: output/timing_results/Patient81_timing.tsv, output/timing_plots/Patient81_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient81/60683391.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient81_multiplicities.tsv             --output_tsv output/timing_results/Patient81_timing.tsv             --output_plot output/timing_plots/Patient81_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683391
+
+[Thu Feb 27 13:18:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683392' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 49
+    input: output/multiplicities/Patient37_multiplicities.tsv
+    output: output/timing_results/Patient37_timing.tsv, output/timing_plots/Patient37_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient37/60683392.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient37_multiplicities.tsv             --output_tsv output/timing_results/Patient37_timing.tsv             --output_plot output/timing_plots/Patient37_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683392
+
+Trying to restart job 73.
+Trying to restart job 53.
+Trying to restart job 113.
+Trying to restart job 100.
+Trying to restart job 57.
+Trying to restart job 1.
+Trying to restart job 61.
+Trying to restart job 121.
+Trying to restart job 5.
+Trying to restart job 65.
+Trying to restart job 125.
+Trying to restart job 9.
+Trying to restart job 129.
+Trying to restart job 69.
+Trying to restart job 16.
+Trying to restart job 120.
+Trying to restart job 77.
+Trying to restart job 17.
+Trying to restart job 81.
+Trying to restart job 21.
+Trying to restart job 25.
+Trying to restart job 85.
+Trying to restart job 89.
+Trying to restart job 33.
+Trying to restart job 93.
+Trying to restart job 101.
+Trying to restart job 41.
+Trying to restart job 45.
+Trying to restart job 105.
+Trying to restart job 109.
+Trying to restart job 49.
+Select jobs to execute...
+Execute 31 jobs...
+
+[Thu Feb 27 13:18:53 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient82_multiplicities.tsv
+    output: output/timing_results/Patient82_timing.tsv, output/timing_plots/Patient82_timing_plot.pdf
+    jobid: 113
+    reason: Missing output files: output/timing_plots/Patient82_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient82_multiplicities.tsv
+    wildcards: sample=Patient82
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 113 has been submitted with SLURM jobid 60683474 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient82/60683474.log).
+
+[Thu Feb 27 13:18:54 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient43_multiplicities.tsv
+    output: output/timing_results/Patient43_timing.tsv, output/timing_plots/Patient43_timing_plot.pdf
+    jobid: 53
+    reason: Missing output files: output/timing_plots/Patient43_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient43_multiplicities.tsv
+    wildcards: sample=Patient43
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 53 has been submitted with SLURM jobid 60683476 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient43/60683476.log).
+
+[Thu Feb 27 13:18:57 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient77.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient77.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient77_preprocessed.tsv
+    jobid: 100
+    reason: Missing output files: output/preprocessed/Patient77_preprocessed.tsv
+    wildcards: sample=Patient77
+    resources: mem_mb=3000, mem_mib=2862, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 100 has been submitted with SLURM jobid 60683477 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient77/60683477.log).
+
+[Thu Feb 27 13:18:59 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient44_multiplicities.tsv
+    output: output/timing_results/Patient44_timing.tsv, output/timing_plots/Patient44_timing_plot.pdf
+    jobid: 57
+    reason: Missing output files: output/timing_plots/Patient44_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient44_multiplicities.tsv
+    wildcards: sample=Patient44
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 57 has been submitted with SLURM jobid 60683478 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient44/60683478.log).
+
+[Thu Feb 27 13:18:59 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient37_multiplicities.tsv
+    output: output/timing_results/Patient37_timing.tsv, output/timing_plots/Patient37_timing_plot.pdf
+    jobid: 49
+    reason: Missing output files: output/timing_plots/Patient37_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient37_multiplicities.tsv
+    wildcards: sample=Patient37
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 49 has been submitted with SLURM jobid 60683479 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient37/60683479.log).
+
+[Thu Feb 27 13:19:02 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient101_multiplicities.tsv
+    output: output/timing_results/Patient101_timing.tsv, output/timing_plots/Patient101_timing_plot.pdf
+    jobid: 1
+    reason: Missing output files: output/timing_plots/Patient101_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient101_multiplicities.tsv
+    wildcards: sample=Patient101
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 1 has been submitted with SLURM jobid 60683480 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient101/60683480.log).
+
+[Thu Feb 27 13:19:04 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient47_multiplicities.tsv
+    output: output/timing_results/Patient47_timing.tsv, output/timing_plots/Patient47_timing_plot.pdf
+    jobid: 61
+    reason: Missing output files: output/timing_plots/Patient47_timing_plot.pdf
+    wildcards: sample=Patient47
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 61 has been submitted with SLURM jobid 60683481 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient47/60683481.log).
+
+[Thu Feb 27 13:19:04 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient87_multiplicities.tsv
+    output: output/timing_results/Patient87_timing.tsv, output/timing_plots/Patient87_timing_plot.pdf
+    jobid: 121
+    reason: Missing output files: output/timing_plots/Patient87_timing_plot.pdf
+    wildcards: sample=Patient87
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 121 has been submitted with SLURM jobid 60683482 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient87/60683482.log).
+
+[Thu Feb 27 13:19:07 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient90_multiplicities.tsv
+    output: output/timing_results/Patient90_timing.tsv, output/timing_plots/Patient90_timing_plot.pdf
+    jobid: 125
+    reason: Missing output files: output/timing_plots/Patient90_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient90_multiplicities.tsv
+    wildcards: sample=Patient90
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 125 has been submitted with SLURM jobid 60683483 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient90/60683483.log).
+
+[Thu Feb 27 13:19:09 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient109_multiplicities.tsv
+    output: output/timing_results/Patient109_timing.tsv, output/timing_plots/Patient109_timing_plot.pdf
+    jobid: 5
+    reason: Missing output files: output/timing_plots/Patient109_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient109_multiplicities.tsv
+    wildcards: sample=Patient109
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 5 has been submitted with SLURM jobid 60683484 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient109/60683484.log).
+
+[Thu Feb 27 13:19:09 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient50_multiplicities.tsv
+    output: output/timing_results/Patient50_timing.tsv, output/timing_plots/Patient50_timing_plot.pdf
+    jobid: 65
+    reason: Missing output files: output/timing_plots/Patient50_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient50_multiplicities.tsv
+    wildcards: sample=Patient50
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 65 has been submitted with SLURM jobid 60683485 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient50/60683485.log).
+
+[Thu Feb 27 13:19:10 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient113_multiplicities.tsv
+    output: output/timing_results/Patient113_timing.tsv, output/timing_plots/Patient113_timing_plot.pdf
+    jobid: 9
+    reason: Missing output files: output/timing_plots/Patient113_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient113_multiplicities.tsv
+    wildcards: sample=Patient113
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 9 has been submitted with SLURM jobid 60683486 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient113/60683486.log).
+
+[Thu Feb 27 13:19:10 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient94_multiplicities.tsv
+    output: output/timing_results/Patient94_timing.tsv, output/timing_plots/Patient94_timing_plot.pdf
+    jobid: 129
+    reason: Missing output files: output/timing_plots/Patient94_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient94_multiplicities.tsv
+    wildcards: sample=Patient94
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 129 has been submitted with SLURM jobid 60683487 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient94/60683487.log).
+
+[Thu Feb 27 13:19:10 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient55_multiplicities.tsv
+    output: output/timing_results/Patient55_timing.tsv, output/timing_plots/Patient55_timing_plot.pdf
+    jobid: 69
+    reason: Missing output files: output/timing_plots/Patient55_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient55_multiplicities.tsv
+    wildcards: sample=Patient55
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 69 has been submitted with SLURM jobid 60683488 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient55/60683488.log).
+
+[Thu Feb 27 13:19:11 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient15_preprocessed.tsv
+    jobid: 16
+    reason: Missing output files: output/preprocessed/Patient15_preprocessed.tsv
+    wildcards: sample=Patient15
+    resources: mem_mb=3000, mem_mib=2862, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 16 has been submitted with SLURM jobid 60683489 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient15/60683489.log).
+
+[Thu Feb 27 13:19:11 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient57_multiplicities.tsv
+    output: output/timing_results/Patient57_timing.tsv, output/timing_plots/Patient57_timing_plot.pdf
+    jobid: 73
+    reason: Missing output files: output/timing_plots/Patient57_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient57_multiplicities.tsv
+    wildcards: sample=Patient57
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 73 has been submitted with SLURM jobid 60683490 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient57/60683490.log).
+
+[Thu Feb 27 13:19:11 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient86.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient86.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient86_preprocessed.tsv
+    jobid: 120
+    reason: Missing output files: output/preprocessed/Patient86_preprocessed.tsv
+    wildcards: sample=Patient86
+    resources: mem_mb=3000, mem_mib=2862, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 120 has been submitted with SLURM jobid 60683491 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient86/60683491.log).
+
+[Thu Feb 27 13:19:12 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient58_multiplicities.tsv
+    output: output/timing_results/Patient58_timing.tsv, output/timing_plots/Patient58_timing_plot.pdf
+    jobid: 77
+    reason: Missing output files: output/timing_plots/Patient58_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient58_multiplicities.tsv
+    wildcards: sample=Patient58
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 77 has been submitted with SLURM jobid 60683492 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient58/60683492.log).
+
+[Thu Feb 27 13:19:12 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient17_multiplicities.tsv
+    output: output/timing_results/Patient17_timing.tsv, output/timing_plots/Patient17_timing_plot.pdf
+    jobid: 17
+    reason: Missing output files: output/timing_plots/Patient17_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient17_multiplicities.tsv
+    wildcards: sample=Patient17
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 17 has been submitted with SLURM jobid 60683500 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient17/60683500.log).
+
+[Thu Feb 27 13:19:13 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient64_multiplicities.tsv
+    output: output/timing_results/Patient64_timing.tsv, output/timing_plots/Patient64_timing_plot.pdf
+    jobid: 81
+    reason: Missing output files: output/timing_plots/Patient64_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient64_multiplicities.tsv
+    wildcards: sample=Patient64
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 81 has been submitted with SLURM jobid 60683501 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient64/60683501.log).
+
+[Thu Feb 27 13:19:13 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient18_multiplicities.tsv
+    output: output/timing_results/Patient18_timing.tsv, output/timing_plots/Patient18_timing_plot.pdf
+    jobid: 21
+    reason: Missing output files: output/timing_plots/Patient18_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient18_multiplicities.tsv
+    wildcards: sample=Patient18
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 21 has been submitted with SLURM jobid 60683502 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient18/60683502.log).
+
+[Thu Feb 27 13:19:13 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient1_multiplicities.tsv
+    output: output/timing_results/Patient1_timing.tsv, output/timing_plots/Patient1_timing_plot.pdf
+    jobid: 25
+    reason: Missing output files: output/timing_plots/Patient1_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient1_multiplicities.tsv
+    wildcards: sample=Patient1
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 25 has been submitted with SLURM jobid 60683503 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient1/60683503.log).
+
+[Thu Feb 27 13:19:13 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient65_multiplicities.tsv
+    output: output/timing_results/Patient65_timing.tsv, output/timing_plots/Patient65_timing_plot.pdf
+    jobid: 85
+    reason: Missing output files: output/timing_plots/Patient65_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient65_multiplicities.tsv
+    wildcards: sample=Patient65
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 85 has been submitted with SLURM jobid 60683504 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient65/60683504.log).
+
+[Thu Feb 27 13:19:14 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient68_multiplicities.tsv
+    output: output/timing_results/Patient68_timing.tsv, output/timing_plots/Patient68_timing_plot.pdf
+    jobid: 89
+    reason: Missing output files: output/timing_plots/Patient68_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient68_multiplicities.tsv
+    wildcards: sample=Patient68
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 89 has been submitted with SLURM jobid 60683505 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient68/60683505.log).
+
+[Thu Feb 27 13:19:14 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient25_multiplicities.tsv
+    output: output/timing_results/Patient25_timing.tsv, output/timing_plots/Patient25_timing_plot.pdf
+    jobid: 33
+    reason: Missing output files: output/timing_plots/Patient25_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient25_multiplicities.tsv
+    wildcards: sample=Patient25
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 33 has been submitted with SLURM jobid 60683506 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient25/60683506.log).
+
+[Thu Feb 27 13:19:14 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient76_multiplicities.tsv
+    output: output/timing_results/Patient76_timing.tsv, output/timing_plots/Patient76_timing_plot.pdf
+    jobid: 93
+    reason: Missing output files: output/timing_plots/Patient76_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient76_multiplicities.tsv
+    wildcards: sample=Patient76
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 93 has been submitted with SLURM jobid 60683507 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient76/60683507.log).
+
+[Thu Feb 27 13:19:14 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient7_multiplicities.tsv
+    output: output/timing_results/Patient7_timing.tsv, output/timing_plots/Patient7_timing_plot.pdf
+    jobid: 101
+    reason: Missing output files: output/timing_plots/Patient7_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient7_multiplicities.tsv
+    wildcards: sample=Patient7
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 101 has been submitted with SLURM jobid 60683508 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient7/60683508.log).
+
+[Thu Feb 27 13:19:15 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient33_multiplicities.tsv
+    output: output/timing_results/Patient33_timing.tsv, output/timing_plots/Patient33_timing_plot.pdf
+    jobid: 41
+    reason: Missing output files: output/timing_plots/Patient33_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient33_multiplicities.tsv
+    wildcards: sample=Patient33
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 41 has been submitted with SLURM jobid 60683509 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient33/60683509.log).
+
+[Thu Feb 27 13:19:15 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient34_multiplicities.tsv
+    output: output/timing_results/Patient34_timing.tsv, output/timing_plots/Patient34_timing_plot.pdf
+    jobid: 45
+    reason: Missing output files: output/timing_plots/Patient34_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient34_multiplicities.tsv
+    wildcards: sample=Patient34
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 45 has been submitted with SLURM jobid 60683510 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient34/60683510.log).
+
+[Thu Feb 27 13:19:15 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient80_multiplicities.tsv
+    output: output/timing_results/Patient80_timing.tsv, output/timing_plots/Patient80_timing_plot.pdf
+    jobid: 105
+    reason: Missing output files: output/timing_plots/Patient80_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient80_multiplicities.tsv
+    wildcards: sample=Patient80
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 105 has been submitted with SLURM jobid 60683511 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient80/60683511.log).
+
+[Thu Feb 27 13:19:15 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient81_multiplicities.tsv
+    output: output/timing_results/Patient81_timing.tsv, output/timing_plots/Patient81_timing_plot.pdf
+    jobid: 109
+    reason: Missing output files: output/timing_plots/Patient81_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient81_multiplicities.tsv
+    wildcards: sample=Patient81
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 109 has been submitted with SLURM jobid 60683512 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient81/60683512.log).
+[Thu Feb 27 13:19:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683386' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 37
+    input: output/multiplicities/Patient26_multiplicities.tsv
+    output: output/timing_results/Patient26_timing.tsv, output/timing_plots/Patient26_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient26/60683386.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient26_multiplicities.tsv             --output_tsv output/timing_results/Patient26_timing.tsv             --output_plot output/timing_plots/Patient26_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683386
+
+Trying to restart job 37.
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:19:43 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient26_multiplicities.tsv
+    output: output/timing_results/Patient26_timing.tsv, output/timing_plots/Patient26_timing_plot.pdf
+    jobid: 37
+    reason: Missing output files: output/timing_plots/Patient26_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient26_multiplicities.tsv
+    wildcards: sample=Patient26
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 37 has been submitted with SLURM jobid 60683513 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient26/60683513.log).
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683382' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 29
+    input: output/multiplicities/Patient20_multiplicities.tsv
+    output: output/timing_results/Patient20_timing.tsv, output/timing_plots/Patient20_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient20/60683382.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient20_multiplicities.tsv             --output_tsv output/timing_results/Patient20_timing.tsv             --output_plot output/timing_plots/Patient20_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683382
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683474' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 113
+    input: output/multiplicities/Patient82_multiplicities.tsv
+    output: output/timing_results/Patient82_timing.tsv, output/timing_plots/Patient82_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient82/60683474.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient82_multiplicities.tsv             --output_tsv output/timing_results/Patient82_timing.tsv             --output_plot output/timing_plots/Patient82_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683474
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683476' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 53
+    input: output/multiplicities/Patient43_multiplicities.tsv
+    output: output/timing_results/Patient43_timing.tsv, output/timing_plots/Patient43_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient43/60683476.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient43_multiplicities.tsv             --output_tsv output/timing_results/Patient43_timing.tsv             --output_plot output/timing_plots/Patient43_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683476
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule preprocess:
+    message: SLURM-job '60683477' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 100
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient77.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient77.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient77_preprocessed.tsv
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient77/60683477.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/preprocess.py             --sample Patient77             --snv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient77.vcf             --cnv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient77.tsv             --purity ../inform_data/purity_ploidy_inform.txt             --output output/preprocessed/Patient77_preprocessed.tsv
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683477
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683478' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 57
+    input: output/multiplicities/Patient44_multiplicities.tsv
+    output: output/timing_results/Patient44_timing.tsv, output/timing_plots/Patient44_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient44/60683478.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient44_multiplicities.tsv             --output_tsv output/timing_results/Patient44_timing.tsv             --output_plot output/timing_plots/Patient44_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683478
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683479' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 49
+    input: output/multiplicities/Patient37_multiplicities.tsv
+    output: output/timing_results/Patient37_timing.tsv, output/timing_plots/Patient37_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient37/60683479.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient37_multiplicities.tsv             --output_tsv output/timing_results/Patient37_timing.tsv             --output_plot output/timing_plots/Patient37_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683479
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683480' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 1
+    input: output/multiplicities/Patient101_multiplicities.tsv
+    output: output/timing_results/Patient101_timing.tsv, output/timing_plots/Patient101_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient101/60683480.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient101_multiplicities.tsv             --output_tsv output/timing_results/Patient101_timing.tsv             --output_plot output/timing_plots/Patient101_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683480
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683481' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 61
+    input: output/multiplicities/Patient47_multiplicities.tsv
+    output: output/timing_results/Patient47_timing.tsv, output/timing_plots/Patient47_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient47/60683481.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient47_multiplicities.tsv             --output_tsv output/timing_results/Patient47_timing.tsv             --output_plot output/timing_plots/Patient47_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683481
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683482' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 121
+    input: output/multiplicities/Patient87_multiplicities.tsv
+    output: output/timing_results/Patient87_timing.tsv, output/timing_plots/Patient87_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient87/60683482.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient87_multiplicities.tsv             --output_tsv output/timing_results/Patient87_timing.tsv             --output_plot output/timing_plots/Patient87_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683482
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683483' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 125
+    input: output/multiplicities/Patient90_multiplicities.tsv
+    output: output/timing_results/Patient90_timing.tsv, output/timing_plots/Patient90_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient90/60683483.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient90_multiplicities.tsv             --output_tsv output/timing_results/Patient90_timing.tsv             --output_plot output/timing_plots/Patient90_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683483
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683484' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 5
+    input: output/multiplicities/Patient109_multiplicities.tsv
+    output: output/timing_results/Patient109_timing.tsv, output/timing_plots/Patient109_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient109/60683484.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient109_multiplicities.tsv             --output_tsv output/timing_results/Patient109_timing.tsv             --output_plot output/timing_plots/Patient109_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683484
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683485' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 65
+    input: output/multiplicities/Patient50_multiplicities.tsv
+    output: output/timing_results/Patient50_timing.tsv, output/timing_plots/Patient50_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient50/60683485.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient50_multiplicities.tsv             --output_tsv output/timing_results/Patient50_timing.tsv             --output_plot output/timing_plots/Patient50_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683485
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683486' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 9
+    input: output/multiplicities/Patient113_multiplicities.tsv
+    output: output/timing_results/Patient113_timing.tsv, output/timing_plots/Patient113_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient113/60683486.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient113_multiplicities.tsv             --output_tsv output/timing_results/Patient113_timing.tsv             --output_plot output/timing_plots/Patient113_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683486
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683487' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 129
+    input: output/multiplicities/Patient94_multiplicities.tsv
+    output: output/timing_results/Patient94_timing.tsv, output/timing_plots/Patient94_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient94/60683487.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient94_multiplicities.tsv             --output_tsv output/timing_results/Patient94_timing.tsv             --output_plot output/timing_plots/Patient94_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683487
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683488' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 69
+    input: output/multiplicities/Patient55_multiplicities.tsv
+    output: output/timing_results/Patient55_timing.tsv, output/timing_plots/Patient55_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient55/60683488.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient55_multiplicities.tsv             --output_tsv output/timing_results/Patient55_timing.tsv             --output_plot output/timing_plots/Patient55_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683488
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule preprocess:
+    message: SLURM-job '60683489' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 16
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient15_preprocessed.tsv
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient15/60683489.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/preprocess.py             --sample Patient15             --snv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf             --cnv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv             --purity ../inform_data/purity_ploidy_inform.txt             --output output/preprocessed/Patient15_preprocessed.tsv
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683489
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683490' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 73
+    input: output/multiplicities/Patient57_multiplicities.tsv
+    output: output/timing_results/Patient57_timing.tsv, output/timing_plots/Patient57_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient57/60683490.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient57_multiplicities.tsv             --output_tsv output/timing_results/Patient57_timing.tsv             --output_plot output/timing_plots/Patient57_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683490
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule preprocess:
+    message: SLURM-job '60683491' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 120
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient86.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient86.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient86_preprocessed.tsv
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient86/60683491.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/preprocess.py             --sample Patient86             --snv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient86.vcf             --cnv /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient86.tsv             --purity ../inform_data/purity_ploidy_inform.txt             --output output/preprocessed/Patient86_preprocessed.tsv
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683491
+
+[Thu Feb 27 13:20:43 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683492' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 77
+    input: output/multiplicities/Patient58_multiplicities.tsv
+    output: output/timing_results/Patient58_timing.tsv, output/timing_plots/Patient58_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient58/60683492.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient58_multiplicities.tsv             --output_tsv output/timing_results/Patient58_timing.tsv             --output_plot output/timing_plots/Patient58_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683492
+
+Trying to restart job 29.
+Trying to restart job 113.
+Trying to restart job 53.
+Trying to restart job 100.
+Trying to restart job 57.
+Trying to restart job 49.
+Trying to restart job 1.
+Trying to restart job 61.
+Trying to restart job 121.
+Trying to restart job 125.
+Trying to restart job 5.
+Trying to restart job 65.
+Trying to restart job 9.
+Trying to restart job 129.
+Trying to restart job 69.
+Trying to restart job 16.
+Trying to restart job 73.
+Trying to restart job 120.
+Trying to restart job 77.
+Select jobs to execute...
+Execute 19 jobs...
+
+[Thu Feb 27 13:20:44 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient82_multiplicities.tsv
+    output: output/timing_results/Patient82_timing.tsv, output/timing_plots/Patient82_timing_plot.pdf
+    jobid: 113
+    reason: Missing output files: output/timing_plots/Patient82_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient82_multiplicities.tsv
+    wildcards: sample=Patient82
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 113 has been submitted with SLURM jobid 60683519 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient82/60683519.log).
+
+[Thu Feb 27 13:20:54 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient43_multiplicities.tsv
+    output: output/timing_results/Patient43_timing.tsv, output/timing_plots/Patient43_timing_plot.pdf
+    jobid: 53
+    reason: Missing output files: output/timing_plots/Patient43_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient43_multiplicities.tsv
+    wildcards: sample=Patient43
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 53 has been submitted with SLURM jobid 60683520 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient43/60683520.log).
+
+[Thu Feb 27 13:20:55 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient77.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient77.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient77_preprocessed.tsv
+    jobid: 100
+    reason: Missing output files: output/preprocessed/Patient77_preprocessed.tsv
+    wildcards: sample=Patient77
+    resources: mem_mb=4000, mem_mib=3815, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 100 has been submitted with SLURM jobid 60683521 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient77/60683521.log).
+
+[Thu Feb 27 13:20:55 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient44_multiplicities.tsv
+    output: output/timing_results/Patient44_timing.tsv, output/timing_plots/Patient44_timing_plot.pdf
+    jobid: 57
+    reason: Missing output files: output/timing_plots/Patient44_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient44_multiplicities.tsv
+    wildcards: sample=Patient44
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 57 has been submitted with SLURM jobid 60683522 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient44/60683522.log).
+
+[Thu Feb 27 13:20:55 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient101_multiplicities.tsv
+    output: output/timing_results/Patient101_timing.tsv, output/timing_plots/Patient101_timing_plot.pdf
+    jobid: 1
+    reason: Missing output files: output/timing_plots/Patient101_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient101_multiplicities.tsv
+    wildcards: sample=Patient101
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 1 has been submitted with SLURM jobid 60683523 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient101/60683523.log).
+
+[Thu Feb 27 13:20:55 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient47_multiplicities.tsv
+    output: output/timing_results/Patient47_timing.tsv, output/timing_plots/Patient47_timing_plot.pdf
+    jobid: 61
+    reason: Missing output files: output/timing_plots/Patient47_timing_plot.pdf
+    wildcards: sample=Patient47
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 61 has been submitted with SLURM jobid 60683524 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient47/60683524.log).
+
+[Thu Feb 27 13:20:56 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient87_multiplicities.tsv
+    output: output/timing_results/Patient87_timing.tsv, output/timing_plots/Patient87_timing_plot.pdf
+    jobid: 121
+    reason: Missing output files: output/timing_plots/Patient87_timing_plot.pdf
+    wildcards: sample=Patient87
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 121 has been submitted with SLURM jobid 60683525 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient87/60683525.log).
+
+[Thu Feb 27 13:20:56 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient50_multiplicities.tsv
+    output: output/timing_results/Patient50_timing.tsv, output/timing_plots/Patient50_timing_plot.pdf
+    jobid: 65
+    reason: Missing output files: output/timing_plots/Patient50_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient50_multiplicities.tsv
+    wildcards: sample=Patient50
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 65 has been submitted with SLURM jobid 60683526 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient50/60683526.log).
+
+[Thu Feb 27 13:20:56 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient90_multiplicities.tsv
+    output: output/timing_results/Patient90_timing.tsv, output/timing_plots/Patient90_timing_plot.pdf
+    jobid: 125
+    reason: Missing output files: output/timing_plots/Patient90_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient90_multiplicities.tsv
+    wildcards: sample=Patient90
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 125 has been submitted with SLURM jobid 60683527 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient90/60683527.log).
+
+[Thu Feb 27 13:20:56 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient109_multiplicities.tsv
+    output: output/timing_results/Patient109_timing.tsv, output/timing_plots/Patient109_timing_plot.pdf
+    jobid: 5
+    reason: Missing output files: output/timing_plots/Patient109_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient109_multiplicities.tsv
+    wildcards: sample=Patient109
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 5 has been submitted with SLURM jobid 60683528 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient109/60683528.log).
+
+[Thu Feb 27 13:20:57 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient113_multiplicities.tsv
+    output: output/timing_results/Patient113_timing.tsv, output/timing_plots/Patient113_timing_plot.pdf
+    jobid: 9
+    reason: Missing output files: output/timing_plots/Patient113_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient113_multiplicities.tsv
+    wildcards: sample=Patient113
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 9 has been submitted with SLURM jobid 60683529 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient113/60683529.log).
+
+[Thu Feb 27 13:20:57 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient94_multiplicities.tsv
+    output: output/timing_results/Patient94_timing.tsv, output/timing_plots/Patient94_timing_plot.pdf
+    jobid: 129
+    reason: Missing output files: output/timing_plots/Patient94_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient94_multiplicities.tsv
+    wildcards: sample=Patient94
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 129 has been submitted with SLURM jobid 60683530 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient94/60683530.log).
+
+[Thu Feb 27 13:20:57 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient55_multiplicities.tsv
+    output: output/timing_results/Patient55_timing.tsv, output/timing_plots/Patient55_timing_plot.pdf
+    jobid: 69
+    reason: Missing output files: output/timing_plots/Patient55_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient55_multiplicities.tsv
+    wildcards: sample=Patient55
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 69 has been submitted with SLURM jobid 60683531 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient55/60683531.log).
+
+[Thu Feb 27 13:20:57 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient15_preprocessed.tsv
+    jobid: 16
+    reason: Missing output files: output/preprocessed/Patient15_preprocessed.tsv
+    wildcards: sample=Patient15
+    resources: mem_mb=4000, mem_mib=3815, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 16 has been submitted with SLURM jobid 60683532 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient15/60683532.log).
+
+[Thu Feb 27 13:20:58 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient57_multiplicities.tsv
+    output: output/timing_results/Patient57_timing.tsv, output/timing_plots/Patient57_timing_plot.pdf
+    jobid: 73
+    reason: Missing output files: output/timing_plots/Patient57_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient57_multiplicities.tsv
+    wildcards: sample=Patient57
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 73 has been submitted with SLURM jobid 60683533 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient57/60683533.log).
+
+[Thu Feb 27 13:20:58 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient86.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient86.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient86_preprocessed.tsv
+    jobid: 120
+    reason: Missing output files: output/preprocessed/Patient86_preprocessed.tsv
+    wildcards: sample=Patient86
+    resources: mem_mb=4000, mem_mib=3815, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Job 120 has been submitted with SLURM jobid 60683534 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_preprocess/Patient86/60683534.log).
+
+[Thu Feb 27 13:20:58 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient58_multiplicities.tsv
+    output: output/timing_results/Patient58_timing.tsv, output/timing_plots/Patient58_timing_plot.pdf
+    jobid: 77
+    reason: Missing output files: output/timing_plots/Patient58_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient58_multiplicities.tsv
+    wildcards: sample=Patient58
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 77 has been submitted with SLURM jobid 60683535 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient58/60683535.log).
+
+[Thu Feb 27 13:20:58 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient20_multiplicities.tsv
+    output: output/timing_results/Patient20_timing.tsv, output/timing_plots/Patient20_timing_plot.pdf
+    jobid: 29
+    reason: Missing output files: output/timing_plots/Patient20_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient20_multiplicities.tsv
+    wildcards: sample=Patient20
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 29 has been submitted with SLURM jobid 60683536 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient20/60683536.log).
+
+[Thu Feb 27 13:20:59 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient37_multiplicities.tsv
+    output: output/timing_results/Patient37_timing.tsv, output/timing_plots/Patient37_timing_plot.pdf
+    jobid: 49
+    reason: Missing output files: output/timing_plots/Patient37_timing_plot.pdf; Input files updated by another job: output/multiplicities/Patient37_multiplicities.tsv
+    wildcards: sample=Patient37
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Job 49 has been submitted with SLURM jobid 60683537 (log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient37/60683537.log).
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683501' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 81
+    input: output/multiplicities/Patient64_multiplicities.tsv
+    output: output/timing_results/Patient64_timing.tsv, output/timing_plots/Patient64_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient64/60683501.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient64_multiplicities.tsv             --output_tsv output/timing_results/Patient64_timing.tsv             --output_plot output/timing_plots/Patient64_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683501
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683503' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 25
+    input: output/multiplicities/Patient1_multiplicities.tsv
+    output: output/timing_results/Patient1_timing.tsv, output/timing_plots/Patient1_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient1/60683503.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient1_multiplicities.tsv             --output_tsv output/timing_results/Patient1_timing.tsv             --output_plot output/timing_plots/Patient1_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683503
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683504' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 85
+    input: output/multiplicities/Patient65_multiplicities.tsv
+    output: output/timing_results/Patient65_timing.tsv, output/timing_plots/Patient65_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient65/60683504.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient65_multiplicities.tsv             --output_tsv output/timing_results/Patient65_timing.tsv             --output_plot output/timing_plots/Patient65_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683504
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683505' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 89
+    input: output/multiplicities/Patient68_multiplicities.tsv
+    output: output/timing_results/Patient68_timing.tsv, output/timing_plots/Patient68_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient68/60683505.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient68_multiplicities.tsv             --output_tsv output/timing_results/Patient68_timing.tsv             --output_plot output/timing_plots/Patient68_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683505
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683507' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 93
+    input: output/multiplicities/Patient76_multiplicities.tsv
+    output: output/timing_results/Patient76_timing.tsv, output/timing_plots/Patient76_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient76/60683507.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient76_multiplicities.tsv             --output_tsv output/timing_results/Patient76_timing.tsv             --output_plot output/timing_plots/Patient76_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683507
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683508' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 101
+    input: output/multiplicities/Patient7_multiplicities.tsv
+    output: output/timing_results/Patient7_timing.tsv, output/timing_plots/Patient7_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient7/60683508.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient7_multiplicities.tsv             --output_tsv output/timing_results/Patient7_timing.tsv             --output_plot output/timing_plots/Patient7_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683508
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683511' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 105
+    input: output/multiplicities/Patient80_multiplicities.tsv
+    output: output/timing_results/Patient80_timing.tsv, output/timing_plots/Patient80_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient80/60683511.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient80_multiplicities.tsv             --output_tsv output/timing_results/Patient80_timing.tsv             --output_plot output/timing_plots/Patient80_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683511
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683512' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 109
+    input: output/multiplicities/Patient81_multiplicities.tsv
+    output: output/timing_results/Patient81_timing.tsv, output/timing_plots/Patient81_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient81/60683512.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient81_multiplicities.tsv             --output_tsv output/timing_results/Patient81_timing.tsv             --output_plot output/timing_plots/Patient81_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683512
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683522' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 57
+    input: output/multiplicities/Patient44_multiplicities.tsv
+    output: output/timing_results/Patient44_timing.tsv, output/timing_plots/Patient44_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient44/60683522.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient44_multiplicities.tsv             --output_tsv output/timing_results/Patient44_timing.tsv             --output_plot output/timing_plots/Patient44_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683522
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683524' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 61
+    input: output/multiplicities/Patient47_multiplicities.tsv
+    output: output/timing_results/Patient47_timing.tsv, output/timing_plots/Patient47_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient47/60683524.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient47_multiplicities.tsv             --output_tsv output/timing_results/Patient47_timing.tsv             --output_plot output/timing_plots/Patient47_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683524
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683525' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 121
+    input: output/multiplicities/Patient87_multiplicities.tsv
+    output: output/timing_results/Patient87_timing.tsv, output/timing_plots/Patient87_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient87/60683525.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient87_multiplicities.tsv             --output_tsv output/timing_results/Patient87_timing.tsv             --output_plot output/timing_plots/Patient87_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683525
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683526' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 65
+    input: output/multiplicities/Patient50_multiplicities.tsv
+    output: output/timing_results/Patient50_timing.tsv, output/timing_plots/Patient50_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient50/60683526.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient50_multiplicities.tsv             --output_tsv output/timing_results/Patient50_timing.tsv             --output_plot output/timing_plots/Patient50_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683526
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683527' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 125
+    input: output/multiplicities/Patient90_multiplicities.tsv
+    output: output/timing_results/Patient90_timing.tsv, output/timing_plots/Patient90_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient90/60683527.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient90_multiplicities.tsv             --output_tsv output/timing_results/Patient90_timing.tsv             --output_plot output/timing_plots/Patient90_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683527
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683528' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 5
+    input: output/multiplicities/Patient109_multiplicities.tsv
+    output: output/timing_results/Patient109_timing.tsv, output/timing_plots/Patient109_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient109/60683528.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient109_multiplicities.tsv             --output_tsv output/timing_results/Patient109_timing.tsv             --output_plot output/timing_plots/Patient109_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683528
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683529' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 9
+    input: output/multiplicities/Patient113_multiplicities.tsv
+    output: output/timing_results/Patient113_timing.tsv, output/timing_plots/Patient113_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient113/60683529.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient113_multiplicities.tsv             --output_tsv output/timing_results/Patient113_timing.tsv             --output_plot output/timing_plots/Patient113_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683529
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683530' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 129
+    input: output/multiplicities/Patient94_multiplicities.tsv
+    output: output/timing_results/Patient94_timing.tsv, output/timing_plots/Patient94_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient94/60683530.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient94_multiplicities.tsv             --output_tsv output/timing_results/Patient94_timing.tsv             --output_plot output/timing_plots/Patient94_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683530
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683531' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 69
+    input: output/multiplicities/Patient55_multiplicities.tsv
+    output: output/timing_results/Patient55_timing.tsv, output/timing_plots/Patient55_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient55/60683531.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient55_multiplicities.tsv             --output_tsv output/timing_results/Patient55_timing.tsv             --output_plot output/timing_plots/Patient55_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683531
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683533' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 73
+    input: output/multiplicities/Patient57_multiplicities.tsv
+    output: output/timing_results/Patient57_timing.tsv, output/timing_plots/Patient57_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient57/60683533.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient57_multiplicities.tsv             --output_tsv output/timing_results/Patient57_timing.tsv             --output_plot output/timing_plots/Patient57_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683533
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683535' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 77
+    input: output/multiplicities/Patient58_multiplicities.tsv
+    output: output/timing_results/Patient58_timing.tsv, output/timing_plots/Patient58_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient58/60683535.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient58_multiplicities.tsv             --output_tsv output/timing_results/Patient58_timing.tsv             --output_plot output/timing_plots/Patient58_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683535
+
+[Thu Feb 27 13:21:53 2025]
+Error in rule estimate_timing:
+    message: SLURM-job '60683537' failed, SLURM status is: 'FAILED'. For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 49
+    input: output/multiplicities/Patient37_multiplicities.tsv
+    output: output/timing_results/Patient37_timing.tsv, output/timing_plots/Patient37_timing_plot.pdf
+    log: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/.snakemake/slurm_logs/rule_estimate_timing/Patient37/60683537.log (check log file(s) for error details)
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient37_multiplicities.tsv             --output_tsv output/timing_results/Patient37_timing.tsv             --output_plot output/timing_plots/Patient37_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    external_jobid: 60683537
+
+Trying to restart job 81.
+Trying to restart job 25.
+Trying to restart job 85.
+Trying to restart job 89.
+Trying to restart job 93.
+Trying to restart job 101.
+Trying to restart job 105.
+Trying to restart job 109.
+Trying to restart job 57.
+Trying to restart job 65.
+Trying to restart job 125.
+Trying to restart job 5.
+Trying to restart job 9.
+Trying to restart job 129.
+Trying to restart job 69.
+Trying to restart job 73.
+Trying to restart job 77.
+Trying to restart job 49.
+slurmstepd: error: *** JOB 60683226 ON compute-p-17-174 CANCELLED AT 2025-02-27T13:23:12 ***

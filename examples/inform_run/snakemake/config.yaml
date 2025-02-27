@@ -1,6 +1,7 @@
 #input_meta: input.tsv
 input_meta: input.tsv
-purity_file: consensus.20170217.purity.ploidy.txt 
-exposure_file: MuSiCal_assignment_PCAWG.txt 
-signature_file: COSMIC_v3p2_SBS_WGS_MuSiCal.csv
-sig_ref_genome: /n/data1/hms/dbmi/park/jbrew/ref/hg19_decoy/human_g1k_v37_decoy.fasta
+purity_file: ../inform_data/purity_ploidy_inform.txt 
+exposure_file: ../inform_data/all_exposures_aligned_0.01_0.05_0.05_0.001_0.001_0.001_0.001_0.001_sub0.005.txt 
+exposure_sample_column: sample
+signature_file: ../inform_data/COSMIC_v3p2_SBS_WGS_MuSiCal.csv 
+sig_ref_genome: /n/data1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta 

@@ -1,0 +1,90 @@
+host: compute-a-16-164.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Conda environments: ignored
+Job stats:
+job                                count
+-------------------------------  -------
+all                                    1
+calculate_clonal_multiplicities        1
+calculate_likelihoods                  1
+normalize                              1
+revise                                 1
+total                                  5
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 13 16:18:31 2025]
+localrule revise:
+    input: output/categorize/0009b464-b376-4fbc-8a56-da538269a02f_categorize.txt
+    output: output/revise/0009b464-b376-4fbc-8a56-da538269a02f_revise.txt
+    jobid: 4
+    reason: Missing output files: output/revise/0009b464-b376-4fbc-8a56-da538269a02f_revise.txt
+    wildcards: sample=0009b464-b376-4fbc-8a56-da538269a02f
+    resources: tmpdir=/tmp, mem_mb=30000, mem_mib=28611, time=30:00
+
+[Thu Feb 13 16:18:41 2025]
+Finished job 4.
+1 of 5 steps (20%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 13 16:18:41 2025]
+localrule normalize:
+    input: output/revise/0009b464-b376-4fbc-8a56-da538269a02f_revise.txt
+    output: output/normalize/0009b464-b376-4fbc-8a56-da538269a02f_normalize.txt
+    jobid: 3
+    reason: Missing output files: output/normalize/0009b464-b376-4fbc-8a56-da538269a02f_normalize.txt; Input files updated by another job: output/revise/0009b464-b376-4fbc-8a56-da538269a02f_revise.txt
+    wildcards: sample=0009b464-b376-4fbc-8a56-da538269a02f
+    resources: tmpdir=/tmp, mem_mb=1000, mem_mib=954, time=30:00
+
+[Thu Feb 13 16:18:42 2025]
+Finished job 3.
+2 of 5 steps (40%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 13 16:18:42 2025]
+localrule calculate_likelihoods:
+    input: output/normalize/0009b464-b376-4fbc-8a56-da538269a02f_normalize.txt, MuSiCal_assignment_PCAWG.txt, COSMIC_v3p2_SBS_WGS_MuSiCal.csv
+    output: output/sig_likelihood_sample/0009b464-b376-4fbc-8a56-da538269a02f_likelihood.txt
+    jobid: 2
+    reason: Missing output files: output/sig_likelihood_sample/0009b464-b376-4fbc-8a56-da538269a02f_likelihood.txt; Input files updated by another job: output/normalize/0009b464-b376-4fbc-8a56-da538269a02f_normalize.txt
+    wildcards: sample=0009b464-b376-4fbc-8a56-da538269a02f
+    resources: tmpdir=/tmp, mem_mb=2000, mem_mib=1908, time=20:00
+
+[Thu Feb 13 16:18:49 2025]
+Finished job 2.
+3 of 5 steps (60%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 13 16:18:49 2025]
+localrule calculate_clonal_multiplicities:
+    input: output/sig_likelihood_sample/0009b464-b376-4fbc-8a56-da538269a02f_likelihood.txt
+    output: output/clonal_multiplicities/0009b464-b376-4fbc-8a56-da538269a02f_multiplicities.txt
+    jobid: 1
+    reason: Missing output files: output/clonal_multiplicities/0009b464-b376-4fbc-8a56-da538269a02f_multiplicities.txt; Input files updated by another job: output/sig_likelihood_sample/0009b464-b376-4fbc-8a56-da538269a02f_likelihood.txt
+    wildcards: sample=0009b464-b376-4fbc-8a56-da538269a02f
+    resources: tmpdir=/tmp
+
+[Thu Feb 13 16:18:51 2025]
+Finished job 1.
+4 of 5 steps (80%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 13 16:18:51 2025]
+localrule all:
+    input: output/clonal_multiplicities/0009b464-b376-4fbc-8a56-da538269a02f_multiplicities.txt
+    jobid: 0
+    reason: Input files updated by another job: output/clonal_multiplicities/0009b464-b376-4fbc-8a56-da538269a02f_multiplicities.txt
+    resources: tmpdir=/tmp
+
+[Thu Feb 13 16:18:51 2025]
+Finished job 0.
+5 of 5 steps (100%) done
+Complete log: .snakemake/log/2025-02-13T161831.216041.snakemake.log

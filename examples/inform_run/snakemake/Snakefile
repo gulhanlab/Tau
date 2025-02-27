@@ -13,7 +13,7 @@ def get_file(sample, column):
 
 rule all:
     input:
-        expand("output/clonal_multiplicities/{sample}_multiplicities.tsv", sample=samples)
+        expand("output/timing_plots/{sample}_timing_plot.pdf", sample=samples)
 
 #1. Preprocessing data
 rule preprocess:
@@ -41,8 +41,10 @@ rule calculate_likelihoods:
     input:
         preprocessed_file="output/preprocessed/{sample}_preprocessed.tsv",
         exposure_file=config["exposure_file"],
-        signature_file=config["signature_file"]
-        ref_genome=config['sig_ref_genome']
+        signature_file=config["signature_file"],
+        ref_genome=config['sig_ref_genome'],
+    params:
+        sample_column=config['exposure_sample_column']
     output:
         likelihood_file="output/likelihoods/{sample}_likelihoods.tsv"
     resources:
@@ -56,7 +58,8 @@ rule calculate_likelihoods:
             --exposure {input.exposure_file} \
             --signature {input.signature_file} \
             --output {output.likelihood_file} \
-            --ref_genome {input.ref_genome}
+            --ref_genome {input.ref_genome} \
+            --sample_column {params.sample_column}
         """
 
 #3. Count clonal multiplicities
@@ -85,6 +88,7 @@ rule estimate_timing:
     shell:
         """
         python scripts/estimate_timing.py \
+            --sample {wildcards.sample} \
             --multiplicities {input.multiplicities} \
             --output_tsv {output.timing_results} \
             --output_plot {output.timing_plot}

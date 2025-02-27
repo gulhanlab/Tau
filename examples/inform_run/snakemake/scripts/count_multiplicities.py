@@ -12,7 +12,8 @@ args = parser.parse_args()
 
 sample=args.sample
 likelihood_file=args.likelihood_file
+output=args.output
 
 multiplicities_df = tau.count_multiplicities(likelihood_file)
 
-multiplicities_df.to_csv(output_file, sep='\t')
+multiplicities_df.to_csv(output, sep='\t')

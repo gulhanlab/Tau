@@ -1,0 +1,23 @@
+	chromosome	start	end	t1	t2	t3	t4	sum_t1_to_t1	sum_t1_to_t2	sum_t1_to_t3	sum_t1_to_t4	fully_solved	no_solution	tree_structure
+0	chr11	1	17326369	1	2			1	3			True	False	2_0.1
+1	chr7	1	2907627	2.5	0.0			2.5	2.5			True	False	2_1.1
+2	chr20	1672740	8199022	2	2			2	4			True	False	2_0.1
+3	chr21	11890184	38974771	(3/4, 3/2)	-2*t1 + 3	t1 - 3/4						False	False	2_2.1
+4	chr12	13536849	35977329	(7/4, 2)	-2*t1 + 4	t1 - 7/4						False	False	2_2.1
+5	chr22	14004553	21605320	(0, 1/2)	-2*t1 + 1	t1 + 1						False	False	2_2.1
+6	chr17	18279706	24849829	3	1			3	4			True	False	2_0.1
+7	chr19	25844927	36642403	(7/4, 5/2)	-2*t1 + 5	t1 - 7/4						False	False	2_2.1
+8	chr20	28237290	31388931	0	5/2			0	5/2			True	False	2_0.1
+9	chr2	35365001	60457455	1	1			1	2			True	False	2_1.1
+10	chr4	57423019	71674891	3				3				True	False	1_1.1
+11	chr3	63940676	92214015	3	5			3	8			True	False	2_0.1
+12	chr4	96087636	131455573	5/2				5/2				True	False	1_1.1
+13	chr7	117394918	131228636									False	True	3_2.1
+14	chr7	117394918	131228636	t4 + 1.580338372	-t4 + 0.612746198	-t4	(0, 0)					False	False	3_2.2
+15	chr9	123298800	138394717	5/2				5/2				True	False	1_1.1
+16	chr12	124888055	133275309	4	1			4	5			True	False	2_0.1
+17	chr8	130053001	145138636									False	True	4_1.1
+18	chr8	130053001	145138636	2	t4 + 1	-2*t4 + 1	(0, 1/2)	2				False	False	4_1.2
+19	chr4	131470585	137248000	3				3				True	False	1_1.1
+20	chr5	152478281	181538259	3	1	1		3	4	5		True	False	3_0.1
+21	chr4	154964740	190214555	6				6				True	False	1_0.1

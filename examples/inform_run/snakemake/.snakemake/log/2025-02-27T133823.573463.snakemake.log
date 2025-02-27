@@ -1,0 +1,6 @@
+host: compute-p-17-184.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+LockException:
+Error: Directory cannot be locked. Please make sure that no other Snakemake process is trying to create the same files in the following directory:
+/n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake
+If you are sure that no other instances of snakemake are running on this directory, the remaining lock was likely caused by a kill signal or a power loss. It can be removed with the --unlock argument.

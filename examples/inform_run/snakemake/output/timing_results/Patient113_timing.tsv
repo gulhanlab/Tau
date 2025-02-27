@@ -1,0 +1,4 @@
+	chromosome	start	end	t1	t2	t3	sum_t1_to_t1	sum_t1_to_t2	sum_t1_to_t3	fully_solved	no_solution	tree_structure
+0	chr11	1	3674000	(0, 1)	-2*t1 + 2	t1				False	False	2_2.1
+1	chr11	48357001	52751710							False	True	4_1.1
+2	chr11	48357001	52751710							False	True	4_1.2

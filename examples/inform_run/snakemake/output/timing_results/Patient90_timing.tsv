@@ -1,0 +1,40 @@
+	chromosome	start	end	t1	t2	t3	t4	sum_t1_to_t1	sum_t1_to_t2	sum_t1_to_t3	sum_t1_to_t4	fully_solved	no_solution	tree_structure
+0	chr1	854445	20556308	12				12				True	False	1_0.1
+1	chr12	4959158	11541000	3				3				True	False	1_1.1
+2	chr10	5406001	7218000	0	0	0	5/4	0	0	0	5/4	True	False	4_0.1
+3	chr10	5406001	7218000	0	t4 - 5/4	-2*t4 + 5/2	(5/4, 5/4)	0				False	False	4_0.2
+4	chr19	5999901	13004000	5/2				5/2				True	False	1_1.1
+5	chr21	7951382	11890183	8				8				True	False	1_0.1
+6	chr3	16919714	30399000	6				6				True	False	1_0.1
+7	chr14	17086762	35499288	7				7				True	False	1_0.1
+8	chr5	17433349	32120000	7/2				7/2				True	False	1_1.1
+9	chr10	20290001	23880376	5/2				5/2				True	False	1_1.1
+10	chr1	20556343	34882555	6				6				True	False	1_0.1
+11	chr16	20682149	30125000	5				5				True	False	1_0.1
+12	chr8	27740725	43028932	10				10				True	False	1_0.1
+13	chr20	28237290	31319640	7				7				True	False	1_1.1
+14	chr16	34085001	37295919	13				13				True	False	1_0.1
+15	chr11	36604001	47726652	7				7				True	False	1_0.1
+16	chr3	38169558	62306915	5				5				True	False	1_0.1
+17	chr4	41694001	47435000	1	1			1	2			True	False	2_1.1
+18	chr21	42000942	46709983	3				3				True	False	1_1.1
+19	chr9	44377363	84865000	14				14				True	False	1_0.1
+20	chr10	45012001	59628000	4				4				True	False	1_1.1
+21	chr19	48569013	58617616	5				5				True	False	1_0.1
+22	chr7	59498944	64300000	7/2				7/2				True	False	1_1.1
+23	chr5	60331001	65699514	5				5				True	False	1_0.1
+24	chr18	63440001	80373285	8				8				True	False	1_0.1
+25	chr7	64322001	91754331	9/2				9/2				True	False	1_1.1
+26	chr11	67636057	73354598	3				3				True	False	1_1.1
+27	chr3	73859001	80555153	3				3				True	False	1_1.1
+28	chr1	78109612	101319000	6				6				True	False	1_0.1
+29	chr10	79349001	95636021	5				5				True	False	1_0.1
+30	chr13	79408001	94573000	1	3			1	4			True	False	2_0.1
+31	chr3	90193975	92214015	0	7/3			0	7/3			True	False	2_1.1
+32	chr15	93035001	101991189	7				7				True	False	1_0.1
+33	chr2	94839555	100002172	5/2				5/2				True	False	1_1.1
+34	chr12	100837469	115953000	5				5				True	False	1_0.1
+35	chr10	111022001	133797422	16				16				True	False	1_0.1
+36	chr9	122772678	132749069	8				8				True	False	1_0.1
+37	chr7	149138656	152875500	3				3				True	False	1_1.1
+38	chr3	192800001	198295559	5/2				5/2				True	False	1_1.1

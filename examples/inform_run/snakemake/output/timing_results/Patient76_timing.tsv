@@ -1,0 +1,2 @@
+	chromosome	start	end	t1	sum_t1_to_t1	fully_solved	no_solution	tree_structure
+0	chr11	52751711	62060594	5/2	5/2	True	False	1_1.1

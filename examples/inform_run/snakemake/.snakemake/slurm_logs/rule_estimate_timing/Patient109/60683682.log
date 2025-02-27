@@ -1,0 +1,76 @@
+host: compute-p-17-179.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided remote nodes: 1
+Provided resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:28:15 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient109_multiplicities.tsv
+    output: output/timing_results/Patient109_timing.tsv, output/timing_plots/Patient109_timing_plot.pdf
+    jobid: 0
+    reason: Forced execution
+    wildcards: sample=Patient109
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+host: compute-p-17-179.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:28:18 2025]
+localrule estimate_timing:
+    input: output/multiplicities/Patient109_multiplicities.tsv
+    output: output/timing_results/Patient109_timing.tsv, output/timing_plots/Patient109_timing_plot.pdf
+    jobid: 0
+    reason: Forced execution
+    wildcards: sample=Patient109
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=/tmp, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+NO SOLUTION! Calculating MLE estimate
+Traceback (most recent call last):
+  File "/n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/scripts/estimate_timing.py", line 28, in <module>
+    tau.plot_timing_results(all_segments, np.median(breakpoints), 
+                                          ^^
+NameError: name 'np' is not defined
+[Thu Feb 27 13:28:26 2025]
+Error in rule estimate_timing:
+    jobid: 0
+    input: output/multiplicities/Patient109_multiplicities.tsv
+    output: output/timing_results/Patient109_timing.tsv, output/timing_plots/Patient109_timing_plot.pdf
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient109_multiplicities.tsv             --output_tsv output/timing_results/Patient109_timing.tsv             --output_plot output/timing_plots/Patient109_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Removing output files of failed job estimate_timing since they might be corrupted:
+output/timing_results/Patient109_timing.tsv
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Storing output in storage.
+WorkflowError:
+At least one job did not complete successfully.
+srun: error: compute-p-17-179: task 0: Exited with exit code 1
+[Thu Feb 27 13:28:34 2025]
+Error in rule estimate_timing:
+    jobid: 0
+    input: output/multiplicities/Patient109_multiplicities.tsv
+    output: output/timing_results/Patient109_timing.tsv, output/timing_plots/Patient109_timing_plot.pdf
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient109_multiplicities.tsv             --output_tsv output/timing_results/Patient109_timing.tsv             --output_plot output/timing_plots/Patient109_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Storing output in storage.
+WorkflowError:
+At least one job did not complete successfully.
