@@ -41,7 +41,7 @@ def calc_llh(index_spectrum, signatures, exposures):
 
 def likelihoods_per_index(signatures, exposures):
     """Calculate likelihoods for each index in the mutation spectrum."""
-    print("calling likelihoods_per_index")
+    #print("calling likelihoods_per_index")
     #print(signatures.head())
     length_spectrum = signatures.shape[0]
     df_llhs_index = pd.DataFrame(0.0, index=range(length_spectrum), columns=signatures.columns)
@@ -62,7 +62,7 @@ def likelihoods_per_index(signatures, exposures):
 
 def get_context_96(df, ref_genome_path, ref_col="ref", alt_col="alt"):
     """Assign context and 96-based index to mutations."""
-    print("calling get_context_96")
+    #print("calling get_context_96")
     ref_genome = Fasta(ref_genome_path)
     types = generate_96_types()
     #print(types)
@@ -102,9 +102,9 @@ def get_context_96(df, ref_genome_path, ref_col="ref", alt_col="alt"):
         after = context_seq[2]
         #ref, alt = ref, alt
         type_vec = f"{before}[{ref}>{alt}]{after}"
+        #print(type_vec)
 
         index_spectrum = type_index_map.get(type_vec, None)
-        #print(index_spectrum)
 
         context_list.append(context_seq)
         index_spectrum_list.append(index_spectrum)
@@ -113,27 +113,27 @@ def get_context_96(df, ref_genome_path, ref_col="ref", alt_col="alt"):
     df['index_spectrum'] = index_spectrum_list
     return df
 
-def sig_likelihoods(sample=None, norm_file=None, exposure_file=None, signature_file=None,
-                    state=None, best_cn=None, df=None, ref_genome_path=None, output_file=None):
+def sig_likelihoods(sample, input_file=None, exposure_file=None, signature_file=None,
+                    state=None, best_cn=None, df=None, ref_genome_path=None, output_file=None, sample_column='aliquot_id'):
     
-    if norm_file is not None and sample is None:
-        sample_id = os.path.basename(norm_file).replace("_normalize.txt", "")
-    else:
-        sample_id = sample
+    sample_id = sample
 
     print("sample:",sample_id)
 
     # Load exposures
     df_exposure = pd.read_csv(exposure_file, sep="\t")
-    df_exposure = df_exposure.rename(columns={'aliquot_id': 'sample_id', 'sample_id': 'icgc_specimen_id'})
+    #df_exposure = df_exposure.rename(columns={'aliquot_id': 'sample_id', 'sample_id': 'icgc_specimen_id'})
+
+    df_exposure = df_exposure.rename(columns={sample_column : 'unique_sample_id_column'})
 
     # Load signatures and ensure the correct order
     catalog = pd.read_csv(signature_file)
     catalog = ensure_signature_order(catalog)
-    signames = catalog.columns[1:]  # Exclude the 'Type' column
+    signames = list(set(catalog.columns[1:]) & set(df_exposure.columns))  # Exclude the 'Type' column
+    #print("signames:", signames)
 
     # Filter exposures for the current sample
-    exposures = df_exposure.query('sample_id == @sample_id')[signames]
+    exposures = df_exposure.query('unique_sample_id_column == @sample_id')[signames]
 
     # Filter signatures for non-zero exposures
     exposures = exposures.loc[:, (exposures > 0).values.flatten()]
@@ -143,7 +143,7 @@ def sig_likelihoods(sample=None, norm_file=None, exposure_file=None, signature_f
         sys.exit('Provide state and best_cn together or set both to None')
 
     if df is None:
-        df = pd.read_csv(norm_file, sep='\t')
+        df = pd.read_csv(input_file, sep='\t')
 
     # Get context for mutations
     df = get_context_96(df, ref_genome_path)
@@ -162,7 +162,7 @@ def sig_likelihoods(sample=None, norm_file=None, exposure_file=None, signature_f
     #print(df_llh.head())
     #print("df current state:")
     #print(df.head())
-
+    #print(df['index_spectrum'])
     df['index_spectrum'] = df['index_spectrum'].astype(int)
     # Merge `df` with `df_llh`
     df = df.merge(
@@ -199,6 +199,7 @@ def sig_likelihoods(sample=None, norm_file=None, exposure_file=None, signature_f
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Calculate signature likelihoods.")
     #parser.add_argument("--vcf", required=True, help="Input annotated VCF file.")
+    parser.add_argument("--sample", required=True, hekp ="Sample name")
     parser.add_argument("--exposure", required=True, help="Exposure file.")
     parser.add_argument("--signature", required=True, help="Signature probabilities.")
     parser.add_argument("--output", required=True, help="Output likelihood file.")
@@ -208,8 +209,8 @@ if __name__ == "__main__":
  
     # Call the sig_likelihoods function
     sig_likelihoods(
-        sample=sample_id,
-        norm_file=args.normalize_file,
+        sample=sample,
+        input_file=args.normalize_file,
         exposures=args.exposure,
         signatures=args.signature,
         ref_genome_path=args.ref_path,

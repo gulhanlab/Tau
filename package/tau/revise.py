@@ -95,6 +95,7 @@ def cluster_subclones(df, sample, output_dir=None, min_vaf_diff=0.05):
     return df, df_subclonal_CCF
 
 def revise(sample, input_file=None, output_file=None, n_sub_thresh=20, distance_scale=3, df=None):
+    df_subclonal_CCF = None
     if df is None:
         df = pd.read_csv(input_file, sep='\t')
 

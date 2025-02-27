@@ -302,7 +302,7 @@ def calculate_timing_solutions(multiplicities_file=None, output_name=None, multi
     sorted_segments = dict(sorted(
         segment_solutions.items(),
         key=lambda item: (parse_chromosome(item[0].split(':')[0]), int(item[0].split(':')[1].split('-')[0]))))
-    return sorted_segments
+    return sorted_segments, copy_number_dict
 
 def process_solutions(data):
     # Collect all unique t variables across the dataset
@@ -513,7 +513,8 @@ def calculate_breakpoints(sorted_segments):
 
     return all_breakpoints, all_segments
 
-def plot_timing_results(all_segments, median_breakpoint, output_path, average=False):
+def plot_timing_results(sample, all_segments, median_breakpoint, output_path, cn_dict, average=False):
+    copy_number_dict = cn_dict
     ### PLOTTING SEGMENT TIMINGS
     fig, ax = plt.subplots(figsize=(30, 15))
 
@@ -693,7 +694,7 @@ def plot_timing_results(all_segments, median_breakpoint, output_path, average=Fa
     ax.set_xlabel("")
     ax.set_ylabel("Mutation time", fontsize=20)
     average_tag = "" if not average else "_AVERAGED"
-    ax.set_title(f"{output_name}{average_tag}", fontsize=30) 
+    ax.set_title(f"{sample}{average_tag}", fontsize=30) 
     ax.grid(True)
     plt.ylim(-0.1999,1.05)
     ax.set_xticks([])
