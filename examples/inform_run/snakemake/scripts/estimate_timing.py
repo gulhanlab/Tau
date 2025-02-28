@@ -18,18 +18,24 @@ output_tsv=args.output_tsv
 output_plot=args.output_plot
 
 #calculating timing solutions (dictionary format, per chromosomal segment)
-timing_results, copy_number_dict = tau.calculate_timing_solutions(multiplicities)
+#timing_results, copy_number_dict = tau.calculate_timing_solutions(multiplicities)
+#
+##processing data into a table
+#timing_df = tau.process_solutions(timing_results)
+#timing_df.to_csv(output_tsv, sep='\t')
+#
+##calculating breakpoints
+#breakpoints, all_segments = tau.calculate_breakpoints(timing_results)
+#
+##plotting timing results 
+#tau.plot_timing_results(sample, all_segments, np.median(breakpoints), 
+#        output_plot, 
+#        cn_dict=copy_number_dict) 
 
-#processing data into a table
-timing_df = tau.process_solutions(timing_results)
+#all in one function now (simplified)
+sorted_segments, timing_df, breakpoints = tau.calculate_timing_solutions(sample, 
+        multiplicities_file=multiplicities, output_plot=output_plot, average=False)
+
 timing_df.to_csv(output_tsv, sep='\t')
-
-#calculating breakpoints
-breakpoints, all_segments = tau.calculate_breakpoints(timing_results)
-
-#plotting timing results 
-tau.plot_timing_results(sample, all_segments, np.median(breakpoints), 
-        output_plot, 
-        cn_dict=copy_number_dict) 
 
 #plotting trees?
