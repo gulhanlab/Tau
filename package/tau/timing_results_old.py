@@ -12,12 +12,6 @@ import time
 from scipy.optimize import minimize
 import math
 from scipy.stats import poisson
-import numpy as np
-import pandas as pd
-from scipy.stats import mannwhitneyu, binomtest
-import matplotlib.pyplot as plt
-import re
-from scipy.spatial import KDTree
 import operator
 
 def get_solutions(major, minor, solutions_dir):
@@ -66,6 +60,249 @@ def parse_chromosome(chrom):
     # Assign an arbitrary large number to non-numeric chromosomes for proper sorting
     # X = 23, Y = 24, MT = 25 (for example)
     return {"X": 23, "Y": 24, "MT": 25}.get(chrom, 26)  # Default to 26 for unhandled cases
+
+def calculate_timing_solutions(multiplicities_file=None, output_name=None, multiplicities_df=None,
+        solutions_dir = '/n/data1/hms/dbmi/park/jbrew/matrices/new_solutions'):
+    if multiplicities_df is None:
+        multiplicities_df = pd.read_csv(multiplicities_file, sep='\t')
+
+    copy_number_dict = dict(zip(multiplicities_df['segment_id'],
+                               multiplicities_df['major_cn'].astype(str)+'_' + multiplicities_df['minor_cn'].astype(str)))
+    signatures = ["SBS1"]
+    signature_tag = '_'.join(signatures)
+    SBS_df = multiplicities_df.query('sig_max in @signatures')
+
+    #solutions_dir = '/n/data1/hms/dbmi/park/jbrew/matrices/new_solutions' #CHANGE TO DOWNSIZED WHEN COMPLETE
+    #all_solutions = os.listdir(solutions_dir)
+
+    segment_solutions = defaultdict(lambda: defaultdict(dict))
+
+    for idx, row in SBS_df.iterrows():
+        #calculate segment by segment timing results
+        segment = row['segment_id']
+        #print("SEGMENT: ", segment)
+        major = row['major_cn']
+        minor = row['minor_cn']
+        N_vars = [f'N{i}' for i in range(1, major+1)]
+        t_num = major + minor - 1 if minor > 0 else major
+        if t_num == 0:
+            continue
+        t_vars = [f't{i}' for i in range(1, t_num+1)]
+        var(N_vars)
+        var(t_vars)
+        N_values = {var(N_var): N_val for N_var, N_val in row.filter(items = N_vars).items()}
+        if sum(N_values.values()) < 5:
+            continue
+
+        max_in_row = max(int(num[1:]) for num in row.filter(regex='N.*').keys().to_list())
+
+        #this happens if there are zero values for some high multiplicities so we have to fill in these zeros
+        if major > max_in_row:
+            for i in range(max_in_row+1, major+1):
+                N_values[var(f'N{i}')] = 0
+
+        sols = get_solutions(major, minor, solutions_dir) 
+        unfit = defaultdict(list)
+        unfit_constraints = defaultdict(list)
+
+        for sol_file in sols:
+            #if solution_found:
+            #    break
+            #print('SOLUTIONS FILE:', sol_file)
+            #load solutions
+            eqs, ineqs, solutions = load(sol_file)
+            sol_num = len(solutions)
+            segment_solutions[segment][sol_file] = list()
+        
+            for i, solution in enumerate(solutions):
+                if i != (len(solutions) - 1):
+                    continue
+                substitution = change_inequality([s.subs(N_values) for s in solution])
+                no_variable = [sub for sub in substitution if len(sub.variables())==0]
+                variable = [sub for sub in substitution if len(sub.variables())> 0]
+                if all(no_variable):
+                    #solution_found = True
+                    #split into equalities and inequalities
+                    equalities = [var for var in variable if var.operator() == operator.eq]
+                    inequalities = [var for var in variable if var.operator() in [operator.ge, operator.le]]
+                    #if we assume the inequalities come from dependent variables then this would be really really good
+        
+                    #identify dependent and independent variables
+                    dep = [eq.lhs() for eq in equalities] # will this work? think so... will revisit if not
+                    indep = list(set(var(t_vars)) - set(dep)) 
+        
+                    equalities = {var.lhs(): var.rhs() for var in equalities}
+        
+                    #split equalities into constants and non-constants
+                    constants = {var: value for var, value in equalities.items() if len(value.variables()) == 0}
+                    nonconstants = {var: value for var, value in equalities.items() if len(value.variables()) > 0}
+        
+        
+                    #classifying minimum and maximum values for independent variables
+                    indep_min_max = {}
+        
+                    for ind in indep:
+                        relevant_ineqs = [ineq for ineq in inequalities if ind in ineq.variables()]
+                        operators = [ineq.operator() for ineq in inequalities if ind in ineq.variables()]
+                        indep_min = float('inf')
+                        indep_max = -float('inf')
+                        for ineq, _operator in zip(relevant_ineqs, operators):
+                            if not len(ineq.lhs().variables()):
+                                if _operator == operator.le:
+                                    indep_min = np.minimum(indep_min, ineq.lhs())
+                                else:
+                                    indep_max = np.maximum(indep_max, ineq.lhs())
+                            else:
+                                if _operator == operator.ge:
+                                    indep_min = np.minimum(indep_min, ineq.rhs())
+                                else:
+                                    indep_max = np.maximum(indep_max, ineq.rhs())
+        
+                        indep_min_max[ind] = (indep_min, indep_max)
+                        
+        
+                    #if t_num > 1 and i+1 == sol_num:
+        
+                    curr_sol = {'constants': constants, 
+                            'non-constants': nonconstants,
+                            'min_max': indep_min_max}
+        
+                    #if len(inequalities) > 0: 
+                        #print(f"{major}_{minor}, with {N_vars} and {t_vars}")
+                        #print("N values:", N_values)
+                        #print("Equations:", eqs)
+                        #print(solution)
+                        #print('equalities:', equalities)
+                        #print('inequalities:', inequalities)
+                        #print('min max:', indep_min_max)
+                        #print('dependent variables:', dep)
+                        #print('independent variables:', indep)
+                        #print('constants', constants)
+                        #print('non-constants', nonconstants)
+                    #fit[sol_file].append(solution)
+                    segment_solutions[segment][sol_file].append(curr_sol)  
+                else:
+                    constraints = [x for x in solution if all([var(t_var) not in x.variables() for t_var in t_vars])]
+                    unfit[sol_file].append(solution)
+                    unfit_constraints[sol_file].append(constraints)
+
+        ## DEALING WITH MLE estimates
+        if sum([len(x) for x in segment_solutions[segment].values()]) == 0:
+            print('NO SOLUTION! Calculating MLE estimate')
+            unfit_likelihoods = {}
+            unfit_lambdas = {}
+            #segment_solutions[segment]['no_solution'] = True
+        
+            #ML estimates
+            for name, sol in unfit_constraints.items():
+                sage_constraints = sol[-1]
+                observed_counts = N_values
+                sage_constraints_inequalities = [x for x in sage_constraints if x.operator() != operator.eq]  
+                sage_constraints_equalities = [x for x in sage_constraints if x.operator() == operator.eq]  
+                
+                inequality_coefficients = extract_coefficients_from_constraints(sage_constraints_inequalities, var(N_vars))
+                equality_coefficients = extract_coefficients_from_constraints(sage_constraints_equalities, var(N_vars))
+                
+                constraints = [
+                    {'type': 'ineq', 'fun': lambda x, c=coeffs: np.dot(c, x)}  # c⋅x >= 0
+                    for coeffs in inequality_coefficients
+                ] + [{'type': 'eq', 'fun': lambda x, c=coeffs: np.dot(c,x)}
+                    for coeffs in equality_coefficients]
+            
+                observed_counts = list(N_values.values())
+                initial_guess = np.mean(observed_counts) # A good starting point for each lambda
+                initial_guess = np.full(len(observed_counts), initial_guess)
+                
+                result = minimize(neg_log_likelihood, initial_guess, args=(observed_counts,), constraints=constraints)
+                
+                mle_lambdas = result.x  # MLE for each lambda
+                #print(sage_constraints)
+                max_likelihood = np.prod(poisson.pmf(observed_counts, mle_lambdas))
+                
+                unfit_likelihoods[name] = max_likelihood
+                unfit_lambdas[name] = mle_lambdas
+        
+            sol_file = max(unfit_likelihoods, key=unfit_likelihoods.get)
+            #print("MLE SOLUTION:", sol_file)
+            #print(unfit_lambdas[sol_file])
+            #print(unfit_likelihoods[sol_file])
+            #print(unfit_likelihoods)
+            eqs, ineqs, solutions = load(sol_file)
+            sol_num = len(solutions)
+            solution = solutions[-1]
+            
+            N_values = {N_val: val for N_val, val in zip(N_values.keys(), np.round(unfit_lambdas[sol_file], decimals=8))}
+            substitution = change_inequality([s.subs(N_values) for s in solution])
+            no_variable = [round_small_values(sub) for sub in substitution if len(sub.variables())==0]
+            variable = [sub for sub in substitution if len(sub.variables())> 0]
+            #print(segment, sol_file)
+            #print(no_variable)
+            if not all(no_variable):
+                print("FAILED")
+                print(no_variable)
+                break
+            if all(no_variable):
+                #print("PASSED!")
+                #solution_found = True
+                #split into equalities and inequalities
+                equalities = [var for var in variable if var.operator() == operator.eq]
+                inequalities = [var for var in variable if var.operator() in [operator.le, operator.ge]]
+                #if we can assume the inequalities come from dependent variables then this would be really really good
+                
+                #identify dependent and independent variables
+                dep = [eq.lhs() for eq in equalities] # will this work? think so... will revisit if not
+                indep = list(set(var(t_vars)) - set(dep)) 
+                
+                equalities = {var.lhs(): var.rhs() for var in equalities}
+                
+                #split equalities into constants and non-constants
+                constants = {var: round_small_values(value) for var, value in equalities.items() if len(value.variables()) == 0}
+                nonconstants = {var: round_small_values(value) for var, value in equalities.items() if len(value.variables()) > 0}
+                
+                #classifying minimum and maximum values for independent variables
+                indep_min_max = {}
+                
+                for ind in indep:
+                    relevant_ineqs = [round_small_values(ineq) for ineq in inequalities if ind in ineq.variables()]
+                    operators = [ineq.operator() for ineq in relevant_ineqs]
+                    indep_min = float('inf')
+                    indep_max = -float('inf')
+                    #print(relevant_ineqs, operators)
+                    for ineq, _operator in zip(relevant_ineqs, operators):
+                        if not len(ineq.lhs().variables()):
+                            if _operator == operator.le:
+                                indep_min = np.minimum(indep_min, ineq.lhs())
+                            else:
+                                indep_max = np.maximum(indep_max, ineq.lhs())
+                        else:
+                            if _operator == operator.ge:
+                                indep_min = np.minimum(indep_min, ineq.rhs())
+                            else:
+                                indep_max = np.maximum(indep_max, ineq.rhs())
+                    indep_min_max[ind] = (indep_min, indep_max)
+                curr_sol = {'constants': constants, 
+                        'non-constants': nonconstants,
+                        'min_max': indep_min_max}
+                #print(curr_sol)
+                #if len(inequalities) > 0: 
+                    #print(f"{major}_{minor}, with {N_vars} and {t_vars}")
+                    #print("N values:", N_values)
+                    #print("Equations:", eqs)
+                    #print(solution)
+                    #print('equalities:', equalities)
+                    #print('inequalities:', inequalities)
+                    #print('min max:', indep_min_max)
+                    #print('dependent variables:', dep)
+                    #print('independent variables:', indep)
+                    #print('constants', constants)
+                    #print('non-constants', nonconstants)
+                #fit[sol_file].append(solution)
+                segment_solutions[segment][sol_file].append(curr_sol)    
+
+    sorted_segments = dict(sorted(
+        segment_solutions.items(),
+        key=lambda item: (parse_chromosome(item[0].split(':')[0]), int(item[0].split(':')[1].split('-')[0]))))
+    return sorted_segments, copy_number_dict
 
 def process_solutions(data):
     # Collect all unique t variables across the dataset
@@ -162,6 +399,13 @@ def process_solutions(data):
     final_df['tree_structure'] = [os.path.basename(x).split('_solution')[0] for x in final_df['file_path']]
     del final_df['file_path']
     return final_df 
+
+import numpy as np
+import pandas as pd
+from scipy.stats import mannwhitneyu, binomtest
+import matplotlib.pyplot as plt
+import re
+from scipy.spatial import KDTree
 
 def calculate_breakpoints(sorted_segments):
     all_segments = defaultdict(dict)
@@ -269,17 +513,17 @@ def calculate_breakpoints(sorted_segments):
 
     return all_breakpoints, all_segments
 
-def plot_timing_results(sample, all_segments, median_breakpoint, cn_dict, output_path=None, average=False):
+def plot_timing_results(sample, all_segments, median_breakpoint, output_path, cn_dict, average=False):
     copy_number_dict = cn_dict
     ### PLOTTING SEGMENT TIMINGS
     fig, ax = plt.subplots(figsize=(30, 15))
 
     # Define a list of colormaps to use for gradations
-    colormaps = [plt.cm.Blues, plt.cm.Reds, plt.cm.Greens,
+    colormaps = [plt.cm.Blues, plt.cm.Reds, plt.cm.Greens, 
                  plt.cm.Oranges, plt.cm.Purples, plt.cm.Greys,
-                 plt.cm.YlGnBu, plt.cm.BuPu, plt.cm.GnBu,
-                 plt.cm.PuRd, plt.cm.coolwarm, plt.cm.Spectral,
-                 plt.cm.PiYG, plt.cm.BrBG, plt.cm.viridis,
+                 plt.cm.YlGnBu, plt.cm.BuPu, plt.cm.GnBu, 
+                 plt.cm.PuRd, plt.cm.coolwarm, plt.cm.Spectral, 
+                 plt.cm.PiYG, plt.cm.BrBG, plt.cm.viridis, 
                  plt.cm.plasma, plt.cm.cividis, plt.cm.magma, plt.cm.inferno]
 
     # Function to generate gradations for a given number of t values
@@ -302,11 +546,11 @@ def plot_timing_results(sample, all_segments, median_breakpoint, cn_dict, output
         segment_start = int(segment_name.split(':')[1].split('-')[0])
         segment_end = int(segment_name.split(':')[1].split('-')[1])
         new_chrom = segment_name.split(':')[0]
-
+        
         if new_chrom != chrom:
             line = True
             chrom = new_chrom
-
+        
         if line:
             ax.vlines(offset, ymin=0, ymax=1, color='black', linestyle='--',
                      linewidth=3)
@@ -353,17 +597,17 @@ def plot_timing_results(sample, all_segments, median_breakpoint, cn_dict, output
 
             segment_center = offset + 91913600 / 2  # Center of the segment
             ax.text(
-                segment_center,
+                segment_center, 
                 segment_xpos,  # Slightly below the y-axis range
-                segment_name,
-                rotation=45,
-                fontsize=14,
-                verticalalignment='top',
+                segment_name, 
+                rotation=45, 
+                fontsize=14, 
+                verticalalignment='top', 
                 horizontalalignment='right',
-                rotation_mode='anchor'
+                rotation_mode='anchor' 
             )
             ax.vlines(segment_center, 0, -0.015, color='black')
-            ax.text(segment_center, 1.02, copy_number_dict[segment_name],
+            ax.text(segment_center, 1.02, copy_number_dict[segment_name], 
                     fontsize=15, rotation=90,
                    verticalalignment='center',horizontalalignment='center')
             offset += 91913600
@@ -412,17 +656,17 @@ def plot_timing_results(sample, all_segments, median_breakpoint, cn_dict, output
 
             segment_center = offset + 91913600 / 2  # Center of the segment
             ax.text(
-                segment_center,
+                segment_center, 
                 segment_xpos,
-                segment_name,
-                rotation=45,
-                fontsize=14,
-                verticalalignment='top',
+                segment_name, 
+                rotation=45, 
+                fontsize=14, 
+                verticalalignment='top', 
                 horizontalalignment='right',
                 rotation_mode='anchor'
             )
             ax.vlines(segment_center, 0, -0.015, color='black')
-            ax.text(segment_center, 1.02, copy_number_dict[segment_name],
+            ax.text(segment_center, 1.02, copy_number_dict[segment_name], 
                     fontsize=15, rotation=90,
                    verticalalignment='center',horizontalalignment='center')
             offset += 91913600
@@ -445,230 +689,15 @@ def plot_timing_results(sample, all_segments, median_breakpoint, cn_dict, output
 
     # Adjust the figure layout to make space for the legends
     plt.subplots_adjust(right=0.7)  # Increase the right margin to fit the legends
-    ax.hlines(median_breakpoint, xmin = 0, xmax = offset, color='red',
+    ax.hlines(median_breakpoint, xmin = 0, xmax = offset, color='red', 
               linestyle = '--', linewidth=3)
     ax.set_xlabel("")
     ax.set_ylabel("Mutation time", fontsize=20)
     average_tag = "" if not average else "_AVERAGED"
-    ax.set_title(f"{sample}{average_tag}", fontsize=30)
+    ax.set_title(f"{sample}{average_tag}", fontsize=30) 
     ax.grid(True)
     plt.ylim(-0.1999,1.05)
     ax.set_xticks([])
     plt.tight_layout()
-    if output_path:
-        plt.savefig(output_path, dpi=300)
-    else:
-        plt.show()
+    plt.savefig(output_path, dpi=300)
     plt.close()
-
-def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None, 
-                              solutions_dir = '/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions/'):
-    if multiplicities_df is None:
-        multiplicities_df = pd.read_csv(multiplicities_file, sep='\t')
-
-    copy_number_dict = dict(zip(multiplicities_df['segment_id'],
-                               multiplicities_df['major_cn'].astype(str)+'_' + multiplicities_df['minor_cn'].astype(str)))
-    signatures = ["SBS1"]
-    signature_tag = '_'.join(signatures)
-    SBS_df = multiplicities_df.query('sig_max in @signatures')
-
-    #solutions_dir = '/n/data1/hms/dbmi/park/jbrew/matrices/new_solutions' #CHANGE TO DOWNSIZED WHEN COMPLETE
-    #all_solutions = os.listdir(solutions_dir)
-
-    segment_solutions = defaultdict(lambda: defaultdict(dict))
-
-    for idx, row in SBS_df.iterrows():
-        #calculate segment by segment timing results
-        segment = row['segment_id']
-        major = row['major_cn']
-        minor = row['minor_cn']
-        N_vars = [f'N{i}' for i in range(1, major+1)]
-        t_num = major + minor - 1 if minor > 0 else major
-        if t_num == 0:
-            continue
-        t_vars = [f't{i}' for i in range(1, t_num+1)]
-        var(N_vars)
-        var(t_vars)
-        N_values = {var(N_var): N_val for N_var, N_val in row.filter(items = N_vars).items()}
-        if sum(N_values.values()) < 5:
-            continue
-
-        max_in_row = max(int(num[1:]) for num in row.filter(regex='N.*').keys().to_list())
-
-        #this happens if there are zero values for some high multiplicities so we have to fill in these zeros
-        if major > max_in_row:
-            for i in range(max_in_row+1, major+1):
-                N_values[var(f'N{i}')] = 0
-
-        sols = get_solutions(major, minor, solutions_dir)
-        unfit = defaultdict(list)
-        unfit_constraints = defaultdict(list)
-
-        for sol_file in sols:
-            solution = load(sol_file)
-            segment_solutions[segment][sol_file] = list()
-
-            substitution = change_inequality([s.subs(N_values) for s in solution])
-            no_variable = [sub for sub in substitution if len(sub.variables())==0]
-            variable = [sub for sub in substitution if len(sub.variables())> 0]
-            if all(no_variable):
-                #split into equalities and inequalities
-                equalities = [var for var in variable if var.operator() == operator.eq]
-                inequalities = [var for var in variable if var.operator() in [operator.ge, operator.le]]
-
-                #identify dependent and independent variables
-                dep = [eq.lhs() for eq in equalities]
-                indep = list(set(var(t_vars)) - set(dep))
-
-                equalities = {var.lhs(): var.rhs() for var in equalities}
-
-                #split equalities into constants and non-constants
-                constants = {var: value for var, value in equalities.items() if len(value.variables()) == 0}
-                nonconstants = {var: value for var, value in equalities.items() if len(value.variables()) > 0}
-
-                #classifying minimum and maximum values for independent variables
-                indep_min_max = {}
-
-                for ind in indep:
-                    relevant_ineqs = [ineq for ineq in inequalities if ind in ineq.variables()]
-                    operators = [ineq.operator() for ineq in inequalities if ind in ineq.variables()]
-                    indep_min = float('inf')
-                    indep_max = -float('inf')
-                    for ineq, _operator in zip(relevant_ineqs, operators):
-                        if not len(ineq.lhs().variables()):
-                            if _operator == operator.le:
-                                indep_min = np.minimum(indep_min, ineq.lhs())
-                            else:
-                                indep_max = np.maximum(indep_max, ineq.lhs())
-                        else:
-                            if _operator == operator.ge:
-                                indep_min = np.minimum(indep_min, ineq.rhs())
-                            else:
-                                indep_max = np.maximum(indep_max, ineq.rhs())
-
-                    indep_min_max[ind] = (indep_min, indep_max)
-
-                curr_sol = {'constants': constants,
-                        'non-constants': nonconstants,
-                        'min_max': indep_min_max}
-
-                segment_solutions[segment][sol_file].append(curr_sol)
-            else:
-                constraints = [x for x in solution if all([var(t_var) not in x.variables() for t_var in t_vars])]
-                unfit[sol_file].append(solution)
-                unfit_constraints[sol_file].append(constraints)
-                
-        ## DEALING WITH MLE estimates
-        if sum([len(x) for x in segment_solutions[segment].values()]) == 0:
-            print('NO SOLUTION! Calculating MLE estimate')
-            unfit_likelihoods = {}
-            unfit_lambdas = {}
-
-            #ML estimates
-            for name, sol in unfit_constraints.items():
-                sage_constraints = sol[-1]
-                observed_counts = N_values
-                sage_constraints_inequalities = [x for x in sage_constraints if x.operator() != operator.eq]
-                sage_constraints_equalities = [x for x in sage_constraints if x.operator() == operator.eq]
-
-                inequality_coefficients = extract_coefficients_from_constraints(sage_constraints_inequalities, var(N_vars))
-                equality_coefficients = extract_coefficients_from_constraints(sage_constraints_equalities, var(N_vars))
-
-                constraints = [
-                    {'type': 'ineq', 'fun': lambda x, c=coeffs: np.dot(c, x)}  # c⋅x >= 0
-                    for coeffs in inequality_coefficients
-                ] + [{'type': 'eq', 'fun': lambda x, c=coeffs: np.dot(c,x)}
-                    for coeffs in equality_coefficients]
-
-                observed_counts = list(N_values.values())
-                initial_guess = np.mean(observed_counts) # A good starting point for each lambda
-                initial_guess = np.full(len(observed_counts), initial_guess)
-
-                result = minimize(neg_log_likelihood, initial_guess, args=(observed_counts,), constraints=constraints)
-
-                mle_lambdas = result.x  # MLE for each lambda
-
-                max_likelihood = np.prod(poisson.pmf(observed_counts, mle_lambdas))
-
-                unfit_likelihoods[name] = max_likelihood
-                unfit_lambdas[name] = mle_lambdas
-
-            sol_file = max(unfit_likelihoods, key=unfit_likelihoods.get)
-            solution = load(sol_file)
-
-            N_values = {N_val: val for N_val, val in zip(N_values.keys(), np.round(unfit_lambdas[sol_file], decimals=8))}
-            substitution = change_inequality([s.subs(N_values) for s in solution])
-            no_variable = [round_small_values(sub) for sub in substitution if len(sub.variables())==0]
-            variable = [sub for sub in substitution if len(sub.variables())> 0]
-            
-            if not all(no_variable):
-                print("FAILED")
-                print(no_variable)
-                break
-            if all(no_variable):
-                #print("PASSED!")
-                #solution_found = True
-                #split into equalities and inequalities
-                equalities = [var for var in variable if var.operator() == operator.eq]
-                inequalities = [var for var in variable if var.operator() in [operator.le, operator.ge]]
-                #if we can assume the inequalities come from dependent variables then this would be really really good
-
-                #identify dependent and independent variables
-                dep = [eq.lhs() for eq in equalities] # will this work? think so... will revisit if not
-                indep = list(set(var(t_vars)) - set(dep))
-
-                equalities = {var.lhs(): var.rhs() for var in equalities}
-
-                #split equalities into constants and non-constants
-                constants = {var: round_small_values(value) for var, value in equalities.items() if len(value.variables()) == 0}
-                nonconstants = {var: round_small_values(value) for var, value in equalities.items() if len(value.variables()) > 0}
-
-                #classifying minimum and maximum values for independent variables
-                indep_min_max = {}
-
-                for ind in indep:
-                    relevant_ineqs = [round_small_values(ineq) for ineq in inequalities if ind in ineq.variables()]
-                    operators = [ineq.operator() for ineq in relevant_ineqs]
-                    indep_min = float('inf')
-                    indep_max = -float('inf')
-                    #print(relevant_ineqs, operators)
-                    for ineq, _operator in zip(relevant_ineqs, operators):
-                        if not len(ineq.lhs().variables()):
-                            if _operator == operator.le:
-                                indep_min = np.minimum(indep_min, ineq.lhs())
-                            else:
-                                indep_max = np.maximum(indep_max, ineq.lhs())
-                        else:
-                            if _operator == operator.ge:
-                                indep_min = np.minimum(indep_min, ineq.rhs())
-                            else:
-                                indep_max = np.maximum(indep_max, ineq.rhs())
-                    indep_min_max[ind] = (indep_min, indep_max)
-                curr_sol = {'constants': constants,
-                        'non-constants': nonconstants,
-                        'min_max': indep_min_max}
-                segment_solutions[segment][sol_file].append(curr_sol)
-
-    sorted_segments = dict(sorted(
-        segment_solutions.items(),
-        key=lambda item: (parse_chromosome(item[0].split(':')[0]), int(item[0].split(':')[1].split('-')[0]))))
-    return sorted_segments, copy_number_dict
-
-
-def calculate_timing_solutions(sample, multiplicities_file=None, multiplicities_df=None, output_plot=None, average=False,
-                               solutions_dir = '../../solutions/'):
-        #solutions_dir = '/n/data1/hms/dbmi/park/jbrew/matrices/new_solutions'):
-
-    sorted_segments, copy_number_dict = get_per_segment_solutions(multiplicities_file=multiplicities_file, 
-                                                                  multiplicities_df=multiplicities_df, 
-                                                                  solutions_dir=solutions_dir)
-    solutions_df = process_solutions(sorted_segments)
-    breakpoints, all_segments = calculate_breakpoints(sorted_segments)
-    if output_plot:
-        plot_timing_results(sample, all_segments, np.median(breakpoints), output_plot,
-                           cn_dict=copy_number_dict)
-    else:
-        plot_timing_results(sample, all_segments, np.median(breakpoints),
-                           cn_dict=copy_number_dict)
-        
-    return sorted_segments, solutions_df, breakpoints
