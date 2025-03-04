@@ -12,18 +12,18 @@ import time
 from scipy.optimize import minimize
 import math
 from scipy.stats import poisson
-import numpy as np
-import pandas as pd
 from scipy.stats import mannwhitneyu, binomtest
 import matplotlib.pyplot as plt
 import re
 from scipy.spatial import KDTree
 import operator
+from io import StringIO
 
+#helper functions
 def get_solutions(major, minor, solutions_dir):
     #get only solution files compatible with copy number state 
     all_solutions = os.listdir(solutions_dir)
-    pattern = f"{major}_{minor}.*_solutions.sobj"
+    pattern = f"{major}_{minor}.*.sobj"
     sols = [solutions_dir + '/' + re.match(pattern, sol).group() for sol in all_solutions if re.match(pattern, sol) is not None]
     return sols
 
@@ -32,7 +32,7 @@ def extract_coefficients_from_constraints(constraints, variables):
     for constraint in constraints:
         lhs = constraint.left_hand_side()
         coeffs = [lhs.coefficient(var) for var in variables]
-        coefficients.append(coeffs) 
+        coefficients.append(coeffs)
     return coefficients
 
 def neg_log_likelihood(lambdas, counts):
@@ -51,7 +51,7 @@ def change_inequality(ineqs):
     return new_ineqs
 
 #for dealing with floating point errors
-def round_small_values(expr, tol=1e-7):
+def round_small_values(expr, tol=1e-3):
     if expr.is_relational():  # If the expression is an inequality or equation
         return expr.operator()(round_small_values(expr.lhs(), tol), round_small_values(expr.rhs(), tol))
     elif expr.operator() is None:  # If the expression is a number or variable
@@ -60,108 +60,14 @@ def round_small_values(expr, tol=1e-7):
         return expr.operator()(*[round_small_values(arg, tol) for arg in expr.operands()])
 
 def parse_chromosome(chrom):
+    if 'chr' in chrom:
+        chrom = chrom.split('chr')[1]
     # If chromosome is numeric, return as int; otherwise return a large number for sorting
     if chrom.isdigit():
         return int(chrom)
     # Assign an arbitrary large number to non-numeric chromosomes for proper sorting
     # X = 23, Y = 24, MT = 25 (for example)
     return {"X": 23, "Y": 24, "MT": 25}.get(chrom, 26)  # Default to 26 for unhandled cases
-
-def process_solutions(data):
-    # Collect all unique t variables across the dataset
-    all_t_vars = set()
-    for region_data in data.values():
-        for entries in region_data.values():
-            for entry in entries:
-                all_t_vars.update(entry.get('constants', {}).keys())
-                all_t_vars.update(entry.get('non-constants', {}).keys())
-                all_t_vars.update(entry.get('min_max', {}).keys())
-
-    # Sort t variables numerically (t1, t2, t3, ...)
-    sorted_t_vars = sorted(all_t_vars, key=lambda x: int(str(x)[1:])) if all_t_vars else []
-    max_t = len(sorted_t_vars)
-    rows = []
-    
-    for region_key, region_data in data.items():
-        chrom, positions = region_key.split(':')
-        start, end = positions.split('-')
-        
-        for file_path, entries in region_data.items():
-            if not entries:
-                row = {
-                    'chromosome': chrom,
-                    'start': start,
-                    'end': end,
-                    'file_path': file_path,
-                    'fully_solved': False,
-                    'no_solution': True
-                }
-                for t_var in sorted_t_vars:
-                    row[t_var] = np.nan
-                rows.append(row)
-            else:
-                for entry in entries:
-                    row = {
-                        'chromosome': chrom,
-                        'start': start,
-                        'end': end,
-                        'file_path': file_path
-                    }
-                    
-                    present_vars = set()
-                    var_types = {}
-                    
-                    # Process each variable type
-                    for t_var in sorted_t_vars:
-                        if t_var in entry.get('constants', {}):
-                            val = entry['constants'][t_var]
-                            row[t_var] = float(val) if isinstance(val, (int, float)) else val
-                            present_vars.add(t_var)
-                            var_types[t_var] = 'constant'
-                        elif t_var in entry.get('min_max', {}):
-                            mm = entry['min_max'][t_var]
-                            row[t_var] = mm
-                            present_vars.add(t_var)
-                            var_types[t_var] = 'range'
-                        elif t_var in entry.get('non-constants', {}):
-                            row[t_var] = entry['non-constants'][t_var]
-                            present_vars.add(t_var)
-                            var_types[t_var] = 'expression'
-                        else:
-                            row[t_var] = np.nan
-
-                    # Calculate cumulative sums where possible
-                    cumulative = 0
-                    valid_cumulative = True
-                    for k in range(1, max_t + 1):
-                        t_key = var(f't{k}')
-                        if t_key not in present_vars:
-                            valid_cumulative = False
-                        elif var_types.get(t_key) != 'constant':
-                            valid_cumulative = False
-                        
-                        if valid_cumulative:
-                            cumulative += row[t_key]
-                            row[f'sum_t1_to_t{k}'] = cumulative
-                        else:
-                            row[f'sum_t1_to_t{k}'] = np.nan
-
-                    # Determine if fully solved
-                    row['fully_solved'] = all(
-                        var_types.get(t_var) == 'constant'
-                        for t_var in present_vars
-                    ) if present_vars else False
-                    row['no_solution'] = False
-                    rows.append(row)
-
-    # Create DataFrame with consistent column order
-    standard_cols = ['chromosome', 'start', 'end', 'file_path',]
-    sum_cols = [f'sum_t1_to_t{k}' for k in range(1, max_t+1)] if max_t > 0 else []
-    final_df = pd.DataFrame(rows)[standard_cols + sorted_t_vars + sum_cols + ['fully_solved', 'no_solution']]
-    final_df = final_df.rename(columns={variable: str(variable) for variable in final_df.filter(regex=r'^t\d+').columns})
-    final_df['tree_structure'] = [os.path.basename(x).split('_solution')[0] for x in final_df['file_path']]
-    del final_df['file_path']
-    return final_df 
 
 def calculate_breakpoints(sorted_segments):
     all_segments = defaultdict(dict)
@@ -177,11 +83,12 @@ def calculate_breakpoints(sorted_segments):
                         y_vals = constants
                         all_segments[segment][sol_name]['vals'] = (None, y_vals)
                         all_segments[segment][sol_name]['constant'] = True
-                    
+                        all_segments[segment][sol_name]['indep_vars'] = 0
+
                     elif len(min_max) == 1:  # Only process single independent variable segments
                         var, bounds = list(min_max.items())[0]
                         lower, upper = bounds
-                        x_vals = np.linspace(float(lower), float(upper), 3) 
+                        x_vals = np.linspace(float(lower), float(upper), 3)
                         non_constants = solution.get("non-constants", {})
                         constants = solution.get("constants", {})
                         y_vals = {}
@@ -190,9 +97,12 @@ def calculate_breakpoints(sorted_segments):
                         for dep_variable, dep_value in constants.items():
                             y_vals[dep_variable] = np.array([float(dep_value) for val in x_vals])
                         y_vals[var] = x_vals
-                        
+
                         all_segments[segment][sol_name]['vals'] = (x_vals, y_vals)
                         all_segments[segment][sol_name]['constant'] = bool(upper == lower)
+                        all_segments[segment][sol_name]['indep_vars'] = 1
+                else: #if number of independent variables greater than 1
+                    all_segments[segment][sol_name]['indep_vars'] = len(min_max)
 
     all_t_vars = set()
     for region_data in all_segments.values():
@@ -218,7 +128,7 @@ def calculate_breakpoints(sorted_segments):
                     'end': end,
                     'file_path': sol_name,
                     'averaged': float(np.nan),
-                    'solved': False
+                    'solved': False, 'fully_solved': False
                         }
             else:
                 row = {
@@ -232,6 +142,12 @@ def calculate_breakpoints(sorted_segments):
                     row[t_var] = np.median(y_vals[t_var]) if t_var in y_vals else np.nan
                 row['averaged'] = not solution['constant']
                 row['solved'] = True
+                # Determine if fully solved
+                row['fully_solved'] = all(
+                    solution.get(t_var) == 'constant'
+                    for t_var in sorted_t_vars
+                ) if len(sorted_t_vars) else False
+                
             rows.append(row)
 
     average_df = pd.DataFrame(rows)
@@ -247,7 +163,7 @@ def calculate_breakpoints(sorted_segments):
     average_df['major'] = average_df['file_path'].apply(lambda x: re.split(r'_|\.', os.path.basename(x))[0])
     average_df['minor'] = average_df['file_path'].apply(lambda x: re.split(r'_|\.', os.path.basename(x))[2])
     average_df.columns = [str(x) for x in list(average_df.columns)]
-    
+
     # Extract timing and sum columns
     t_columns = [col for col in average_df.columns if re.match(r'^t\d+$', col)]
     sum_columns = [col for col in average_df.columns if re.match(r'.*norm_cumsum.*', col)]
@@ -267,214 +183,21 @@ def calculate_breakpoints(sorted_segments):
     else:
         all_breakpoints = np.nan
 
-    return all_breakpoints, all_segments
-
-def plot_timing_results(sample, all_segments, median_breakpoint, cn_dict, output_path=None, average=False):
-    copy_number_dict = cn_dict
-    ### PLOTTING SEGMENT TIMINGS
-    fig, ax = plt.subplots(figsize=(30, 15))
-
-    # Define a list of colormaps to use for gradations
-    colormaps = [plt.cm.Blues, plt.cm.Reds, plt.cm.Greens,
-                 plt.cm.Oranges, plt.cm.Purples, plt.cm.Greys,
-                 plt.cm.YlGnBu, plt.cm.BuPu, plt.cm.GnBu,
-                 plt.cm.PuRd, plt.cm.coolwarm, plt.cm.Spectral,
-                 plt.cm.PiYG, plt.cm.BrBG, plt.cm.viridis,
-                 plt.cm.plasma, plt.cm.cividis, plt.cm.magma, plt.cm.inferno]
-
-    # Function to generate gradations for a given number of t values
-    def get_gradated_colors(num_t_values, colormap):
-        return [colormap(i / num_t_values) for i in range(1, num_t_values + 1)]
-
-    # Dictionary to store legend handles and labels for each colormap
-    legend_data = {cmap.name: {"handles": [], "labels": []} for cmap in colormaps}
-
-    chrom = '1'
-    offset = 0
-    old_segment_end = 0
-    segment_xpos = -0.02
-    for segment_name, values in all_segments.items():
-        line = False
-        valid_sol_idx = np.where(['vals' in x for x in values.values()])[0]
-        choice = np.random.choice(valid_sol_idx)
-        choice = list(values.keys())[choice]
-        segment = values[choice]  # pick most general solution (last solution!)
-        segment_start = int(segment_name.split(':')[1].split('-')[0])
-        segment_end = int(segment_name.split(':')[1].split('-')[1])
-        new_chrom = segment_name.split(':')[0]
-
-        if new_chrom != chrom:
-            line = True
-            chrom = new_chrom
-
-        if line:
-            ax.vlines(offset, ymin=0, ymax=1, color='black', linestyle='--',
-                     linewidth=3)
-
-        if segment['vals'][0] is not None and not average:
-            x_vals, y_vals = segment['vals']
-            y_vals = {str(key): val for key, val in list(y_vals.items())}
-            y_vals = dict(sorted(y_vals.items(), key=lambda x: int(x[0][1:])))
-            cumulative_bottom = np.zeros(len(x_vals))  # Start stacking from the bottom
-
-            # Compute the total sum at each index across all variables
-            total_sum_per_index = np.sum(
-                np.array([values for values in y_vals.values()], dtype=float),
-                axis=0,
-            )
-            x_vals = np.linspace(0, 1, 3)
-
-            # Determine the number of t values and select the appropriate colormap
-            num_t_values = len(y_vals)
-            colormap = colormaps[(num_t_values - 1) % len(colormaps)]  # Cycle through colormaps
-            colors = get_gradated_colors(num_t_values, colormap)
-
-            for idx, (variable, values) in enumerate(y_vals.items()):
-                numeric_values = np.array(values, dtype=float)  # Ensure numeric
-                normalized_values = numeric_values / total_sum_per_index
-
-                legend_label = f"t{idx + 1}/{num_t_values}"  # e.g., t1/2, t2/2, t1/3, etc.
-
-                # Plot the segment
-                fill = ax.fill_between(
-                    x_vals * 91913600 + offset,
-                    cumulative_bottom,
-                    cumulative_bottom + normalized_values,
-                    color=colors[idx],
-                    alpha=0.8,
-                )
-
-                # Store the handle and label for the legend
-                if legend_label not in legend_data[colormap.name]["labels"]:
-                    legend_data[colormap.name]["handles"].append(fill)
-                    legend_data[colormap.name]["labels"].append(legend_label)
-
-                cumulative_bottom += normalized_values  # Stack for the next variable
-
-            segment_center = offset + 91913600 / 2  # Center of the segment
-            ax.text(
-                segment_center,
-                segment_xpos,  # Slightly below the y-axis range
-                segment_name,
-                rotation=45,
-                fontsize=14,
-                verticalalignment='top',
-                horizontalalignment='right',
-                rotation_mode='anchor'
-            )
-            ax.vlines(segment_center, 0, -0.015, color='black')
-            ax.text(segment_center, 1.02, copy_number_dict[segment_name],
-                    fontsize=15, rotation=90,
-                   verticalalignment='center',horizontalalignment='center')
-            offset += 91913600
-
-        elif segment['vals'][1] is not None or average:  # For constants
-            y_vals = segment['vals'][1]
-            y_vals = {str(key): np.median(val) for key, val in list(y_vals.items())}
-            y_vals = dict(sorted(y_vals.items(), key=lambda x: int(x[0][1:])))
-            x_vals = np.linspace(0, 1, 3)
-            cumulative_bottom = np.zeros(len(x_vals))  # Start stacking from the bottom
-
-            # Compute the total sum of constant values
-            total_sum = sum([float(value) for value in y_vals.values()])
-
-            # Determine the number of t values and select the appropriate colormap
-            num_t_values = len(y_vals)
-            colormap = colormaps[(num_t_values - 1) % len(colormaps)]  # Cycle through colormaps
-            colors = get_gradated_colors(num_t_values, colormap)
-
-            for idx, (variable, value) in enumerate(y_vals.items()):
-                numeric_value = float(value)
-                normalized_value = numeric_value / total_sum if total_sum > 0 else 0
-                constant_values = np.full(len(x_vals), normalized_value, dtype=float)
-
-                # Generate the legend label dynamically
-                if num_t_values == 1:
-                    legend_label = "t1/1"  # Special case for 1 t value
-                else:
-                    legend_label = f"t{idx + 1}/{num_t_values}"  # e.g., t1/2, t2/2, t1/3, etc.
-
-                # Plot the segment
-                fill = ax.fill_between(
-                    offset + x_vals * 91913600,
-                    cumulative_bottom,
-                    cumulative_bottom + constant_values,
-                    color=colors[idx],
-                    alpha=0.8,
-                )
-
-                # Store the handle and label for the legend
-                if legend_label not in legend_data[colormap.name]["labels"]:
-                    legend_data[colormap.name]["handles"].append(fill)
-                    legend_data[colormap.name]["labels"].append(legend_label)
-
-                cumulative_bottom += constant_values  # Stack for the next constant variable
-
-            segment_center = offset + 91913600 / 2  # Center of the segment
-            ax.text(
-                segment_center,
-                segment_xpos,
-                segment_name,
-                rotation=45,
-                fontsize=14,
-                verticalalignment='top',
-                horizontalalignment='right',
-                rotation_mode='anchor'
-            )
-            ax.vlines(segment_center, 0, -0.015, color='black')
-            ax.text(segment_center, 1.02, copy_number_dict[segment_name],
-                    fontsize=15, rotation=90,
-                   verticalalignment='center',horizontalalignment='center')
-            offset += 91913600
-
-    # Add legends for each colormap, placed to the right of the plot
-    legend_spacing = 0.23 # Adjust this to control the spacing between legends
-    for i, cmap in enumerate(colormaps):
-        if legend_data[cmap.name]["handles"]:  # Only add a legend if there are handles
-            legend = ax.legend(
-                legend_data[cmap.name]["handles"],
-                legend_data[cmap.name]["labels"],
-                title=f"n = {i+1}",
-                loc="center left",
-                fontsize=15,title_fontsize = 15,
-                bbox_to_anchor=(.955, 1.2 - legend_spacing),  # Place legends to the right
-                frameon=False
-            )
-            legend_spacing = legend_spacing * 1.4
-            ax.add_artist(legend)  # Add the legend to the plot
-
-    # Adjust the figure layout to make space for the legends
-    plt.subplots_adjust(right=0.7)  # Increase the right margin to fit the legends
-    ax.hlines(median_breakpoint, xmin = 0, xmax = offset, color='red',
-              linestyle = '--', linewidth=3)
-    ax.set_xlabel("")
-    ax.set_ylabel("Mutation time", fontsize=20)
-    average_tag = "" if not average else "_AVERAGED"
-    ax.set_title(f"{sample}{average_tag}", fontsize=30)
-    ax.grid(True)
-    plt.ylim(-0.1999,1.05)
-    ax.set_xticks([])
-    plt.tight_layout()
-    if output_path:
-        plt.savefig(output_path, dpi=300)
-    else:
-        plt.show()
-    plt.close()
+    return all_breakpoints, all_segments, df
 
 def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None, 
-                              solutions_dir = '/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions/'):
+                              solutions_dir = '/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions/',
+                             signatures=["SBS1"]):
+    
     if multiplicities_df is None:
         multiplicities_df = pd.read_csv(multiplicities_file, sep='\t')
 
     copy_number_dict = dict(zip(multiplicities_df['segment_id'],
                                multiplicities_df['major_cn'].astype(str)+'_' + multiplicities_df['minor_cn'].astype(str)))
-    signatures = ["SBS1"]
+    mle_dict = {}
+    #signatures = ["SBS1"]
     signature_tag = '_'.join(signatures)
     SBS_df = multiplicities_df.query('sig_max in @signatures')
-
-    #solutions_dir = '/n/data1/hms/dbmi/park/jbrew/matrices/new_solutions' #CHANGE TO DOWNSIZED WHEN COMPLETE
-    #all_solutions = os.listdir(solutions_dir)
-
     segment_solutions = defaultdict(lambda: defaultdict(dict))
 
     for idx, row in SBS_df.iterrows():
@@ -490,7 +213,7 @@ def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None,
         var(N_vars)
         var(t_vars)
         N_values = {var(N_var): N_val for N_var, N_val in row.filter(items = N_vars).items()}
-        if sum(N_values.values()) < 5:
+        if sum(N_values.values()) < 1:
             continue
 
         max_in_row = max(int(num[1:]) for num in row.filter(regex='N.*').keys().to_list())
@@ -500,10 +223,14 @@ def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None,
             for i in range(max_in_row+1, major+1):
                 N_values[var(f'N{i}')] = 0
 
+        if (major >= 7 and minor >= 6) or (major > 7):
+            print(f"Copy number of segment ({major},{minor}) too high, skipping...")
+            continue
+        
         sols = get_solutions(major, minor, solutions_dir)
         unfit = defaultdict(list)
         unfit_constraints = defaultdict(list)
-
+        
         for sol_file in sols:
             solution = load(sol_file)
             segment_solutions[segment][sol_file] = list()
@@ -551,16 +278,19 @@ def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None,
                 curr_sol = {'constants': constants,
                         'non-constants': nonconstants,
                         'min_max': indep_min_max}
-
+                
                 segment_solutions[segment][sol_file].append(curr_sol)
             else:
                 constraints = [x for x in solution if all([var(t_var) not in x.variables() for t_var in t_vars])]
                 unfit[sol_file].append(solution)
                 unfit_constraints[sol_file].append(constraints)
-                
+        
         ## DEALING WITH MLE estimates
         if sum([len(x) for x in segment_solutions[segment].values()]) == 0:
-            print('NO SOLUTION! Calculating MLE estimate')
+            #print("NO SOLUTION! Calculating MLE estimate")
+            #print(segment)
+            #print(segment_solutions[segment])
+            #print(unfit_constraints)
             unfit_likelihoods = {}
             unfit_lambdas = {}
 
@@ -589,11 +319,12 @@ def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None,
                 mle_lambdas = result.x  # MLE for each lambda
 
                 max_likelihood = np.prod(poisson.pmf(observed_counts, mle_lambdas))
-
+                
                 unfit_likelihoods[name] = max_likelihood
                 unfit_lambdas[name] = mle_lambdas
 
             sol_file = max(unfit_likelihoods, key=unfit_likelihoods.get)
+            mle_dict[segment] = max(unfit_likelihoods.values())
             solution = load(sol_file)
 
             N_values = {N_val: val for N_val, val in zip(N_values.keys(), np.round(unfit_lambdas[sol_file], decimals=8))}
@@ -606,8 +337,6 @@ def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None,
                 print(no_variable)
                 break
             if all(no_variable):
-                #print("PASSED!")
-                #solution_found = True
                 #split into equalities and inequalities
                 equalities = [var for var in variable if var.operator() == operator.eq]
                 inequalities = [var for var in variable if var.operator() in [operator.le, operator.ge]]
@@ -631,7 +360,7 @@ def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None,
                     operators = [ineq.operator() for ineq in relevant_ineqs]
                     indep_min = float('inf')
                     indep_max = -float('inf')
-                    #print(relevant_ineqs, operators)
+
                     for ineq, _operator in zip(relevant_ineqs, operators):
                         if not len(ineq.lhs().variables()):
                             if _operator == operator.le:
@@ -652,23 +381,289 @@ def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None,
     sorted_segments = dict(sorted(
         segment_solutions.items(),
         key=lambda item: (parse_chromosome(item[0].split(':')[0]), int(item[0].split(':')[1].split('-')[0]))))
-    return sorted_segments, copy_number_dict
+    return sorted_segments, copy_number_dict, mle_dict
 
+def plot_timing_results(sample, all_segments, breakpoint_median, cn_dict, mle_dict, output_path=None, average=False, ref='hg37'):
+    chr_lengths_hg38 = """chr1	248956422
+chr2	242193529
+chr3	198295559
+chr4	190214555
+chr5	181538259
+chr6	170805979
+chr7	159345973
+chrX	156040895
+chr8	145138636
+chr9	138394717
+chr11	135086622
+chr10	133797422
+chr12	133275309
+chr13	114364328
+chr14	107043718
+chr15	101991189
+chr16	90338345
+chr17	83257441
+chr18	80373285
+chr20	64444167
+chr19	58617616
+chrY	57227415
+chr22	50818468
+chr21	46709983"""
+    
+    chr_lengths_hg37 = """chr1	249250621
+chr2	243199373
+chr3	198022430
+chr4	191154276
+chr5	180915260
+chr6	171115067
+chr7	159138663
+chrX	155270560
+chr8	146364022
+chr9	141213431
+chr10	135534747
+chr11	135006516
+chr12	133851895
+chr13	115169878
+chr14	107349540
+chr15	102531392
+chr16	90354753
+chr17	81195210
+chr18	78077248
+chr20	63025520
+chrY	59373566
+chr19	59128983
+chr22	51304566
+chr21	48129895"""
 
-def calculate_timing_solutions(sample, multiplicities_file=None, multiplicities_df=None, output_plot=None, average=False,
-                               solutions_dir = '../../solutions/'):
+    chr_lengths = chr_lengths_hg37 if ref=='hg37' else chr_lengths_hg38
+    data = StringIO(chr_lengths)
+    df = pd.read_csv(data, sep='\t', header=None, names=['Chromosome', 'Length'])
+    chr_length_dict = dict(zip(df['Chromosome'], df['Length']))
+    chr_length_dict['chr0']=0
+    
+    copy_number_dict = cn_dict
+    
+    ### PLOTTING SEGMENT TIMINGS
+    max_mle_val = max(mle_dict.values()) if len(mle_dict.values()) else 0
+    fig, ax = plt.subplots(figsize=(30, 15))
+
+    colormaps = [plt.cm.Blues, plt.cm.Reds, plt.cm.Greens,
+                 plt.cm.Oranges, plt.cm.Purples, plt.cm.Greys,
+                 plt.cm.YlGnBu, plt.cm.BuPu, plt.cm.GnBu,
+                 plt.cm.PuRd, plt.cm.coolwarm, plt.cm.Spectral,
+                 plt.cm.PiYG, plt.cm.BrBG, plt.cm.viridis,
+                 plt.cm.plasma, plt.cm.cividis, plt.cm.magma, plt.cm.inferno]
+
+    def get_gradated_colors(num_t_values, colormap):
+        return [colormap(i / num_t_values) for i in range(1, num_t_values + 1)]
+
+    legend_data = {cmap.name: {"handles": [], "labels": []} for cmap in colormaps}
+
+    chrom = 'chr0'
+    offset = 0
+    old_segment_end = 0
+    segment_xpos = -0.02
+    old_segment_end = 0
+    
+    for segment_name, values in all_segments.items():
+        line = False
+        indep_vars = [x['indep_vars'] > 1 for x in values.values()]
+        if all(indep_vars):
+            print(">1 independent variables, skipping...")
+            continue
+        valid_sol_idx = np.where(['vals' in x for x in values.values()])[0]
+        choice = np.random.choice(valid_sol_idx)
+        choice = list(values.keys())[choice]
+        segment = values[choice]  # pick most general solution (last solution!)
+            
+        segment_start = int(segment_name.split(':')[1].split('-')[0])
+        
+        new_chrom = segment_name.split(':')[0]
+        if new_chrom != chrom:
+            line = True
+            chrom_edited = chrom if 'chr' in chrom else 'chr'+chrom
+            gap = chr_length_dict[chrom_edited] - old_segment_end
+            chrom = new_chrom
+        else:
+            gap = segment_start - old_segment_end if old_segment_end != 0 else 0
+        
+        #print("gap:", gap, "segment start:", segment_start, "prev segment end:", old_segment_end)
+        segment_end = int(segment_name.split(':')[1].split('-')[1])
+        old_segment_end = segment_end
+        segment_length = segment_end - segment_start
+
+        gap_x = np.linspace(0, gap, 2)+offset
+        ax.fill_between(gap_x,[0]*2, [1]*2, color='white')
+        offset += gap
+        mle_val = mle_dict.get(segment_name, '')
+        mle_val = mle_val if type(mle_val) == str else f'{mle_val:.3f}'
+
+        if line:
+            ax.vlines(offset, ymin=0, ymax=1, color='black', linestyle='--',
+                     linewidth=3)
+            ax.fill_between(np.linspace(offset, offset+segment_start, 2),[0]*2, [1]*2, color='white')
+            offset+=segment_start
+        
+        if segment['vals'][0] is not None and not average:
+            x_vals, y_vals = segment['vals']
+            y_vals = {str(key): val for key, val in list(y_vals.items())}
+            y_vals = dict(sorted(y_vals.items(), key=lambda x: int(x[0][1:])))
+            cumulative_bottom = np.zeros(len(x_vals))  # Start stacking from the bottom
+
+            # Compute the total sum at each index across all variables
+            total_sum_per_index = np.sum(
+                np.array([values for values in y_vals.values()], dtype=float),
+                axis=0
+            )
+            x_vals = np.linspace(0, 1, 3)
+
+            # Determine the number of t values and select the appropriate colormap
+            num_t_values = len(y_vals)
+            colormap = colormaps[(num_t_values - 1) % len(colormaps)]  # Cycle through colormaps
+            colors = get_gradated_colors(num_t_values, colormap)
+
+            for idx, (variable, values) in enumerate(y_vals.items()):
+                numeric_values = np.array(values, dtype=float)  # Ensure numeric
+                normalized_values = numeric_values / total_sum_per_index
+
+                legend_label = f"t{idx + 1}/{num_t_values}"  # e.g., t1/2, t2/2, t1/3, etc.
+
+                # Plot the segment
+                fill = ax.fill_between(
+                    x_vals * segment_length + offset,
+                    cumulative_bottom,
+                    cumulative_bottom + normalized_values,
+                    color=colors[idx],
+                    alpha=0.8
+                )
+
+                # Store the handle and label for the legend
+                if legend_label not in legend_data[colormap.name]["labels"]:
+                    legend_data[colormap.name]["handles"].append(fill)
+                    legend_data[colormap.name]["labels"].append(legend_label)
+
+                cumulative_bottom += normalized_values  # Stack for the next variable
+
+        elif segment['vals'][1] is not None or average:  # For constants
+            y_vals = segment['vals'][1]
+            y_vals = {str(key): np.median(val) for key, val in list(y_vals.items())}
+            y_vals = dict(sorted(y_vals.items(), key=lambda x: int(x[0][1:])))
+            x_vals = np.linspace(0, 1, 3)
+            cumulative_bottom = np.zeros(len(x_vals))  # Start stacking from the bottom
+
+            # Compute the total sum of constant values
+            total_sum = sum([float(value) for value in y_vals.values()])
+
+            # Determine the number of t values and select the appropriate colormap
+            num_t_values = len(y_vals)
+            colormap = colormaps[(num_t_values - 1) % len(colormaps)]  # Cycle through colormaps
+            colors = get_gradated_colors(num_t_values, colormap)
+
+            for idx, (variable, value) in enumerate(y_vals.items()):
+                numeric_value = float(value)
+                normalized_value = numeric_value / total_sum if total_sum > 0 else 0
+                constant_values = np.full(len(x_vals), normalized_value, dtype=float)
+
+                legend_label = f"t{idx + 1}/{num_t_values}"  # e.g., t1/2, t2/2, t1/3, etc.
+
+                # Plot the segment
+                fill = ax.fill_between(
+                    offset + x_vals * segment_length,
+                    cumulative_bottom,
+                    cumulative_bottom + constant_values,
+                    color=colors[idx],
+                    alpha=0.8
+                )
+
+                # Store the handle and label for the legend
+                if legend_label not in legend_data[colormap.name]["labels"]:
+                    legend_data[colormap.name]["handles"].append(fill)
+                    legend_data[colormap.name]["labels"].append(legend_label)
+
+                cumulative_bottom += constant_values  # Stack for the next constant variable
+
+        segment_center = offset + segment_length / 2  # Center of the segment
+        ax.text(
+            segment_center,
+            segment_xpos,
+            segment_name,
+            rotation=45,
+            fontsize=10,
+            verticalalignment='top',
+            horizontalalignment='right',
+            rotation_mode='anchor'
+        )
+        ax.vlines(segment_center, 0, -0.015, color='black')
+        ax.text(segment_center, 1.02, copy_number_dict[segment_name],
+                fontsize=15, rotation=90,
+               verticalalignment='center',horizontalalignment='center')
+
+        #plotting MLE value
+        ax.text(segment_center, 1.1, mle_val,
+                fontsize=15, rotation=90,
+               verticalalignment='center',horizontalalignment='center')
+        offset += segment_length
+
+    # Add legends for each colormap, placed to the right of the plot
+    legend_spacing = 0.23 # Adjust this to control the spacing between legends
+    for i, cmap in enumerate(colormaps):
+        if legend_data[cmap.name]["handles"]:  # Only add a legend if there are handles
+            legend = ax.legend(
+                legend_data[cmap.name]["handles"],
+                legend_data[cmap.name]["labels"],
+                title=f"n = {i+1}",
+                loc="center left",
+                fontsize=15,title_fontsize = 15,
+                bbox_to_anchor=(.955, 1.2 - legend_spacing),  # Place legends to the right
+                frameon=False
+            )
+            legend_spacing = legend_spacing * 1.4
+            ax.add_artist(legend)  # Add the legend to the plot
+
+    # Adjust the figure layout to make spaace for the legends
+    plt.subplots_adjust(right=0.7)  # Increase the right margin to fit the legends
+    ax.hlines(breakpoint_median, xmin = 0, xmax = offset, color='red',
+              linestyle = '--', linewidth=3)
+    ax.set_xlabel("")
+    ax.set_ylabel("Mutation time", fontsize=20)
+    average_tag = "" if not average else "_AVERAGED"
+    ax.set_title(f"{sample}{average_tag}", fontsize=30, y=1.1)
+    ax.grid(True)
+    plt.ylim(-0.1999,1.05)
+    ax.set_xticks([])
+    plt.tight_layout()
+    if output_path:
+        plt.savefig(output_path, dpi=300)
+    else:
+        plt.show()
+    plt.close()
+
+def calculate_timing_solutions(sample, multiplicities_file=None, 
+                               multiplicities_df=None, output_tsv = None, 
+                               output_plot=None, average=False,
+                               solutions_dir = '/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions/',
+                              ref='hg37', plot=True):
         #solutions_dir = '/n/data1/hms/dbmi/park/jbrew/matrices/new_solutions'):
 
-    sorted_segments, copy_number_dict = get_per_segment_solutions(multiplicities_file=multiplicities_file, 
+    sorted_segments, copy_number_dict, mle_dict = get_per_segment_solutions(multiplicities_file=multiplicities_file, 
                                                                   multiplicities_df=multiplicities_df, 
                                                                   solutions_dir=solutions_dir)
-    solutions_df = process_solutions(sorted_segments)
-    breakpoints, all_segments = calculate_breakpoints(sorted_segments)
+    #solutions_df = process_solutions(sorted_segments)
+    breakpoints, all_segments, solutions_df = calculate_breakpoints(sorted_segments)
+    
+    solutions_df['seg_length'] = solutions_df['end'].astype(int) - solutions_df['start'].astype(int)
+    seg_lengths = np.array(solutions_df['seg_length'])
+    breakpoints = [np.array([x for x in y if x > 1e-2 and x < 9.9e-1]) for y in solutions_df['breakpoints']]
+    weighted_median_vals = [np.repeat(x, math.ceil(y*1e-7)) for x,y in zip(breakpoints, seg_lengths)]
+    weighted_median = np.median([x for y in weighted_median_vals for x in y])
+    if output_tsv:
+        solutions_df.to_csv(output_tsv)
     if output_plot:
-        plot_timing_results(sample, all_segments, np.median(breakpoints), output_plot,
-                           cn_dict=copy_number_dict)
+        plot_timing_results(sample, all_segments, breakpoint_median=weighted_median, 
+                            output_path=output_plot, cn_dict=copy_number_dict, average=average, mle_dict=mle_dict, ref=ref)
+    elif plot:
+        plot_timing_results(sample, all_segments, breakpoint_median=weighted_median,
+                           cn_dict=copy_number_dict, average=average, mle_dict=mle_dict, ref=ref)
     else:
-        plot_timing_results(sample, all_segments, np.median(breakpoints),
-                           cn_dict=copy_number_dict)
+        return sorted_segments, solutions_df, breakpoints
         
     return sorted_segments, solutions_df, breakpoints
