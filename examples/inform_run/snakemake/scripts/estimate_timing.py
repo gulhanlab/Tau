@@ -33,9 +33,10 @@ output_plot=args.output_plot
 #        cn_dict=copy_number_dict) 
 
 #all in one function now (simplified)
-sorted_segments, timing_df, breakpoints = tau.calculate_timing_solutions(sample, 
+sorted_segments, timing_df, breakpoints = tau.calculate_timing_solutions(sample,
+		output_tsv = output_tsv,
         multiplicities_file=multiplicities, output_plot=output_plot, average=False)
 
-timing_df.to_csv(output_tsv, sep='\t')
+#timing_df.to_csv(output_tsv, sep='\t')
 
 #plotting trees?

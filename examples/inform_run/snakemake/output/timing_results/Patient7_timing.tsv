@@ -1,6 +1,0 @@
-	chromosome	start	end	t1	t2	sum_t1_to_t1	sum_t1_to_t2	fully_solved	no_solution	tree_structure
-0	chr11	1	17476043	5/2		5/2		True	False	1_1.1
-1	chr15	18362627	30874000	1	5/2	1	7/2	True	False	2_0.1
-2	chr4	137539001	145036000	1	4/3	1	7/3	True	False	2_1.1
-3	chr7	152464021	156610000	2.5	0.0	2.5	2.5	True	False	2_1.1
-4	chr2	228643001	238455000	2.5	0.0	2.5	2.5	True	False	2_1.1
