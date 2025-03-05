@@ -8,7 +8,7 @@
 
 # Background
 
-<img align="right" src="https://github.com/gulhanlab/Tau/blob/main/inst/extdata/image/Mutations_as_clocks_at_amplified_segments.png" width="400">
+<img align="right" src="https://github.com/gulhanlab/Tau_R/blob/main/inst/extdata/image/Mutations_as_clocks_at_amplified_segments.png" width="400">
 
 Point mutations can be used to time copy number amplifications based on:
 * the assumption that mutation counts reflect molecular clock, meaning older cells carry more mutations.
@@ -18,7 +18,7 @@ Point mutations can be used to time copy number amplifications based on:
 
 Here is a diagram showing the time evolution for a diploid chromosome segment (on the left hand side) that evolves into a major copy number 3 and minor copy number 2 state.
 
-![Image description](https://github.com/gulhanlab/Tau/blob/main/inst/extdata/image/Diagram_to_equations.png)
+![Image description](https://github.com/gulhanlab/Tau_R/blob/main/inst/extdata/image/Diagram_to_equations.png)
 
 Assuming molecular time is measured by number of mutations, the time intervals are expected to be proportional to number of mutations based on the equations listed above (add the t intervals for each color). 
 
@@ -26,7 +26,7 @@ Assuming molecular time is measured by number of mutations, the time intervals a
 
 For the example above we have three diagrams that differ from each other based on when minor allele is amplified with respect to major allele.
 
-![Image description](https://github.com/gulhanlab/Tau/blob/main/inst/extdata/image/diagrams.png)
+![Image description](https://github.com/gulhanlab/Tau_R/blob/main/inst/extdata/image/diagrams.png)
 
 Two of the diagrams results in the same set of equations, while third one where amplification in minor segments happen first differs.
 
@@ -34,21 +34,21 @@ Two of the diagrams results in the same set of equations, while third one where 
 
 Despite the lack of exact solutions for several copy number evolution trajectories, it is always possible to apply a normalization to the mutation counts such that the boost on the number of mutations due to more DNA material can be cancelled out. This normalization has a geometric interpretation as demonstrated for the M = 3, N = 2 state in the diagram below by the dashed lines that complete the missing lines in our grid. The green lines are duplicated (meaning a factor of 2 for N2) and the red line tripled (meaning a factor of 3 for N3). N<sub>1</sub> + 2N<sub>2</sub> + 3N<sub>3</sub> 
 
-![Image description](https://github.com/gulhanlab/Tau/blob/main/inst/extdata/image/Normalization.png)
+![Image description](https://github.com/gulhanlab/Tau_R/blob/main/inst/extdata/image/Normalization.png)
 
 ## Matrix representation of diagrams
 
 The set of linear equations can be represented as a matrix equation, for the example above:
 
-<img class="center" src="https://github.com/gulhanlab/Tau/blob/main/inst/extdata/image/Matrix_representation.png" width=500>
+<img class="center" src="https://github.com/gulhanlab/Tau_R/blob/main/inst/extdata/image/Matrix_representation.png" width=500>
 
 In the A matrix, the placement of values in each row indicates final CN values, for example a value of 1 in row 3 indicates that the segment will be amplified to 3 copies, a value of 2 in row 2 indicates two segments that will be amplified to 2 copies, a diagonal change in the numbers mean a branching from a given state to another, see the arrows below. In addition, matrix A can be expressed as the sum of contributions of minor (N) and major (M) chromosome, which are composed of branching (B<sub>M</sub> and B<sub>N</sub>) and propagation matrices (P<sub>M</sub> and P<sub>N</sub>)
 
-<img class="center" src="https://github.com/gulhanlab/Tau/blob/main/inst/extdata/image/factorizing_A_matrix.png" width = 700>
+<img class="center" src="https://github.com/gulhanlab/Tau_R/blob/main/inst/extdata/image/factorizing_A_matrix.png" width = 700>
 
 For the above matrices the graphical represantation of propagation and branching matrices are as shown below:
 
-<img class="center" src="https://github.com/gulhanlab/Tau/blob/main/inst/extdata/image/propagations_branchings.png" width="600">
+<img class="center" src="https://github.com/gulhanlab/Tau_R/blob/main/inst/extdata/image/propagations_branchings.png" width="600">
 
 ## Systematically compose the A matrices
 
