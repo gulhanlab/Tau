@@ -122,7 +122,7 @@ def calculate_breakpoints(sorted_segments):
         start, end = positions.split('-')
         for sol_name, solution in data.items():
             if 'vals' not in solution:
-                row = {
+                row = {'segment_id': segment_id,
                     'chromosome': chrom,
                     'start': start,
                     'end': end,
@@ -131,12 +131,11 @@ def calculate_breakpoints(sorted_segments):
                     'solved': False, 'fully_solved': False
                         }
             else:
-                row = {
+                row = {'segment_id': segment_id,
                         'chromosome': chrom,
                         'start': start,
                         'end': end,
-                        'file_path': sol_name
-                            }
+                        'file_path': sol_name}
                 for t_var in sorted_t_vars:
                     y_vals = solution['vals'][1]
                     row[t_var] = np.median(y_vals[t_var]) if t_var in y_vals else np.nan
@@ -151,7 +150,7 @@ def calculate_breakpoints(sorted_segments):
             rows.append(row)
 
     average_df = pd.DataFrame(rows)
-
+    
     t_cols = average_df.filter(regex=r't\d').astype(float)
     normalized = t_cols.apply(lambda x: x / np.sum(x), axis=1)
 
@@ -161,7 +160,7 @@ def calculate_breakpoints(sorted_segments):
     normalized = normalized.rename(columns=lambda col: f"{col}_norm")
     average_df = pd.concat([average_df, normalized, normalized_cumsum], axis=1)
     average_df['major'] = average_df['file_path'].apply(lambda x: re.split(r'_|\.', os.path.basename(x))[0])
-    average_df['minor'] = average_df['file_path'].apply(lambda x: re.split(r'_|\.', os.path.basename(x))[2])
+    average_df['minor'] = average_df['file_path'].apply(lambda x: re.split(r'_|\.', os.path.basename(x))[1])
     average_df.columns = [str(x) for x in list(average_df.columns)]
 
     # Extract timing and sum columns
@@ -187,24 +186,75 @@ def calculate_breakpoints(sorted_segments):
 
 def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None, 
                               solutions_dir = '/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions/',
-                             signatures=["SBS1"]):
+                             signatures=["SBS1"], min_snvs = 5, min_merge_gap=0.1):
     
     if multiplicities_df is None:
         multiplicities_df = pd.read_csv(multiplicities_file, sep='\t')
 
-    copy_number_dict = dict(zip(multiplicities_df['segment_id'],
-                               multiplicities_df['major_cn'].astype(str)+'_' + multiplicities_df['minor_cn'].astype(str)))
+    multiplicities_df['chr'] = multiplicities_df['segment_id'].apply(lambda x: parse_chromosome(x.split(':')[0]))
+    multiplicities_df['chr_str'] = multiplicities_df['segment_id'].apply(lambda x:x.split(':')[0])
+    multiplicities_df['start'] = multiplicities_df['segment_id'].apply(lambda x: int(re.split(':|-', x)[1]))
+    multiplicities_df['end'] = multiplicities_df['segment_id'].apply(lambda x: int(re.split(':|-', x)[2]))
+    multiplicities_df = multiplicities_df.sort_values(by=['chr','start'])
     mle_dict = {}
     #signatures = ["SBS1"]
     signature_tag = '_'.join(signatures)
     SBS_df = multiplicities_df.query('sig_max in @signatures')
+    
     segment_solutions = defaultdict(lambda: defaultdict(dict))
-
+    
+    #new merging code
+    def get_segment_info(row):
+        major, minor = row[['major_cn','minor_cn']]
+        cn = str(major)+'_'+str(minor)
+        chrom = row['chr_str']
+        start, end = row[['start', 'end']]
+        length = end - start
+        return cn, chrom, start, end, length
+    
+    i = 0
+    new_df = list()
+    while i < SBS_df.shape[0]-1:
+        j = 1
+        merged=False
+        row1, row2 = SBS_df.iloc[i], SBS_df.iloc[i+j]
+        cn1, chrom1, start1, end1, length1 = get_segment_info(row1)
+        cn2, chrom2, start2, end2, length2 = get_segment_info(row2)
+        gap = start2 - end1
+        #if copy numbers are equal and gap between adjacent segments is less than 10% of smallest segment, then merge!
+        merged_segments = list()
+        merged_segments.append(row1['segment_id'])
+        while cn1 == cn2 and chrom1 == chrom2 and gap < min_merge_gap * np.min([length1, length2]):
+            merged=True
+            row1 = row1.copy()
+            merged_segments.append(row2['segment_id'])
+            
+            #updating first row to represent merged row1 and row2 
+            row1['end'] = row2['end']
+            row1[row1.filter(regex='N.*').index] = row1.filter(regex='N.*') + row2.filter(regex='N.*')
+            row1['segment_id'] = str(chrom2) +':'+str(start1)+'-'+str(end2) 
+            j+=1
+            
+            #updating row2 to be the NEXT row
+            if i+j >= SBS_df.shape[0]-1:
+                break
+            row2 = SBS_df.iloc[i+j]
+            cn2, chrom2, start2, end2, length2 = get_segment_info(row2)
+    
+        row1 = row1.copy()
+        if merged:
+            print(f"MERGED {len(merged_segments)} SEGMENTS: " + ','.join(merged_segments))
+        row1['merged'] = merged
+        new_df.append(row1)
+        i+=j
+    
+    SBS_df = pd.DataFrame(new_df)
+    #print(SBS_df)
     for idx, row in SBS_df.iterrows():
         #calculate segment by segment timing results
         segment = row['segment_id']
-        major = row['major_cn']
-        minor = row['minor_cn']
+        major = int(row['major_cn'])
+        minor = int(row['minor_cn'])
         N_vars = [f'N{i}' for i in range(1, major+1)]
         t_num = major + minor - 1 if minor > 0 else major
         if t_num == 0:
@@ -213,7 +263,7 @@ def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None,
         var(N_vars)
         var(t_vars)
         N_values = {var(N_var): N_val for N_var, N_val in row.filter(items = N_vars).items()}
-        if sum(N_values.values()) < 1:
+        if sum(N_values.values()) < min_snvs:
             continue
 
         max_in_row = max(int(num[1:]) for num in row.filter(regex='N.*').keys().to_list())
@@ -381,9 +431,9 @@ def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None,
     sorted_segments = dict(sorted(
         segment_solutions.items(),
         key=lambda item: (parse_chromosome(item[0].split(':')[0]), int(item[0].split(':')[1].split('-')[0]))))
-    return sorted_segments, copy_number_dict, mle_dict
+    return sorted_segments, mle_dict
 
-def plot_timing_results(sample, all_segments, breakpoint_median, cn_dict, mle_dict, output_path=None, average=False, ref='hg37'):
+def plot_timing_results(sample, all_segments, breakpoint_median, mle_dict, output_path=None, average=False, ref='hg37'):
     chr_lengths_hg38 = """chr1	248956422
 chr2	242193529
 chr3	198295559
@@ -440,7 +490,7 @@ chr21	48129895"""
     chr_length_dict = dict(zip(df['Chromosome'], df['Length']))
     chr_length_dict['chr0']=0
     
-    copy_number_dict = cn_dict
+    #copy_number_dict = cn_dict
     
     ### PLOTTING SEGMENT TIMINGS
     max_mle_val = max(mle_dict.values()) if len(mle_dict.values()) else 0
@@ -490,7 +540,7 @@ chr21	48129895"""
         segment_end = int(segment_name.split(':')[1].split('-')[1])
         old_segment_end = segment_end
         segment_length = segment_end - segment_start
-
+        
         gap_x = np.linspace(0, gap, 2)+offset
         ax.fill_between(gap_x,[0]*2, [1]*2, color='white')
         offset += gap
@@ -593,7 +643,10 @@ chr21	48129895"""
             rotation_mode='anchor'
         )
         ax.vlines(segment_center, 0, -0.015, color='black')
-        ax.text(segment_center, 1.02, copy_number_dict[segment_name],
+
+        major=re.split(r'_|\.', os.path.basename(choice))[0]
+        minor=re.split(r'_|\.', os.path.basename(choice))[1]
+        ax.text(segment_center, 1.02, str(major)+'_'+str(minor),
                 fontsize=15, rotation=90,
                verticalalignment='center',horizontalalignment='center')
 
@@ -641,12 +694,13 @@ def calculate_timing_solutions(sample, multiplicities_file=None,
                                multiplicities_df=None, output_tsv = None, 
                                output_plot=None, average=False,
                                solutions_dir = '/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions/',
-                              ref='hg37', plot=True):
+                              ref='hg37', plot=True, min_snvs = 5, min_merge_gap=0.01):
         #solutions_dir = '/n/data1/hms/dbmi/park/jbrew/matrices/new_solutions'):
 
-    sorted_segments, copy_number_dict, mle_dict = get_per_segment_solutions(multiplicities_file=multiplicities_file, 
+    sorted_segments, mle_dict = get_per_segment_solutions(multiplicities_file=multiplicities_file, 
                                                                   multiplicities_df=multiplicities_df, 
-                                                                  solutions_dir=solutions_dir)
+                                                                  solutions_dir=solutions_dir, 
+                                                          min_snvs=min_snvs, min_merge_gap=min_merge_gap)
     #solutions_df = process_solutions(sorted_segments)
     breakpoints, all_segments, solutions_df = calculate_breakpoints(sorted_segments)
     
@@ -659,10 +713,9 @@ def calculate_timing_solutions(sample, multiplicities_file=None,
         solutions_df.to_csv(output_tsv)
     if output_plot:
         plot_timing_results(sample, all_segments, breakpoint_median=weighted_median, 
-                            output_path=output_plot, cn_dict=copy_number_dict, average=average, mle_dict=mle_dict, ref=ref)
+                            output_path=output_plot, average=average, mle_dict=mle_dict, ref=ref)
     elif plot:
-        plot_timing_results(sample, all_segments, breakpoint_median=weighted_median,
-                           cn_dict=copy_number_dict, average=average, mle_dict=mle_dict, ref=ref)
+        plot_timing_results(sample, all_segments, breakpoint_median=weighted_median, average=average, mle_dict=mle_dict, ref=ref)
     else:
         return sorted_segments, solutions_df, breakpoints
         
