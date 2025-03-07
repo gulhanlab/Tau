@@ -1,0 +1,5 @@
+,segment_id,chromosome,start,end,file_path,t1,t2,averaged,solved,fully_solved,t1_norm,t2_norm,t1_norm_cumsum,t2_norm_cumsum,major,minor,breakpoints,seg_length
+0,chr3:73856001-84649000,chr3,73856001,84649000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,10,,False,True,False,1.0,,1.0,,1,0,[1.0],10792999
+1,chr8:1664001-17077000,chr8,1664001,17077000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,6,,False,True,False,1.0,,1.0,,1,0,[1.0],15412999
+2,chr17:9585001-54879000,chr17,9585001,54879000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,6,,False,True,False,1.0,,1.0,,1,0,[1.0],45293999
+3,chr19:3830001-12588000,chr19,3830001,12588000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,4.0,0.0,False,True,False,1.0,0.0,1.0,1.0,2,1,"[1.0, 1.0]",8757999

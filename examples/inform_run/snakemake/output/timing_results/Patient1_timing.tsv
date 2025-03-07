@@ -1,0 +1,13 @@
+,segment_id,chromosome,start,end,file_path,t1,averaged,solved,fully_solved,t1_norm,t1_norm_cumsum,major,minor,breakpoints,seg_length
+0,chr2:10018718-242193529,chr2,10018718,242193529,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,13,False,True,False,1.0,1.0,1,1,[1.0],232174811
+1,chr4:47354001-131682461,chr4,47354001,131682461,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,5,False,True,False,1.0,1.0,1,1,[1.0],84328460
+2,chr5:100909001-180591887,chr5,100909001,180591887,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,13/2,False,True,False,1.0,1.0,1,1,[1.0],79682886
+3,chr6:78772814-170805979,chr6,78772814,170805979,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,7,False,True,False,1.0,1.0,1,0,[1.0],92033165
+4,chr7:55649001-159345973,chr7,55649001,159345973,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,17/2,False,True,False,1.0,1.0,1,1,[1.0],103696972
+5,chr10:1-107741125,chr10,1,107741125,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,9/2,False,True,False,1.0,1.0,1,1,[1.0],107741124
+6,chr15:61138911-91876910,chr15,61138911,91876910,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,5/2,False,True,False,1.0,1.0,1,1,[1.0],30737999
+7,chr16:1-30580450,chr16,1,30580450,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,3,False,True,False,1.0,1.0,1,1,[1.0],30580449
+8,chr17:1-83257441,chr17,1,83257441,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,7,False,True,False,1.0,1.0,1,1,[1.0],83257440
+9,chr18:11748309-74219000,chr18,11748309,74219000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,4,False,True,False,1.0,1.0,1,1,[1.0],62470691
+10,chr19:35259985-58617616,chr19,35259985,58617616,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,5/2,False,True,False,1.0,1.0,1,1,[1.0],23357631
+11,chr22:1-40771542,chr22,1,40771542,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,3,False,True,False,1.0,1.0,1,1,[1.0],40771541
