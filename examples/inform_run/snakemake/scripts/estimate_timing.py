@@ -35,7 +35,8 @@ output_plot=args.output_plot
 #all in one function now (simplified)
 sorted_segments, timing_df, breakpoints = tau.calculate_timing_solutions(sample,
 		output_tsv = output_tsv,
-        multiplicities_file=multiplicities, output_plot=output_plot, average=False)
+        multiplicities_file=multiplicities, output_plot=output_plot, average=False,
+		ref='hg37', min_merge_gap=100)
 
 #timing_df.to_csv(output_tsv, sep='\t')
 

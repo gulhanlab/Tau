@@ -1,53 +1,53 @@
-,segment_id,chromosome,start,end,file_path,t1,t2,averaged,solved,fully_solved,t1_norm,t2_norm,t1_norm_cumsum,t2_norm_cumsum,major,minor,breakpoints,seg_length
-0,chr1:66356001-219698155,chr1,66356001,219698155,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,43/2,,False,True,False,1.0,,1.0,,1,1,[1.0],153342154
-1,chr1:228357001-236142161,chr1,228357001,236142161,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_0.1_solutions_downsized.sobj,0,5/2,False,True,False,0.0,1.0,0.0,1.0,2,0,"[0.0, 1.0]",7785160
-2,chr2:1-27681000,chr2,1,27681000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,2,7/3,False,True,False,0.46153846153846145,0.5384615384615384,0.46153846153846145,0.9999999999999999,2,1,"[0.46153846153846145, 0.9999999999999999]",27680999
-3,chr2:47191159-55665441,chr2,47191159,55665441,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,3,,False,True,False,1.0,,1.0,,1,1,[1.0],8474282
-4,chr2:63033883-85576000,chr2,63033883,85576000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,6,,False,True,False,1.0,,1.0,,1,1,[1.0],22542117
-5,chr2:86306114-128403702,chr2,86306114,128403702,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,7,,False,True,False,1.0,,1.0,,1,1,[1.0],42097588
-6,chr2:128421790-170613907,chr2,128421790,170613907,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,7,,False,True,False,1.0,,1.0,,1,0,[1.0],42192117
-7,chr2:181135169-236694000,chr2,181135169,236694000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,8,,False,True,False,1.0,,1.0,,1,0,[1.0],55558831
-8,chr3:1-22501193,chr3,1,22501193,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_0.1_solutions_downsized.sobj,1,3,False,True,False,0.25,0.75,0.25,1.0,2,0,"[0.25, 1.0]",22501192
-9,chr3:32488392-70100270,chr3,32488392,70100270,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,11,,False,True,False,1.0,,1.0,,1,0,[1.0],37611878
-10,chr3:70100271-103129398,chr3,70100271,103129398,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,17/2,,False,True,False,1.0,,1.0,,1,1,[1.0],33029127
-11,chr3:106766789-137401375,chr3,106766789,137401375,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,11/2,,False,True,False,1.0,,1.0,,1,1,[1.0],30634586
-12,chr3:137401376-184442438,chr3,137401376,184442438,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,2,5,False,True,False,0.2857142857142857,0.7142857142857143,0.2857142857142857,1.0,2,1,"[0.2857142857142857, 1.0]",47041062
-13,chr4:1-47296338,chr4,1,47296338,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,10,,False,True,False,1.0,,1.0,,1,0,[1.0],47296337
-14,chr4:50726026-190214555,chr4,50726026,190214555,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,44,,False,True,False,1.0,,1.0,,1,0,[1.0],139488529
-15,chr5:1-48272853,chr5,1,48272853,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,14,,False,True,False,1.0,,1.0,,1,1,[1.0],48272852
-16,chr5:51152884-116531923,chr5,51152884,116531923,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,10,,False,True,False,1.0,,1.0,,1,0,[1.0],65379039
-17,chr5:132482480-149868140,chr5,132482480,149868140,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,5,,False,True,False,1.0,,1.0,,1,0,[1.0],17385660
-18,chr5:169296682-181538259,chr5,169296682,181538259,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,12,,False,True,False,1.0,,1.0,,1,0,[1.0],12241577
-19,chr6:64344501-167914728,chr6,64344501,167914728,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,19,,False,True,False,1.0,,1.0,,1,0,[1.0],103570227
-20,chr7:1-30714359,chr7,1,30714359,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,8,,False,True,False,1.0,,1.0,,1,1,[1.0],30714358
-21,chr7:32494010-41677169,chr7,32494010,41677169,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,0,5/3,False,True,False,0.0,1.0,0.0,1.0,2,1,"[0.0, 1.0]",9183159
-22,chr7:42203237-86440646,chr7,42203237,86440646,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,25/2,,False,True,False,1.0,,1.0,,1,1,[1.0],44237409
-23,chr7:120491611-159345973,chr7,120491611,159345973,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,14,,False,True,False,1.0,,1.0,,1,1,[1.0],38854362
-24,chr8:46596646-88822477,chr8,46596646,88822477,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,10,,False,True,False,1.0,,1.0,,1,0,[1.0],42225831
-25,chr8:90008001-145138636,chr8,90008001,145138636,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,7,,False,True,False,1.0,,1.0,,1,1,[1.0],55130635
-26,chr9:1-8558328,chr9,1,8558328,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,5/2,,False,True,False,1.0,,1.0,,1,1,[1.0],8558327
-27,chr9:11040598-44377362,chr9,11040598,44377362,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,11/2,,False,True,False,1.0,,1.0,,1,1,[1.0],33336764
-28,chr9:44377363-73070067,chr9,44377363,73070067,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,6,,False,True,False,1.0,,1.0,,1,0,[1.0],28692704
-29,chr9:76265579-138394717,chr9,76265579,138394717,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,14,,False,True,False,1.0,,1.0,,1,0,[1.0],62129138
-30,chr10:1-16567607,chr10,1,16567607,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,4,1,False,True,False,0.8,0.2,0.8,1.0,2,1,"[0.8, 1.0]",16567606
-31,chr10:38579506-62982414,chr10,38579506,62982414,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,17/2,,False,True,False,1.0,,1.0,,1,1,[1.0],24402908
-32,chr10:72052647-94522161,chr10,72052647,94522161,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,9,,False,True,False,1.0,,1.0,,1,0,[1.0],22469514
-33,chr10:94522162-133797422,chr10,94522162,133797422,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,8,,False,True,False,1.0,,1.0,,1,1,[1.0],39275260
-34,chr11:54977923-82857648,chr11,54977923,82857648,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,11/2,,False,True,False,1.0,,1.0,,1,1,[1.0],27879725
-35,chr11:82857649-135086622,chr11,82857649,135086622,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,12,,False,True,False,1.0,,1.0,,1,0,[1.0],52228973
-36,chr12:4417891-27857996,chr12,4417891,27857996,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,13,,False,True,False,1.0,,1.0,,1,0,[1.0],23440105
-37,chr12:35977330-133275309,chr12,35977330,133275309,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,27,,False,True,False,1.0,,1.0,,1,0,[1.0],97297979
-38,chr13:17025624-75825676,chr13,17025624,75825676,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,25,,False,True,False,1.0,,1.0,,1,0,[1.0],58800052
-39,chr13:83055759-114364328,chr13,83055759,114364328,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,15/2,,False,True,False,1.0,,1.0,,1,1,[1.0],31308569
-40,chr14:33421144-107043718,chr14,33421144,107043718,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,15,,False,True,False,1.0,,1.0,,1,0,[1.0],73622574
-41,chr15:18362627-30831539,chr15,18362627,30831539,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,11/2,,False,True,False,1.0,,1.0,,1,1,[1.0],12468912
-42,chr15:38834926-101991189,chr15,38834926,101991189,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,16,,False,True,False,1.0,,1.0,,1,0,[1.0],63156263
-43,chr16:1-35016000,chr16,1,35016000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_0.1_solutions_downsized.sobj,2,17/2,False,True,False,0.19047619047619047,0.8095238095238095,0.19047619047619047,1.0,2,0,"[0.19047619047619047, 1.0]",35015999
-44,chr17:10920915-33267409,chr17,10920915,33267409,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,13/2,,False,True,False,1.0,,1.0,,1,1,[1.0],22346494
-45,chr17:33267410-46764786,chr17,33267410,46764786,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,5,,False,True,False,1.0,,1.0,,1,0,[1.0],13497376
-46,chr18:1-80373285,chr18,1,80373285,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,15,,False,True,False,1.0,,1.0,,1,1,[1.0],80373284
-47,chr19:4007929-58617616,chr19,4007929,58617616,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,19,,False,True,False,1.0,,1.0,,1,1,[1.0],54609687
-48,chr20:16707137-31077051,chr20,16707137,31077051,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,8,,False,True,False,1.0,,1.0,,1,1,[1.0],14369914
-49,chr21:1-36486244,chr21,1,36486244,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,13/2,,False,True,False,1.0,,1.0,,1,1,[1.0],36486243
-50,chr21:36487023-46709983,chr21,36487023,46709983,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,1,1,False,True,False,0.5,0.5,0.5,1.0,2,1,"[0.5, 1.0]",10222960
-51,chr22:14004553-37553923,chr22,14004553,37553923,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,5/2,,False,True,False,1.0,,1.0,,1,1,[1.0],23549370
+,segment_id,chromosome,start,end,file_path,t1,t2,t3,averaged,solved,fully_solved,t1_norm,t2_norm,t3_norm,t1_norm_cumsum,t2_norm_cumsum,t3_norm_cumsum,major,minor,breakpoints,seg_length
+0,chr1:16507398-54699357,chr1,16507398,54699357,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,7/2,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],38191959
+1,chr1:63729760-219698155,chr1,63729760,219698155,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,22,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],155968395
+2,chr1:222752807-227942329,chr1,222752807,227942329,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,0,5/3,,False,True,False,0.0,1.0,,0.0,1.0,,2,1,"[0.0, 1.0]",5189522
+3,chr1:228357001-236142161,chr1,228357001,236142161,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_0.1_solutions_downsized.sobj,0,5/2,,False,True,False,0.0,1.0,,0.0,1.0,,2,0,"[0.0, 1.0]",7785160
+4,chr2:1-27681000,chr2,1,27681000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,2,7/3,,False,True,False,0.46153846153846145,0.5384615384615384,,0.46153846153846145,0.9999999999999999,,2,1,"[0.46153846153846145, 0.9999999999999999]",27680999
+5,chr2:43366383-128403702,chr2,43366383,128403702,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,17,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],85037319
+6,chr2:128421790-170613907,chr2,128421790,170613907,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,7,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],42192117
+7,chr2:181135169-236694000,chr2,181135169,236694000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,8,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],55558831
+8,chr3:1-22501193,chr3,1,22501193,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_0.1_solutions_downsized.sobj,1,3,,False,True,False,0.25,0.75,,0.25,1.0,,2,0,"[0.25, 1.0]",22501192
+9,chr3:32488392-70100270,chr3,32488392,70100270,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,11,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],37611878
+10,chr3:70100271-137401375,chr3,70100271,137401375,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,14,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],67301104
+11,chr3:137401376-185751780,chr3,137401376,185751780,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,2,16/3,,False,True,False,0.27272727272727276,0.7272727272727273,,0.27272727272727276,1.0,,2,1,"[0.27272727272727276, 1.0]",48350404
+12,chr3:185751781-198295559,chr3,185751781,198295559,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//3_1.1_solutions_downsized.sobj,0,1,5/4,False,True,False,0.0,0.4444444444444444,0.5555555555555556,0.0,0.4444444444444444,1.0,3,1,"[0.0, 0.4444444444444444, 1.0]",12543778
+13,chr4:1-47296338,chr4,1,47296338,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,10,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],47296337
+14,chr4:50726026-190214555,chr4,50726026,190214555,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,44,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],139488529
+15,chr5:1-48272853,chr5,1,48272853,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,14,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],48272852
+16,chr5:51152884-116531923,chr5,51152884,116531923,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,10,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],65379039
+17,chr5:132482480-181538259,chr5,132482480,181538259,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,17,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],49055779
+18,chr6:64344501-167914728,chr6,64344501,167914728,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,19,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],103570227
+19,chr7:1-30714359,chr7,1,30714359,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,8,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],30714358
+20,chr7:32494010-41677169,chr7,32494010,41677169,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,0,5/3,,False,True,False,0.0,1.0,,0.0,1.0,,2,1,"[0.0, 1.0]",9183159
+21,chr7:42203237-86440646,chr7,42203237,86440646,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,25/2,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],44237409
+22,chr7:110539328-119677279,chr7,110539328,119677279,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,2,2/3,,False,True,False,0.75,0.25,,0.75,1.0,,2,1,"[0.75, 1.0]",9137951
+23,chr7:120491611-159345973,chr7,120491611,159345973,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,14,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],38854362
+24,chr8:1-88822477,chr8,1,88822477,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,17,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],88822476
+25,chr8:90008001-145138636,chr8,90008001,145138636,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,7,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],55130635
+26,chr9:1-44377362,chr9,1,44377362,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,8,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],44377361
+27,chr9:44377363-138394717,chr9,44377363,138394717,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,20,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],94017354
+28,chr10:1-16567607,chr10,1,16567607,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,4,1,,False,True,False,0.8,0.2,,0.8,1.0,,2,1,"[0.8, 1.0]",16567606
+29,chr10:22367281-62982414,chr10,22367281,62982414,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,10,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],40615133
+30,chr10:63302814-94522161,chr10,63302814,94522161,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,11,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],31219347
+31,chr10:94522162-133797422,chr10,94522162,133797422,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,8,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],39275260
+32,chr11:8460669-41473488,chr11,8460669,41473488,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,7/2,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],33012819
+33,chr11:49862397-82857648,chr11,49862397,82857648,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,6,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],32995251
+34,chr11:82857649-135086622,chr11,82857649,135086622,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,12,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],52228973
+35,chr12:4417891-133275309,chr12,4417891,133275309,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,41,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],128857418
+36,chr13:17025624-75825676,chr13,17025624,75825676,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,25,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],58800052
+37,chr13:77649752-114364328,chr13,77649752,114364328,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,8,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],36714576
+38,chr14:17086762-107043718,chr14,17086762,107043718,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,16,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],89956956
+39,chr15:18362627-38834925,chr15,18362627,38834925,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,7,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],20472298
+40,chr15:38834926-101991189,chr15,38834926,101991189,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,16,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],63156263
+41,chr16:1-35016000,chr16,1,35016000,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_0.1_solutions_downsized.sobj,2,17/2,,False,True,False,0.19047619047619047,0.8095238095238095,,0.19047619047619047,1.0,,2,0,"[0.19047619047619047, 1.0]",35015999
+42,chr17:10920915-33267409,chr17,10920915,33267409,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,13/2,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],22346494
+43,chr17:33267410-46764786,chr17,33267410,46764786,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,5,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],13497376
+44,chr17:47399805-83257441,chr17,47399805,83257441,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_0.1_solutions_downsized.sobj,0,11/2,,False,True,False,0.0,1.0,,0.0,1.0,,2,0,"[0.0, 1.0]",35857636
+45,chr18:1-80373285,chr18,1,80373285,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,15,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],80373284
+46,chr19:712233-58617616,chr19,712233,58617616,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,41/2,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],57905383
+47,chr20:16707137-31077051,chr20,16707137,31077051,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,8,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],14369914
+48,chr20:33285540-64444167,chr20,33285540,64444167,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_0.1_solutions_downsized.sobj,6,,,False,True,False,1.0,,,1.0,,,1,0,[1.0],31158627
+49,chr21:1-36486244,chr21,1,36486244,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,13/2,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],36486243
+50,chr21:36487023-46709983,chr21,36487023,46709983,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//2_1.1_solutions_downsized.sobj,1,1,,False,True,False,0.5,0.5,,0.5,1.0,,2,1,"[0.5, 1.0]",10222960
+51,chr22:14004553-37553923,chr22,14004553,37553923,/n/data1/hms/dbmi/park/jbrew/Tau/downsized_solutions//1_1.1_solutions_downsized.sobj,5/2,,,False,True,False,1.0,,,1.0,,,1,1,[1.0],23549370
