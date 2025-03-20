@@ -220,6 +220,11 @@ def calculate_solution_metrics(segment_id,
     plotting_data = solution.get('plotting', None) if solution else None
     metrics_data = solution.get('metrics', None) if solution else None
     
+    sorted_N_values = sorted(N_values, key=lambda x: int(str(x)[1:]))
+    N_val_string = ''
+    for N_var, N_val in N_values.items():
+        N_val_string += str(N_var) + '=' + str(N_val) + ';'
+    
     metrics = {'segment_id': segment_id,
             'chromosome': chrom,
             'start': start,
@@ -232,16 +237,11 @@ def calculate_solution_metrics(segment_id,
             'segment_exclusion_reason': exclusion_reason,
             'MLE_solution': MLE_solution,
             'constraints_satisfied': constraints_satisfied}
-
+    metrics['multiplicity_counts'] = N_val_string
+    
     if len(exclusion_reason) > 0 or not constraints_satisfied or (not metrics['constraints_satisfied'] and 
                                                                      not metrics['MLE_solution']):
         return metrics
-
-    sorted_N_values = sorted(N_values, key=lambda x: int(str(x)[1:]))
-    N_val_string = ''
-    for N_var, N_val in N_values.items():
-        N_val_string += str(N_var) + '=' + str(N_val) + ';'
-    metrics['multiplicity_counts'] = N_val_string
     
     if len(MLE_values):
         MLE_sorted_N_values = sorted(N_values, key=lambda x: int(str(x)[1:]))
@@ -284,6 +284,12 @@ def get_per_segment_solutions(multiplicities_file=None, multiplicities_df=None,
     #mle_dict = {}
     signature_tag = '_'.join(signatures)
     SBS_df = multiplicities_df.query('sig_max in @signatures')
+    
+    print(f"sample has {SBS_df.shape[0]} segments with signatures of ${signature_tag}")
+    
+    if SBS_df.shape[0] == 0:
+	    print(f"NOTHING TO PROCESS: sample has {SBS_df.shape[0]} segments with signatures of ${signature_tag}")
+	    return None
     
     segment_solutions = defaultdict(lambda: defaultdict(dict))
     metrics_df = {}
@@ -743,6 +749,67 @@ chr21	48129895"""
         plt.show()
     plt.close()
 
+def calculate_normalized_timings(df):
+    def normalize_row(row):
+        # Extract first and second values from tuples
+        first_values = [cell[0] for cell in row if isinstance(cell, tuple)]
+        second_values = [cell[1] for cell in row if isinstance(cell, tuple)]
+        
+        # Sum of first and second values
+        sum_first = sum(first_values)
+        sum_second = sum(second_values)
+        
+        # Sum of singular values
+        singular_values = [cell for cell in row if pd.notna(cell) and not isinstance(cell, tuple)]
+        sum_singular = sum(singular_values)
+        
+        # Normalize the row
+        normalized_row = []
+        for cell in row:
+            if isinstance(cell, tuple):
+                # Normalize first and second values separately
+                normalized_first = cell[0] / sum_first if sum_first != 0 else np.nan
+                normalized_second = cell[1] / sum_second if sum_second != 0 else np.nan
+                normalized_row.append((normalized_first, normalized_second))
+            elif pd.notna(cell):
+                # Normalize singular values
+                normalized_row.append(cell / sum_singular if sum_singular != 0 else np.nan)
+            else:
+                # Keep NaNs as is
+                normalized_row.append(np.nan)
+        return normalized_row
+    
+    # Function to compute cumulative values for a row
+    def compute_cumulative(row):
+        cumulative = []
+        running_sum = 0.0  # Initialize running sum for singular values
+        running_tuple = (0.0, 0.0)  # Initialize running sum for tuples
+        
+        for cell in row:
+            if isinstance(cell, tuple):
+                # Add the tuple element-wise to the running tuple
+                running_tuple = (np.round(running_tuple[0] + cell[0], 3), np.round(running_tuple[1] + cell[1],3))
+                cumulative.append(running_tuple)
+            elif pd.notna(cell):
+                # Add the singular value to the running sum
+                running_sum += cell
+                cumulative.append(running_sum)
+            else:
+                # Keep NaNs as is
+                cumulative.append(np.nan)
+        return cumulative
+    
+    
+    normalized_data = df.apply(normalize_row, axis=1, result_type='expand')
+    normalized_data.columns = [f'{col}_normalized' for col in df.columns]
+    
+    # Apply cumulative computation row-wise
+    cumulative_data = normalized_data.apply(compute_cumulative, axis=1, result_type='expand')
+    cumulative_data.columns = [f'{col}_cumulative' for col in df.columns]
+    
+    return pd.concat([cumulative_data, normalized_data], axis=1)
+
+from matplotlib.backends.backend_pdf import PdfPages
 def calculate_timing_solutions(sample, multiplicities_file=None, 
                                multiplicities_df=None, output_tsv = None, 
                                output_plot=None, average=False,
@@ -754,6 +821,18 @@ def calculate_timing_solutions(sample, multiplicities_file=None,
                                                                   multiplicities_df=multiplicities_df, 
                                                                   solutions_dir=solutions_dir, 
                                                           min_snvs=min_snvs, min_merge_gap=min_merge_gap)
+    if sorted_segments is None:
+        empty_df = pd.DataFrame()
+        
+        # Save the empty DataFrame to the output TSV file if specified
+        if output_tsv:
+            empty_df.to_csv(output_tsv, sep='\t')
+        
+        # Create an empty PDF if output_plot is specified
+        if output_plot:
+            with PdfPages(output_plot) as pdf:
+                pass  # Just create an empty PD
+        return None, None, None
     
     rows=[]
     for segment, data in sorted_segments.items():
@@ -769,7 +848,11 @@ def calculate_timing_solutions(sample, multiplicities_file=None,
     t_val_df = solutions_df.filter(regex=r't\d+')
     normalized_t_val_df = calculate_normalized_timings(t_val_df)
     solutions_df = pd.concat([solutions_df,normalized_t_val_df], axis=1)
-    valid_df = solutions_df.query('MLE_solution or constraints_satisfied')
+    print(solutions_df.head())
+    if 'MLE_solution' in solutions_df.columns:
+        valid_df = solutions_df.query('MLE_solution or constraints_satisfied')
+    else:
+        valid_df = solutions_df.query('constraints_satisfied')
     breakpoints = valid_df.filter(regex=r't\d+_cumulative').values.flatten()
     #get rid of nan values
     breakpoints = [x for x in breakpoints if not (isinstance(x, float) and np.isnan(x))]
@@ -787,7 +870,7 @@ def calculate_timing_solutions(sample, multiplicities_file=None,
     weighted_median = np.median([x for y in weighted_median_vals for x in y])
     
     if output_tsv:
-        solutions_df.to_csv(output_tsv)
+        solutions_df.to_csv(output_tsv, sep='\t')
     if output_plot:
         plot_timing_results(sample, sorted_segments, breakpoint_median=weighted_median, 
                             output_path=output_plot, average=average, ref=ref)
