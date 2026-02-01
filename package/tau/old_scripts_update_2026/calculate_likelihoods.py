@@ -103,8 +103,10 @@ def get_context_96(df, ref_genome_path, ref_col="ref", alt_col="alt"):
         #ref, alt = ref, alt
         type_vec = f"{before}[{ref}>{alt}]{after}"
         #print(type_vec)
+        #print(type_vec)
 
         index_spectrum = type_index_map.get(type_vec, None)
+        #print(index_spectrum)
 
         context_list.append(context_seq)
         index_spectrum_list.append(index_spectrum)
