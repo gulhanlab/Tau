@@ -5,7 +5,18 @@
 	- [Matrix representation of diagrams](#matrix-representation-of-diagrams)
 	- [Systematically compose the A matrices](#systematically-compose-the-A-matrices)
 	- [Solving for time when there is no exact solution](#solving-for-time-when-there-is-no-exact-solution)
- - [Usage and Installation](#getting-started)
+- [Usage and Installation](#usage-and-installation)
+	- [Installation](#installation)
+		- [From source (development)](#from-source-development)
+		- [Dependencies](#dependencies)
+	- [Quick Start](#quick-start)
+	- [Command-line Interface](#command-line-interface)
+	- [Pipeline Overview](#pipeline-overview)
+	- [Output Files](#output-files)
+	- [Environment Variables](#environment-variables)
+	- [Development](#development)
+	- [Citation](#citation)
+	- [License](#license)
 
 # Background
 
