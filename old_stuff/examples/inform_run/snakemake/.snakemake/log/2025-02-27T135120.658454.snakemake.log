@@ -1,0 +1,42 @@
+host: compute-a-16-160.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                count
+---------------  -------
+all                    1
+estimate_timing       33
+total                 34
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:51:21 2025]
+localrule estimate_timing:
+    input: output/multiplicities/Patient68_multiplicities.tsv
+    output: output/timing_results/Patient68_timing.tsv, output/timing_plots/Patient68_timing_plot.pdf
+    jobid: 89
+    reason: Missing output files: output/timing_plots/Patient68_timing_plot.pdf
+    wildcards: sample=Patient68
+    resources: tmpdir=/tmp
+
+[Thu Feb 27 13:51:31 2025]
+Error in rule estimate_timing:
+    jobid: 89
+    input: output/multiplicities/Patient68_multiplicities.tsv
+    output: output/timing_results/Patient68_timing.tsv, output/timing_plots/Patient68_timing_plot.pdf
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient68_multiplicities.tsv             --output_tsv output/timing_results/Patient68_timing.tsv             --output_plot output/timing_plots/Patient68_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Removing output files of failed job estimate_timing since they might be corrupted:
+output/timing_results/Patient68_timing.tsv
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-02-27T135120.658454.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

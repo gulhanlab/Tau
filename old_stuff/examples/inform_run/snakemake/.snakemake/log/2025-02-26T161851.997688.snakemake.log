@@ -1,0 +1,8 @@
+host: compute-a-16-45.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+MissingInputException in rule calculate_likelihoods in file /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/Snakefile, line 40:
+Missing input files for rule calculate_likelihoods:
+    output: output/likelihoods/Patient101_likelihoods.tsv
+    wildcards: sample=Patient101
+    affected files:
+        participant

@@ -1,0 +1,48 @@
+host: compute-p-17-180.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided remote nodes: 1
+Provided resources: mem_mb=4000, mem_mib=3815, disk_mb=1000, disk_mib=954
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:21:40 2025]
+rule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient15_preprocessed.tsv
+    jobid: 0
+    reason: Forced execution
+    wildcards: sample=Patient15
+    resources: mem_mb=4000, mem_mib=3815, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+host: compute-p-17-180.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=4000, mem_mib=3815, disk_mb=1000, disk_mib=954
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:21:44 2025]
+localrule preprocess:
+    input: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf, /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv, ../inform_data/purity_ploidy_inform.txt
+    output: output/preprocessed/Patient15_preprocessed.tsv
+    jobid: 0
+    reason: Forced execution
+    wildcards: sample=Patient15
+    resources: mem_mb=4000, mem_mib=3815, disk_mb=1000, disk_mib=954, tmpdir=/tmp, slurm_account=park_contrib, slurm_partition=park, runtime=14400, time=5:00
+
+Processing sample: Patient15
+SNV file: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv/Patient15.vcf
+CNV file: /n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn/Patient15.tsv
+Purity file: ../inform_data/purity_ploidy_inform.txt
+Output file: None
+[Thu Feb 27 13:21:54 2025]
+Finished job 0.
+1 of 1 steps (100%) done
+Storing output in storage.
+[Thu Feb 27 13:21:54 2025]
+Finished job 0.
+1 of 1 steps (100%) done
+Storing output in storage.

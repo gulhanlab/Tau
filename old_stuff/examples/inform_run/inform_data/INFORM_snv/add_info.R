@@ -1,0 +1,20 @@
+library('VariantAnnotation')
+
+files <- list.files()
+files <- files[grepl('vcf', files)]
+for(file in files){
+  vcf <- readVcf(file); 
+  AD1 <- unlist(lapply(geno(vcf)$AD[,1], function(x){x[[1]]})) 
+  AD2 <- unlist(lapply(geno(vcf)$AD[,1], function(x){x[[2]]})) 
+  vcfInfo(vcf)$t_ref_count <- AD1;
+  vcfInfo(vcf)$t_alt_count <- AD2;
+  newInfo <- DataFrame(Number=1, Type="Integer",
+                     Description="number of reads supporting the alternate allele",
+                     row.names="t_alt_count")
+  info(header(vcf)) <- rbind(info(header(vcf)), newInfo);
+  newInfo <- DataFrame(Number=1, Type="Integer",
+                     Description="number of reads supporting the reference allele",
+                     row.names="t_ref_count");
+  info(header(vcf)) <- rbind(info(header(vcf)), newInfo);
+  writeVcf(vcf, file)
+}

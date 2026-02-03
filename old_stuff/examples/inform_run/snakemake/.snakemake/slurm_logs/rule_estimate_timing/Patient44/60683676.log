@@ -1,0 +1,83 @@
+host: compute-p-17-179.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided remote nodes: 1
+Provided resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:28:15 2025]
+rule estimate_timing:
+    input: output/multiplicities/Patient44_multiplicities.tsv
+    output: output/timing_results/Patient44_timing.tsv, output/timing_plots/Patient44_timing_plot.pdf
+    jobid: 0
+    reason: Forced execution
+    wildcards: sample=Patient44
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+host: compute-p-17-179.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:28:18 2025]
+localrule estimate_timing:
+    input: output/multiplicities/Patient44_multiplicities.tsv
+    output: output/timing_results/Patient44_timing.tsv, output/timing_plots/Patient44_timing_plot.pdf
+    jobid: 0
+    reason: Forced execution
+    wildcards: sample=Patient44
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=/tmp, slurm_account=park_contrib, slurm_partition=park, runtime=14400
+
+Traceback (most recent call last):
+  File "/n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/snakemake/scripts/estimate_timing.py", line 21, in <module>
+    timing_df = tau.process_solutions(timing_results)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/package/tau/timing_results.py", line 397, in process_solutions
+    final_df = pd.DataFrame(rows)[standard_cols + sorted_t_vars + sum_cols + ['fully_solved', 'no_solution']]
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/data1/hms/dbmi/park/jbrew/tools/miniforge3/envs/tau_new/lib/python3.12/site-packages/pandas/core/frame.py", line 4108, in __getitem__
+    indexer = self.columns._get_indexer_strict(key, "columns")[1]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/data1/hms/dbmi/park/jbrew/tools/miniforge3/envs/tau_new/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 6200, in _get_indexer_strict
+    self._raise_if_missing(keyarr, indexer, axis_name)
+  File "/n/data1/hms/dbmi/park/jbrew/tools/miniforge3/envs/tau_new/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 6249, in _raise_if_missing
+    raise KeyError(f"None of [{key}] are in the [{axis_name}]")
+KeyError: "None of [Index(['chromosome', 'start', 'end', 'file_path', 'fully_solved',\n       'no_solution'],\n      dtype='object')] are in the [columns]"
+[Thu Feb 27 13:28:25 2025]
+Error in rule estimate_timing:
+    jobid: 0
+    input: output/multiplicities/Patient44_multiplicities.tsv
+    output: output/timing_results/Patient44_timing.tsv, output/timing_plots/Patient44_timing_plot.pdf
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient44_multiplicities.tsv             --output_tsv output/timing_results/Patient44_timing.tsv             --output_plot output/timing_plots/Patient44_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Storing output in storage.
+WorkflowError:
+At least one job did not complete successfully.
+srun: error: compute-p-17-179: task 0: Exited with exit code 1
+[Thu Feb 27 13:28:29 2025]
+Error in rule estimate_timing:
+    jobid: 0
+    input: output/multiplicities/Patient44_multiplicities.tsv
+    output: output/timing_results/Patient44_timing.tsv, output/timing_plots/Patient44_timing_plot.pdf
+    shell:
+        
+        python scripts/estimate_timing.py             --multiplicities output/multiplicities/Patient44_multiplicities.tsv             --output_tsv output/timing_results/Patient44_timing.tsv             --output_plot output/timing_plots/Patient44_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Storing output in storage.
+WorkflowError:
+At least one job did not complete successfully.

@@ -1,0 +1,42 @@
+host: compute-a-16-45.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                      count
+---------------------  -------
+all                          1
+calculate_likelihoods       33
+count_multiplicities        33
+estimate_timing             33
+preprocess                   3
+total                      103
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Wed Feb 26 16:44:19 2025]
+localrule calculate_likelihoods:
+    input: output/preprocessed/Patient43_preprocessed.tsv, ../inform_data/all_exposures_aligned_0.01_0.05_0.05_0.001_0.001_0.001_0.001_0.001_sub0.005.txt, ../inform_data/COSMIC_v3p2_SBS_WGS_MuSiCal.csv, /n/data1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta
+    output: output/likelihoods/Patient43_likelihoods.tsv
+    jobid: 55
+    reason: Missing output files: output/likelihoods/Patient43_likelihoods.tsv; Set of input files has changed since last execution
+    wildcards: sample=Patient43
+    resources: tmpdir=/tmp, mem_mb=1000, mem_mib=954, time=5:00
+
+Terminating processes on user request, this might take some time.
+[Wed Feb 26 16:44:28 2025]
+Error in rule calculate_likelihoods:
+    jobid: 55
+    input: output/preprocessed/Patient43_preprocessed.tsv, ../inform_data/all_exposures_aligned_0.01_0.05_0.05_0.001_0.001_0.001_0.001_0.001_sub0.005.txt, ../inform_data/COSMIC_v3p2_SBS_WGS_MuSiCal.csv, /n/data1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta
+    output: output/likelihoods/Patient43_likelihoods.tsv
+    shell:
+        
+        python scripts/calculate_likelihoods.py             --sample Patient43             --preprocessed_file output/preprocessed/Patient43_preprocessed.tsv             --exposure ../inform_data/all_exposures_aligned_0.01_0.05_0.05_0.001_0.001_0.001_0.001_0.001_sub0.005.txt             --signature ../inform_data/COSMIC_v3p2_SBS_WGS_MuSiCal.csv             --output output/likelihoods/Patient43_likelihoods.tsv             --ref_genome /n/data1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta             --sample_column sample
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Complete log: .snakemake/log/2025-02-26T164419.492185.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

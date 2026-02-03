@@ -1,6 +1,0 @@
-#input_meta: input.tsv
-input_meta: input.tsv
-purity_file: consensus.20170217.purity.ploidy.txt 
-exposure_file: MuSiCal_assignment_PCAWG.txt 
-signature_file: COSMIC_v3p2_SBS_WGS_MuSiCal.csv
-

@@ -1,0 +1,115 @@
+host: compute-a-16-169.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                count
+---------------  -------
+all                    1
+estimate_timing       32
+total                 33
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Mar  3 16:46:40 2025]
+localrule estimate_timing:
+    input: output/multiplicities/Patient47_multiplicities.tsv
+    output: output/timing_results/Patient47_timing.tsv, output/timing_plots/Patient47_timing_plot.pdf
+    jobid: 61
+    reason: Missing output files: output/timing_plots/Patient47_timing_plot.pdf
+    wildcards: sample=Patient47
+    resources: tmpdir=/tmp
+
+[Mon Mar  3 16:46:46 2025]
+Finished job 61.
+1 of 33 steps (3%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Mar  3 16:46:46 2025]
+localrule estimate_timing:
+    input: output/multiplicities/Patient87_multiplicities.tsv
+    output: output/timing_results/Patient87_timing.tsv, output/timing_plots/Patient87_timing_plot.pdf
+    jobid: 121
+    reason: Missing output files: output/timing_plots/Patient87_timing_plot.pdf
+    wildcards: sample=Patient87
+    resources: tmpdir=/tmp
+
+[Mon Mar  3 16:46:51 2025]
+Finished job 121.
+2 of 33 steps (6%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Mar  3 16:46:52 2025]
+localrule estimate_timing:
+    input: output/multiplicities/Patient109_multiplicities.tsv
+    output: output/timing_results/Patient109_timing.tsv, output/timing_plots/Patient109_timing_plot.pdf
+    jobid: 5
+    reason: Missing output files: output/timing_plots/Patient109_timing_plot.pdf
+    wildcards: sample=Patient109
+    resources: tmpdir=/tmp
+
+[Mon Mar  3 16:46:58 2025]
+Finished job 5.
+3 of 33 steps (9%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Mar  3 16:46:58 2025]
+localrule estimate_timing:
+    input: output/multiplicities/Patient50_multiplicities.tsv
+    output: output/timing_results/Patient50_timing.tsv, output/timing_plots/Patient50_timing_plot.pdf
+    jobid: 65
+    reason: Missing output files: output/timing_plots/Patient50_timing_plot.pdf
+    wildcards: sample=Patient50
+    resources: tmpdir=/tmp
+
+[Mon Mar  3 16:47:05 2025]
+Finished job 65.
+4 of 33 steps (12%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Mar  3 16:47:05 2025]
+localrule estimate_timing:
+    input: output/multiplicities/Patient90_multiplicities.tsv
+    output: output/timing_results/Patient90_timing.tsv, output/timing_plots/Patient90_timing_plot.pdf
+    jobid: 125
+    reason: Missing output files: output/timing_plots/Patient90_timing_plot.pdf
+    wildcards: sample=Patient90
+    resources: tmpdir=/tmp
+
+[Mon Mar  3 16:47:11 2025]
+Finished job 125.
+5 of 33 steps (15%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Mar  3 16:47:12 2025]
+localrule estimate_timing:
+    input: output/multiplicities/Patient113_multiplicities.tsv
+    output: output/timing_results/Patient113_timing.tsv, output/timing_plots/Patient113_timing_plot.pdf
+    jobid: 9
+    reason: Missing output files: output/timing_plots/Patient113_timing_plot.pdf
+    wildcards: sample=Patient113
+    resources: tmpdir=/tmp
+
+[Mon Mar  3 16:47:20 2025]
+Error in rule estimate_timing:
+    jobid: 9
+    input: output/multiplicities/Patient113_multiplicities.tsv
+    output: output/timing_results/Patient113_timing.tsv, output/timing_plots/Patient113_timing_plot.pdf
+    shell:
+        
+        python scripts/estimate_timing.py             --sample Patient113             --multiplicities output/multiplicities/Patient113_multiplicities.tsv             --output_tsv output/timing_results/Patient113_timing.tsv             --output_plot output/timing_plots/Patient113_timing_plot.pdf
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-03-03T164640.453736.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

@@ -1,0 +1,72 @@
+host: compute-a-16-160.o2.rc.hms.harvard.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                      count
+---------------------  -------
+all                          1
+calculate_likelihoods        3
+count_multiplicities        33
+estimate_timing             33
+preprocess                   3
+total                       73
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:13:29 2025]
+localrule count_multiplicities:
+    input: output/likelihoods/Patient47_likelihoods.tsv
+    output: output/multiplicities/Patient47_multiplicities.tsv
+    jobid: 62
+    reason: Missing output files: output/multiplicities/Patient47_multiplicities.tsv
+    wildcards: sample=Patient47
+    resources: tmpdir=/tmp, mem_mb=1000, mem_mib=954, time=5:00
+
+[Thu Feb 27 13:13:45 2025]
+Finished job 62.
+1 of 73 steps (1%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:13:45 2025]
+localrule count_multiplicities:
+    input: output/likelihoods/Patient87_likelihoods.tsv
+    output: output/multiplicities/Patient87_multiplicities.tsv
+    jobid: 122
+    reason: Missing output files: output/multiplicities/Patient87_multiplicities.tsv
+    wildcards: sample=Patient87
+    resources: tmpdir=/tmp, mem_mb=1000, mem_mib=954, time=5:00
+
+[Thu Feb 27 13:13:53 2025]
+Finished job 122.
+2 of 73 steps (3%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Feb 27 13:13:53 2025]
+localrule count_multiplicities:
+    input: output/likelihoods/Patient55_likelihoods.tsv
+    output: output/multiplicities/Patient55_multiplicities.tsv
+    jobid: 70
+    reason: Missing output files: output/multiplicities/Patient55_multiplicities.tsv
+    wildcards: sample=Patient55
+    resources: tmpdir=/tmp, mem_mb=1000, mem_mib=954, time=5:00
+
+Terminating processes on user request, this might take some time.
+[Thu Feb 27 13:13:54 2025]
+Error in rule count_multiplicities:
+    jobid: 70
+    input: output/likelihoods/Patient55_likelihoods.tsv
+    output: output/multiplicities/Patient55_multiplicities.tsv
+    shell:
+        
+        python scripts/count_multiplicities.py             --likelihood_file output/likelihoods/Patient55_likelihoods.tsv             --output output/multiplicities/Patient55_multiplicities.tsv
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Complete log: .snakemake/log/2025-02-27T131328.597646.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.
