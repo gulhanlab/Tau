@@ -12,7 +12,6 @@
 	- [Quick Start](#quick-start)
 	- [Command-line Interface](#command-line-interface)
 	- [Pipeline Overview](#pipeline-overview)
-	- [Output Files](#output-files)
 	- [Environment Variables](#environment-variables)
 	- [Development](#development)
 	- [Citation](#citation)
@@ -139,6 +138,10 @@ g.time_segments(env=env)
 # Get timing results
 from tau.utils import make_time_df
 times_df = make_time_df(g)
+
+# Plot genome-wide timing overview
+from tau.plotting import plot_overview
+plot_overview(g, output_file="timing_overview.png")
 ```
 
 ## Command-line Interface
@@ -152,15 +155,20 @@ python -m scripts.run_tau \
   --ref_fasta /path/to/reference.fasta \
   --cosmic_csv /path/to/COSMIC_signatures.csv \
   --exposures /path/to/exposures.txt \
-  --output_times sample.segment_times.tsv \
-  --output_fig sample.overview.png \
-  --output_gpkl sample.genome.pkl.gz \
-  --output_cluster_tsv sample.segment_clusters.tsv \
-  --output_cluster_plot sample.segment_clusters.png \
-  --output_cluster_gpkl sample.clustered_genome.pkl.gz \
-  --output_time_cluster_plot sample.time_clusters.png \
-  --output_time_cluster_df sample.time_clusters.tsv
+  --output_dir results/
 ```
+
+Output files are automatically named based on the sample ID:
+- `{sample}.segment_times.tsv` - Per-segment timing estimates
+- `{sample}.overview.png` - Genome-wide timing visualization
+- `{sample}.genome.pkl.gz` - Pickled Genome object
+- `{sample}.segment_clusters.tsv` - Segment cluster assignments
+- `{sample}.segment_clusters.png` - Segment clusters plot
+- `{sample}.clustered_genome.pkl.gz` - Pickled clustered Genome object
+- `{sample}.time_clusters.tsv` - Timepoint cluster summary
+- `{sample}.time_clusters.png` - Timepoint clusters plot
+
+Individual output paths can be overridden with `--output_times`, `--output_fig`, etc.
 
 ## Pipeline Overview
 
@@ -169,16 +177,6 @@ python -m scripts.run_tau \
 3. **Timing** (`tau.timing`): Load Sage solutions and constraint matrices, solve timing equations via grid sampling
 4. **Clustering** (`tau.clustering`): EM-based clustering of timing estimates, classify events as WGD/PGD/SCA
 5. **Visualization** (`tau.plotting`): Genome-wide timing visualization
-
-## Output Files
-
-Per-sample outputs include:
-
-- `*.segment_times.tsv` - Per-segment timing estimates
-- `*.segment_clusters.tsv` - Segment cluster assignments
-- `*.time_clusters.tsv` - Timepoint cluster summary
-- `*.overview.png` - Genome-wide timing visualization
-- `*.genome.pkl.gz` - Pickled Genome object
 
 ## Environment Variables
 

@@ -77,36 +77,40 @@ def main():
         help="Path to constraint matrices HDF5 file"
     )
     parser.add_argument(
-        "--output_times", type=str, required=True,
-        help="Path to output segment times TSV"
+        "--output_dir", type=str, default=".",
+        help="Output directory (default: current directory)"
     )
     parser.add_argument(
-        "--output_fig", type=str, required=True,
-        help="Path to output overview figure"
+        "--output_times", type=str, default=None,
+        help="Path to output segment times TSV (default: {sample}.segment_times.tsv)"
     )
     parser.add_argument(
-        "--output_gpkl", type=str, required=True,
-        help="Path to output genome pickle file"
+        "--output_fig", type=str, default=None,
+        help="Path to output overview figure (default: {sample}.overview.png)"
     )
     parser.add_argument(
-        "--output_cluster_tsv", type=str, required=True,
-        help="Path to output segment clusters TSV"
+        "--output_gpkl", type=str, default=None,
+        help="Path to output genome pickle file (default: {sample}.genome.pkl.gz)"
     )
     parser.add_argument(
-        "--output_cluster_plot", type=str, required=True,
-        help="Path to output segment clusters plot"
+        "--output_cluster_tsv", type=str, default=None,
+        help="Path to output segment clusters TSV (default: {sample}.segment_clusters.tsv)"
     )
     parser.add_argument(
-        "--output_cluster_gpkl", type=str, required=True,
-        help="Path to output clustered genome pickle"
+        "--output_cluster_plot", type=str, default=None,
+        help="Path to output segment clusters plot (default: {sample}.segment_clusters.png)"
     )
     parser.add_argument(
-        "--output_time_cluster_plot", type=str, required=True,
-        help="Path to output timepoint clusters plot"
+        "--output_cluster_gpkl", type=str, default=None,
+        help="Path to output clustered genome pickle (default: {sample}.clustered_genome.pkl.gz)"
     )
     parser.add_argument(
-        "--output_time_cluster_df", type=str, required=True,
-        help="Path to output timepoint clusters TSV"
+        "--output_time_cluster_plot", type=str, default=None,
+        help="Path to output timepoint clusters plot (default: {sample}.time_clusters.png)"
+    )
+    parser.add_argument(
+        "--output_time_cluster_df", type=str, default=None,
+        help="Path to output timepoint clusters TSV (default: {sample}.time_clusters.tsv)"
     )
     parser.add_argument(
         "--signatures", type=str, nargs="+", default=["SBS1", "SBS5"],
@@ -122,6 +126,24 @@ def main():
     )
 
     args = parser.parse_args()
+
+    # Set default output paths based on sample name
+    output_defaults = {
+        "output_times": f"{args.sample}.segment_times.tsv",
+        "output_fig": f"{args.sample}.overview.png",
+        "output_gpkl": f"{args.sample}.genome.pkl.gz",
+        "output_cluster_tsv": f"{args.sample}.segment_clusters.tsv",
+        "output_cluster_plot": f"{args.sample}.segment_clusters.png",
+        "output_cluster_gpkl": f"{args.sample}.clustered_genome.pkl.gz",
+        "output_time_cluster_plot": f"{args.sample}.time_clusters.png",
+        "output_time_cluster_df": f"{args.sample}.time_clusters.tsv",
+    }
+    for arg_name, default_filename in output_defaults.items():
+        if getattr(args, arg_name) is None:
+            setattr(args, arg_name, os.path.join(args.output_dir, default_filename))
+
+    # Create output directory if it doesn't exist
+    os.makedirs(args.output_dir, exist_ok=True)
 
     # Create empty output files first (for Snakemake compatibility)
     output_args = [x for x in vars(args).keys() if x.startswith("output_")]
