@@ -5,7 +5,7 @@
 	- [Matrix representation of diagrams](#matrix-representation-of-diagrams)
 	- [Systematically compose the A matrices](#systematically-compose-the-A-matrices)
 	- [Solving for time when there is no exact solution](#solving-for-time-when-there-is-no-exact-solution)
- - [Installation and Getting started](#getting-started)
+ - [Usage and Installation](#getting-started)
 
 # Background
 
@@ -95,15 +95,6 @@ Tau requires Python 3.9+ and the following packages (automatically installed):
 - scikit-learn >= 1.0
 
 **Additional requirement:** SageMath must be installed separately (via conda or system package manager) for timing analysis.
-
-### Git LFS (for large data files)
-
-The package includes large data files that require Git LFS:
-
-```bash
-git lfs install
-git lfs pull
-```
 
 ## Quick Start
 
