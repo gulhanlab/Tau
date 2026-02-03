@@ -185,16 +185,6 @@ You can override default data file paths using environment variables:
 - `TAU_ROUTES_SAGE`: Path to Sage solutions file
 - `TAU_MATRICES_H5`: Path to constraint matrices HDF5 file
 
-## Development
-
-```bash
-# Install with dev dependencies
-pip install -e ".[dev]"
-
-# Run tests
-pytest tests/
-```
-
 ## Citation
 
 If you use Tau in your research, please cite:
