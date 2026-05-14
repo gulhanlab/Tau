@@ -15,6 +15,12 @@ from scipy.stats import beta as beta_dist
 
 EPS = 1e-12
 
+# Standard clock-like COSMIC signatures for use with signatures= parameter.
+# SBS1  — age-related deamination (C>T at CpG); present in all tissues.
+# SBS5  — replication-clock signature; flat spectrum, universal.
+# Together these are the recommended default for Tau clock-weighted timing.
+CLOCK_SIGNATURES: list[str] = ["SBS1", "SBS5"]
+
 
 def _fetch_sbs96(df: pd.DataFrame, fasta_path: str, flank: int = 1) -> pd.Series:
     fa = pysam.FastaFile(fasta_path)
@@ -88,7 +94,13 @@ def attach_signature_weights(
         out["mut_w"] = (np.isin(winners, list(chosen))).astype(float)
     else:
         use = [s for s in signatures if s in avail]
-        out["mut_w"] = np.sum(np.vstack([X[s].to_numpy() * float(exposures[s]) for s in use]).T, axis=1) if use else 0.0
+        if use:
+            numer = np.sum(np.vstack([X[s].to_numpy() * float(exposures[s]) for s in use]).T, axis=1)
+            # Normalize by all available signatures so mut_w = P(clock | context, exposures)
+            denom = W.sum(axis=1)
+            out["mut_w"] = np.where(denom > 0, numer / denom, 0.0)
+        else:
+            out["mut_w"] = 0.0
     return out
 
 
@@ -128,16 +140,37 @@ def flag_lowVAF_subclonal(
 
 
 def read_vcf_counts(vcf_path: str | Path) -> pd.DataFrame:
-    """Read SNV counts from a VCF file."""
+    """Read SNV counts from a VCF file.
+
+    Supports two formats:
+    - PCAWG-style: alt/ref counts in INFO fields t_alt_count / t_ref_count
+    - PURPLE-style: alt/ref counts in FORMAT field AD (ref,alt) for the tumor
+      sample (last sample column); FILTER=PASS is allowed.
+    Only SNVs (single-base ref and alt) are retained.
+    """
     rows = []
     vcf = pysam.VariantFile(str(vcf_path))
     for rec in vcf:
-        chrom = rec.contig.replace("chr","")
-        if rec.filter.keys():  # drop non-PASS
+        # SNVs only
+        if len(rec.ref) != 1 or not rec.alts or len(rec.alts[0]) != 1:
+            continue
+        chrom = rec.contig.replace("chr", "")
+        # Keep records that are un-filtered OR have only PASS filter
+        filters = set(rec.filter.keys())
+        if filters and filters != {"PASS"}:
             continue
         info = rec.info
         nalt = float(info.get("t_alt_count", -1)) if "t_alt_count" in info else -1
         nref = float(info.get("t_ref_count", -1)) if "t_ref_count" in info else -1
+        # Fallback: read from FORMAT:AD in tumor sample (PURPLE / HMF format)
+        if nalt < 0 or nref < 0:
+            samp_names = list(rec.samples.keys())
+            # Tumor is typically the last sample; try reversed order
+            for sname in reversed(samp_names):
+                ad = rec.samples[sname].get("AD")
+                if ad and len(ad) >= 2 and ad[0] is not None and ad[1] is not None:
+                    nref, nalt = float(ad[0]), float(ad[1])
+                    break
         if nalt < 0 or nref < 0:
             continue
         rows.append({"chrom": chrom, "pos": int(rec.pos),
@@ -147,10 +180,27 @@ def read_vcf_counts(vcf_path: str | Path) -> pd.DataFrame:
 
 
 def map_snvs_to_cnv(snv: pd.DataFrame, cnv_tsv: str | Path) -> pd.DataFrame:
-    """Map SNVs to copy number segments."""
-    cnv = pd.read_csv(cnv_tsv, sep="\t").rename(columns={"chromosome":"chrom"})
+    """Map SNVs to copy number segments.
+
+    Handles both PCAWG-style (major_cn/minor_cn integer columns) and
+    PURPLE-style (majorAlleleCopyNumber/minorAlleleCopyNumber float columns).
+    Float CN values are rounded to the nearest integer.
+    """
+    cnv = pd.read_csv(cnv_tsv, sep="\t").rename(columns={
+        "chromosome": "chrom",
+        "majorAlleleCopyNumber": "major_cn",
+        "minorAlleleCopyNumber": "minor_cn",
+    })
     cnv["chrom"] = cnv["chrom"].astype(str).str.replace("^chr","", regex=True)
-    ivx = pd.IntervalIndex.from_arrays(cnv["start"], cnv["end"], closed="both")
+    # Round float CN values (e.g. from PURPLE) to nearest integer; drop rows with NaN CN
+    cn_cols = [c for c in ("major_cn", "minor_cn") if c in cnv.columns]
+    for col in cn_cols:
+        if cnv[col].dtype != int:
+            cnv[col] = cnv[col].round().astype("Int64")
+    cnv = cnv.dropna(subset=cn_cols)
+    for col in cn_cols:
+        cnv[col] = cnv[col].astype(int)
+    ivx = pd.IntervalIndex.from_arrays(cnv["start"], cnv["end"], closed="left")
     parts = []
     for chrom, sub in snv.groupby("chrom", sort=False):
         mask = cnv["chrom"].values == chrom
@@ -216,12 +266,24 @@ def preprocess_sample(
         Minimum VAF for detection
     subclonal_alpha : float
         Significance level for subclonal flagging
-    signatures : list, optional
-        List of signature names to use for weighting
+    signatures : list[str], optional
+        Clock-like COSMIC signatures to weight mutations by.  Mutations whose
+        SBS96 context is most consistent with these signatures receive higher
+        weight in the EM and timing steps.
+
+        Recommended: ``["SBS1", "SBS5"]`` (import as ``CLOCK_SIGNATURES``).
+
+        - ``mode="soft"`` (default) — each mutation is weighted by
+          P(clock signature | SBS96 context, exposures) ∈ [0, 1].
+        - ``mode="hard"``  — binary: weight 1 if most-likely signature is a
+          clock signature, 0 otherwise (more aggressive filtering).
+
+        Defaults to None (all mutations weighted equally, equivalent to
+        ignoring signature information).
     subclonal_list : str, optional
-        Path to file with mutation IDs to flag as subclonal
+        Path to file with mutation IDs to flag as subclonal.
     mode : str
-        'soft' or 'hard' weighting mode
+        ``"soft"`` (default) or ``"hard"`` — see ``signatures`` above.
 
     Returns
     -------

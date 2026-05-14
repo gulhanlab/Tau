@@ -10,8 +10,7 @@ import pandas as pd
 
 from tau.core import Segment, Genome
 from tau.preprocessing import preprocess_sample
-from tau.utils import make_time_df
-from tau.clustering import cluster_times, cluster_segment_multiplicities, make_clustered_genome
+from tau.clustering import cluster_times_bottomup, cluster_segment_multiplicities, make_clustered_genome
 from tau.plotting import plot_overview
 from tau import timing
 
@@ -124,6 +123,11 @@ def main():
         "--detect_min_alt", type=int, default=3,
         help="Minimum alt reads to consider mutation detectable (default: 3)"
     )
+    parser.add_argument(
+        "--sex", type=str, default=None, choices=["male", "female"],
+        help="Sample sex. 'male' sets normal_cn=1 for chrX and chrY, correcting "
+             "expected VAFs on hemizygous sex chromosomes (default: assume diploid everywhere)"
+    )
 
     args = parser.parse_args()
 
@@ -180,11 +184,18 @@ def main():
         subclonal_list=None,
     )
 
+    # Build normal-ploidy map for sex chromosomes
+    normal_cn_map = None
+    if args.sex == "male":
+        normal_cn_map = {"X": 1, "Y": 1}
+
     # Run Tau timing
     g = Genome.create(
-        mut_df, purity=purity, detect_min_alt=args.detect_min_alt, detect_min_vaf=0
+        mut_df, purity=purity, detect_min_alt=args.detect_min_alt, detect_min_vaf=0,
+        normal_cn_map=normal_cn_map,
     )
     g.calculate_multiplicities(bootstrap_B=args.bootstrap_B, random_state=42)
+    g.calculate_gof()
     g.time_segments(env=routes)
 
     # Cluster segment multiplicities
@@ -193,7 +204,7 @@ def main():
     )
 
     # Create and save times dataframe
-    times_df = make_time_df(g)
+    times_df = g.times_to_df(args.sample)
     times_df.to_csv(args.output_times, sep="\t", index=False)
 
     # Save genome pickle
@@ -202,7 +213,7 @@ def main():
 
     # Cluster timepoints
     cluster_times_result, segment_cluster_ids, original_times, cluster_summary_df = (
-        cluster_times(g, routes, cluster_output_file=args.output_time_cluster_plot)
+        cluster_times_bottomup(g, cluster_output_file=args.output_time_cluster_plot)
     )
 
     cluster_summary_df.to_csv(args.output_time_cluster_df, sep="\t", index=False)

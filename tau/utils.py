@@ -112,7 +112,18 @@ def extract_mat(seg, key, boot_id=0):
 
 
 def make_time_df(genome):
-    """Create a DataFrame of timing results for all segments in a genome."""
+    """Create a DataFrame of timing results for all segments in a genome.
+
+    .. deprecated::
+        Use ``genome.times_to_df(sample)`` instead, which reads the current
+        timing_result format correctly and supports the summarize parameter.
+    """
+    import warnings
+    warnings.warn(
+        "make_time_df() is deprecated. Use genome.times_to_df(sample) instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     rows = []
 
     for seg in genome.segments:

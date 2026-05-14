@@ -786,6 +786,14 @@ def _genome_times_to_df(
     return pd.DataFrame(out_rows)
 
 
+_DISCARD_REASON_LABELS: dict[str, str] = {
+    "nonpositive_cn":           "Non-positive CN state (major ≤ 0 or minor < 0)",
+    "low_effective_N":          "Too few mutations — effective N below threshold",
+    "no_routes_for_state":      "CN state not modelled (major > 7)",
+    "no_route_within_dist_cut": "Multiplicity distribution incompatible with all routes",
+}
+
+
 def _genome_summarize_discards(self: Genome, sample: str) -> pd.DataFrame:
     """Collects segments that were discarded during timing with reasons and basics."""
     rows = []
@@ -798,6 +806,48 @@ def _genome_summarize_discards(self: Genome, sample: str) -> pd.DataFrame:
         row["seg_len"] = float(int(seg.end) - int(seg.start))
         rows.append(row)
     return pd.DataFrame(rows)
+
+
+def _genome_discard_report(self: Genome, sample: str = "") -> pd.DataFrame:
+    """Print a human-readable discard summary and return the raw discard DataFrame.
+
+    Shows how many segments were skipped during timing and why.
+
+    Parameters
+    ----------
+    sample : str, optional
+        Sample label to include in the header line.
+
+    Returns
+    -------
+    pd.DataFrame
+        Same as summarize_discards(sample) — one row per discarded segment.
+
+    Examples
+    --------
+    >>> g.discard_report("MY_SAMPLE")
+    Discard report (12 segments skipped) — MY_SAMPLE
+    --------------------------------------------------
+       10  Too few mutations — effective N below threshold
+        2  Multiplicity distribution incompatible with all routes
+    """
+    df = _genome_summarize_discards(self, sample)
+    n_timed = sum(1 for s in getattr(self, "segments", [])
+                  if getattr(s, "timing_result", None))
+    n_disc = len(df)
+    header = f"Timing summary: {n_timed} segments timed, {n_disc} discarded"
+    if sample:
+        header += f" — {sample}"
+    print(header)
+    print("-" * len(header))
+    if df.empty:
+        print("  (no segments discarded)")
+    else:
+        for reason, count in df["reason"].value_counts().items():
+            label = _DISCARD_REASON_LABELS.get(reason, reason)
+            print(f"  {count:4d}  {label}")
+    print()
+    return df
 
 
 def _genome_summarize_constraint_violations(self: Genome, sample: str) -> pd.DataFrame:
