@@ -67,11 +67,65 @@ class RouteEnv:
 
 
 def load_routes(sol_file: str | Path, matrix_h5: str | Path) -> RouteEnv:
-    """Load route solutions and matrices from files."""
-    print(f"Loading route solutions from {sol_file}...")
-    SOL = sage_load(str(sol_file))
+    """Load route solutions and matrices from files.
+
+    If *sol_file* is a directory, it is assumed to contain per-CN-state
+    .sobj files produced by ``tau/data/split_solutions.py``
+    (e.g. ``solutions/5_1.sobj``).  All files in the directory are loaded
+    and merged into a single SOL dict — this is much faster for large
+    analyses that only need a subset of CN states because callers can pass
+    a list of filenames rather than the full monolithic file.
+    """
+    sol_file = Path(sol_file)
+    if sol_file.is_dir():
+        SOL = {}
+        for p in sorted(sol_file.glob("*.sobj")):
+            SOL.update(sage_load(str(p)))
+        print(f"Loaded {len(SOL):,} routes from {sol_file}/")
+    else:
+        print(f"Loading route solutions from {sol_file}...")
+        SOL = sage_load(str(sol_file))
 
     print(f"Loading route matrices from {matrix_h5}...")
+    with h5py.File(str(matrix_h5), "r") as h5:
+        MATRICES = {k: h5[k][()] for k in h5}
+    return RouteEnv(SOL=SOL, MATRICES=MATRICES, free_var_cache={}, route_cache={})
+
+
+def load_routes_for_states(
+    cn_states: list[tuple[int, int]],
+    matrix_h5: str | Path | None = None,
+) -> RouteEnv:
+    """Load solutions only for the requested CN states.
+
+    Looks for per-state .sobj files in ``tau/data/solutions/``.
+    Falls back to the monolithic file if the split directory does not exist.
+
+    Parameters
+    ----------
+    cn_states:
+        List of (major, minor) tuples, e.g. ``[(5, 1), (4, 0)]``.
+    matrix_h5:
+        Path to the HDF5 matrices file.  Defaults to the package data file.
+    """
+    split_dir = _get_package_data_path("solutions")
+    if matrix_h5 is None:
+        _, matrix_h5 = _default_paths()
+
+    if not Path(split_dir).is_dir():
+        # Fall back to monolithic load
+        sage_path, _ = _default_paths()
+        return load_routes(sage_path, matrix_h5)
+
+    SOL: Dict[str, Any] = {}
+    for major, minor in cn_states:
+        p = Path(split_dir) / f"{major}_{minor}.sobj"
+        if p.exists():
+            SOL.update(sage_load(str(p)))
+        else:
+            print(f"  Warning: no split file for ({major},{minor}), skipping")
+
+    print(f"Loaded {len(SOL):,} routes for {len(cn_states)} CN states")
     with h5py.File(str(matrix_h5), "r") as h5:
         MATRICES = {k: h5[k][()] for k in h5}
     return RouteEnv(SOL=SOL, MATRICES=MATRICES, free_var_cache={}, route_cache={})
@@ -122,7 +176,10 @@ def generate_grid(n: int, bounds_list: list[dict], idx: int | None = None, eps=1
     lower = bounds_list[idx]['lower']
 
     if idx == 0:
-        lo = float(lower); hi = float(upper)
+        try:
+            lo = float(lower); hi = float(upper)
+        except (TypeError, ValueError):
+            return []
         if not np.isfinite(lo) or not np.isfinite(hi):
             return []
         if hi - lo <= 2*eps:
@@ -136,7 +193,10 @@ def generate_grid(n: int, bounds_list: list[dict], idx: int | None = None, eps=1
     grid = generate_grid(n, bounds_list, idx - 1, eps=eps)
     out = []
     for g in grid:
-        lo = float(lower.subs(g)); hi = float(upper.subs(g))
+        try:
+            lo = float(lower.subs(g)); hi = float(upper.subs(g))
+        except (TypeError, ValueError):
+            continue
         if not np.isfinite(lo) or not np.isfinite(hi):
             continue
         if hi - lo <= 2*eps:
@@ -317,6 +377,8 @@ def n_slack_metrics(N_ineqs, nvars: dict, *, norm: str = "sumN", eps: float = 1e
 
 def time_solution(env: RouteEnv, key: str, nvars: dict, major: int, minor: int,
                   total_sum: float, n_draws: int = 20):
+    if total_sum <= 0:
+        return None
     sols, _, N_ineqs, *_ = prepare_route(env, key, major, minor)
     sols_subs = [x.subs(nvars) for x in sols]
 
@@ -342,9 +404,12 @@ def time_solution(env: RouteEnv, key: str, nvars: dict, major: int, minor: int,
     # Fallback: if grid somehow ended up empty, plug midpoints once
     if not draws:
         mids = {}
-        for bd in bounds_list:
-            lo = float(bd['lower']); hi = float(bd['upper'])
-            mids[bd['t_var']] = 0.5*(lo + hi)
+        try:
+            for bd in bounds_list:
+                lo = float(bd['lower']); hi = float(bd['upper'])
+                mids[bd['t_var']] = 0.5*(lo + hi)
+        except (TypeError, ValueError):
+            return None
         full_sol = {x.lhs(): x.rhs().subs(mids) for x in sols_subs}
         final_sol = {**mids, **full_sol}
         t_norm = {k: v / total_sum for k, v in final_sol.items()}
@@ -386,7 +451,7 @@ def _segment_time_segment(
     counts: str = "em",
     n_draws: int = 20,
     dist_cut: float = 0.20,
-    effN_cut: float = 20.0,
+    effN_cut: float = 10.0,
     tol: float = 1e-9,
 ) -> None:
     """
@@ -601,7 +666,7 @@ def _genome_time_segments(
     counts: str = "em",
     n_draws: int = 50,
     dist_cut: float = 0.20,
-    effN_cut: float = 20.0,
+    effN_cut: float = 10.0,
     tol: float = 1e-9,
 ) -> None:
     """Time every segment in the genome and store results on each Segment."""
@@ -632,6 +697,7 @@ def _genome_times_to_df(
     Long-form columns:
       sample, seg_id, key, boot_id, draw_id, time_interval, time, seg_len, eff_N, w, is_bootstrap
     """
+    from tau.utils import order_t
     rows: list[dict] = []
 
     for seg in getattr(self, "segments", []):
@@ -639,52 +705,42 @@ def _genome_times_to_df(
             continue
 
         seg_len = float(int(seg.end) - int(seg.start))
+        eff_N = float(_effective_n(seg))
 
         for key, info in seg.timing_result.items():
             if not key:
                 continue
-            accept_frac = float(info.get("accept_frac", info.get("acceptance_fraction", 0.0)))
-            if accept_frac < accept_thresh:
+            draws = info.get("draws", [])
+            if not draws:
                 continue
 
-            t_draws  = info.get("t_draws", [])
-            draw_ids = info.get("draw_ids", [])
-            boot_ids = info.get("boot_ids", [])
+            for draw in draws:
+                tdict = draw.get("t")
+                if not tdict:
+                    continue
+                boot_id = int(draw.get("boot_id", 0))
+                draw_id = int(draw.get("draw_id", 0))
+                is_bootstrap = bool(boot_id >= 1)
 
-            if not t_draws:
-                continue
-
-            if not (len(t_draws) == len(draw_ids) == len(boot_ids)):
-                draw_ids = list(range(len(t_draws)))
-                boot_ids = [0] * len(t_draws)
-
-            eff_N = float(info.get("eff_N", _effective_n(seg)))
-
-            for tdict, draw_id, boot_id in zip(t_draws, draw_ids, boot_ids):
-                is_bootstrap = bool(int(boot_id) >= 1)
-
-                ts = np.array([tdict[var(f"t{i+1}")] for i in range(len(tdict))], float)
+                ts = order_t(tdict)
                 if ts.sum() <= 0:
                     continue
-                ts = ts / ts.sum()
                 cum = np.cumsum(ts)[:-1]
 
                 for k_idx, s_k in enumerate(cum, 1):
-                    rows.append(
-                        dict(
-                            sample=sample,
-                            seg_id=getattr(seg, "seg_id", f"{seg.chrom}:{seg.start}-{seg.end}"),
-                            key=key,
-                            boot_id=int(boot_id),
-                            draw_id=int(draw_id),
-                            draw=int(draw_id),
-                            time_interval=int(k_idx),
-                            time=float(s_k),
-                            seg_len=seg_len,
-                            eff_N=eff_N,
-                            is_bootstrap=is_bootstrap,
-                        )
-                    )
+                    rows.append(dict(
+                        sample=sample,
+                        seg_id=getattr(seg, "seg_id", f"{seg.chrom}:{seg.start}-{seg.end}"),
+                        key=key,
+                        boot_id=boot_id,
+                        draw_id=draw_id,
+                        draw=draw_id,
+                        time_interval=int(k_idx),
+                        time=float(s_k),
+                        seg_len=seg_len,
+                        eff_N=eff_N,
+                        is_bootstrap=is_bootstrap,
+                    ))
 
     df = pd.DataFrame(rows)
     if df.empty:
@@ -747,34 +803,37 @@ def _genome_summarize_discards(self: Genome, sample: str) -> pd.DataFrame:
 def _genome_summarize_constraint_violations(self: Genome, sample: str) -> pd.DataFrame:
     """
     Thin flattener that pulls already-stored QC from timing_result.
+    Reads from qc[boot_id==0] and meta sub-keys stored by _segment_time_segment.
     """
     rows: list[dict] = []
     for seg in getattr(self, "segments", []):
         if not getattr(seg, "timing_result", None):
             continue
         for key, info in seg.timing_result.items():
-            rows.append(
-                dict(
-                    sample=sample,
-                    seg_id=getattr(seg, "seg_id", f"{seg.chrom}:{seg.start}-{seg.end}"),
-                    chrom=str(seg.chrom),
-                    start=int(seg.start),
-                    end=int(seg.end),
-                    major_cn=int(seg.major_cn),
-                    minor_cn=int(seg.minor_cn),
-                    route=key,
-                    seg_len=float(int(seg.end) - int(seg.start)),
-                    eff_N=float(info.get("eff_N", np.nan)),
-                    N_sum=float(info.get("N_sum", np.nan)),
-                    dist_abs=float(info.get("dist_abs", np.nan)),
-                    dist_rel=float(info.get("dist_rel", np.nan)),
-                    inside_margin=float(info.get("inside_margin", np.nan)),
-                    proj_used=bool(info.get("proj_used", False)),
-                    free_vars=int(info.get("free_vars", 0)),
-                    route_rank=int(info.get("route_rank", np.nan)),
-                    chosen=bool(info.get("chosen", False)),
-                )
-            )
+            qc = info.get("qc", [])
+            meta = info.get("meta", {})
+            draws = info.get("draws", [])
+            qc0 = next((q for q in qc if q.get("boot_id", 0) == 0), qc[0] if qc else {})
+            rows.append(dict(
+                sample=sample,
+                seg_id=getattr(seg, "seg_id", f"{seg.chrom}:{seg.start}-{seg.end}"),
+                chrom=str(seg.chrom),
+                start=int(seg.start),
+                end=int(seg.end),
+                major_cn=int(seg.major_cn),
+                minor_cn=int(seg.minor_cn),
+                route=key,
+                seg_len=float(int(seg.end) - int(seg.start)),
+                eff_N=float(qc0.get("N_sum", _effective_n(seg))),
+                N_sum=float(qc0.get("N_sum", np.nan)),
+                dist_abs=float(qc0.get("dist_abs", np.nan)),
+                dist_rel=float(qc0.get("dist_rel", np.nan)),
+                inside_margin=float(qc0.get("inside_margin", np.nan)),
+                proj_used=bool(qc0.get("projected", False)),
+                free_vars=int(meta.get("free_var_count", 0)),
+                n_draws=len(draws),
+                boots_passed=int(meta.get("boots_passed", 0)),
+            ))
     return pd.DataFrame(rows)
 
 

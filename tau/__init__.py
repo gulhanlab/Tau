@@ -49,6 +49,15 @@ Genome.times_to_df = _genome_times_to_df
 Genome.summarize_discards = _genome_summarize_discards
 Genome.summarize_constraint_violations = _genome_summarize_constraint_violations
 
+# Remove private implementation functions from the tau namespace after attaching
+del (
+    _segment_time_segment,
+    _genome_time_segments,
+    _genome_times_to_df,
+    _genome_summarize_discards,
+    _genome_summarize_constraint_violations,
+)
+
 # Import utility functions
 from tau.utils import (
     order_t,
@@ -60,7 +69,8 @@ from tau.utils import (
 
 # Import clustering functions
 from tau.clustering import (
-    cluster_times,
+    cluster_times_bottomup,
+    cluster_times,            # legacy alias kept for backward compatibility
     cluster_segment_multiplicities,
     make_clustered_genome,
     assign_chrom_arm,
@@ -71,6 +81,13 @@ from tau.plotting import (
     plot_overview,
     plot_tau_stack,
     compute_offsets,
+)
+
+# Import tree functions
+from tau.trees import (
+    build_allele_trees,
+    plot_route,
+    plot_cluster_trees,
 )
 
 # Public API
@@ -91,7 +108,8 @@ __all__ = [
     "extract_mat",
     "make_time_df",
     # Clustering
-    "cluster_times",
+    "cluster_times_bottomup",
+    "cluster_times",          # legacy alias
     "cluster_segment_multiplicities",
     "make_clustered_genome",
     "assign_chrom_arm",
@@ -99,4 +117,8 @@ __all__ = [
     "plot_overview",
     "plot_tau_stack",
     "compute_offsets",
+    # Trees
+    "build_allele_trees",
+    "plot_route",
+    "plot_cluster_trees",
 ]
