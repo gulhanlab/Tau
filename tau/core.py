@@ -10,7 +10,7 @@ from pathlib import Path
 import argparse
 import numpy as np
 import pandas as pd
-from scipy.stats import binom
+from scipy.stats import binom, kstest
 from tqdm import tqdm
 
 EPS = 1e-12
@@ -83,6 +83,8 @@ class Segment:
     N_counts_boot: np.ndarray | None = None   # bootstrapped N_counts replicates
     min_alt: int = 3
     min_vaf: float | None = None
+    normal_cn: int = 2          # copy number in normal (non-tumour) cells; set to 1 for chrX/Y in males
+    gof: dict | None = field(default=None, repr=False)
 
     def __post_init__(self):
         if self.seg_id is None:
@@ -105,7 +107,7 @@ class Segment:
 
         K = int(self.major_cn)
         y_vals = np.arange(1, K + 1)
-        denom = self.purity * self.total_cn + (1.0 - self.purity) * 2.0
+        denom = self.purity * self.total_cn + (1.0 - self.purity) * float(self.normal_cn)
         p_vec = (self.purity * y_vals) / max(denom, EPS)
 
         likes = []
@@ -157,7 +159,7 @@ class Segment:
         pi, P = _em_pi(L, w=w)
         ess = _ess(w)
         self.pi_em = pi
-        self.N_counts = pi * ess
+        self.N_counts = pi * w.sum()
 
         idx = self.snv_table.index
         self.snv_table.loc[idx, "posterior"] = pd.Series([row.tolist() for row in P], index=idx, dtype=object)
@@ -176,14 +178,82 @@ class Segment:
                 Lb = L[ix]
                 wb = w[ix]
                 pi_b, _ = _em_pi(Lb, w=wb)
-                boots[b, :] = pi_b * ess  # fixed ESS
+                boots[b, :] = pi_b * w.sum()
 
         self.N_counts_boot = boots
+
+    def compute_gof(self, min_alt: int | None = None) -> None:
+        """
+        Goodness-of-fit via probability integral transform (PIT).
+
+        For each SNV with nalt >= min_alt, compute
+            U_i = CDF of the truncated-binomial mixture at observed nalt_i
+        Under the correctly specified model, U values should be Uniform(0,1).
+        Departures are detected with a KS test.
+
+        mean_U > 0.5  →  observed ALT counts are systematically high
+                          (model under-counts low-multiplicity SNVs; detection bias)
+        mean_U < 0.5  →  opposite direction
+
+        Result stored in self.gof:
+            mean_U   – mean of U values
+            ks_stat  – KS test statistic
+            ks_p     – two-sided KS p-value against Uniform(0,1)
+            n        – number of SNVs used
+        """
+        if self.pi_em is None or self.major_cn <= 0 or self.n_snvs == 0:
+            self.gof = None
+            return
+
+        K = int(self.major_cn)
+        denom = self.purity * self.total_cn + (1.0 - self.purity) * float(self.normal_cn)
+        p_vec = (self.purity * np.arange(1, K + 1)) / max(denom, EPS)
+        kmin = int(self.min_alt) if min_alt is None else int(min_alt)
+
+        nalt_col = pd.to_numeric(self.snv_table.get("nalt", np.nan), errors="coerce").to_numpy()
+        nref_col = pd.to_numeric(self.snv_table.get("nref", np.nan), errors="coerce").to_numpy()
+
+        U_vals = []
+        for nalt_f, nref_f in zip(nalt_col, nref_col):
+            if np.isnan(nalt_f) or np.isnan(nref_f):
+                continue
+            nalt = int(nalt_f)
+            if nalt < kmin:
+                continue
+            n = nalt + int(nref_f)
+            cdf_val = 0.0
+            for p, pi_k in zip(p_vec, self.pi_em):
+                if p <= 0.0 or p >= 1.0:
+                    continue
+                norm = 1.0 - binom.cdf(kmin - 1, n, p)
+                if norm < EPS:
+                    continue
+                trunc_cdf = (binom.cdf(nalt, n, p) - binom.cdf(kmin - 1, n, p)) / norm
+                cdf_val += pi_k * float(np.clip(trunc_cdf, 0.0, 1.0))
+            U_vals.append(float(np.clip(cdf_val, 0.0, 1.0)))
+
+        if len(U_vals) < 2:
+            self.gof = dict(mean_U=float("nan"), ks_stat=float("nan"),
+                            ks_p=float("nan"), n=len(U_vals))
+            return
+
+        U = np.array(U_vals)
+        ks_result = kstest(U, "uniform")
+        self.gof = dict(
+            mean_U=float(np.mean(U)),
+            ks_stat=float(ks_result.statistic),
+            ks_p=float(ks_result.pvalue),
+            n=len(U_vals),
+        )
 
 
 @dataclass
 class Genome:
     segments: list[Segment] = field(default_factory=list)
+    # The sample's signature exposures, kept on the genome so a pickled Genome is self-describing:
+    # per-signature re-timing and any downstream signature weighting need them, and recovering them
+    # otherwise means going back to the original exposures file and matching on sample id.
+    exposures: dict[str, float] | None = None
 
     @classmethod
     def create(
@@ -193,13 +263,23 @@ class Genome:
         purity: float,
         detect_min_alt: int = 3,
         detect_min_vaf: float | None = None,
+        normal_cn_map: dict[str, int] | None = None,
+        exposures: dict[str, float] | None = None,
     ) -> "Genome":
-        """Build Genome from a preprocessed mutation table (output of tau_preprocessing.py)."""
+        """
+        Build Genome from a preprocessed mutation table.
+
+        normal_cn_map maps chromosome name (str) to the copy number in normal
+        (non-tumour) cells.  Defaults to 2 (diploid) for all chromosomes.
+        For male samples pass e.g. ``normal_cn_map={"X": 1, "Y": 1}`` to
+        correct the expected VAF for hemizygous sex chromosomes.
+        """
         required = {"chrom","pos","nalt","nref","start","end","major_cn","minor_cn","segment_id"}
         missing = required - set(snv_table.columns)
         if missing:
             raise ValueError(f"Preprocessed table missing required columns: {sorted(missing)}")
 
+        _ncn_map = normal_cn_map or {}
         segs: list[Segment] = []
         keys = ["chrom", "start", "end", "major_cn", "minor_cn", "segment_id"]
         for _, sub in snv_table.groupby(keys, sort=False):
@@ -211,13 +291,28 @@ class Genome:
                     seg_id=str(sid),
                     snv_table=sub.reset_index(drop=True).copy(),
                     min_alt=detect_min_alt, min_vaf=detect_min_vaf,
+                    normal_cn=_ncn_map.get(str(chrom), 2),
                 )
             )
-        return cls(segs)
+        genome = cls(segs)
+        # Carry through the sample's signature exposures. Prefer the explicit argument:
+        # preprocess_sample attaches them to df.attrs, but pandas drops attrs on most operations
+        # (filtering, concat, merge), so any caller that touches the table between preprocessing and
+        # here silently loses them — which is why runs before this existed have genome.exposures None.
+        exp = exposures if exposures is not None else getattr(snv_table, "attrs", {}).get("exposures")
+        if exp:
+            genome.exposures = {str(k): float(v) for k, v in dict(exp).items()}
+        return genome
 
     def calculate_multiplicities(self, bootstrap_B: int = 1, random_state: int | None = None):
         for s in tqdm(self.segments, desc="Estimating multiplicities", unit="segment"):
             s.estimate_pi_em(bootstrap_B=bootstrap_B, random_state=random_state)
+
+    def calculate_gof(self) -> None:
+        """Run compute_gof() on all segments that have pi_em estimated."""
+        for s in self.segments:
+            if s.pi_em is not None:
+                s.compute_gof()
 
     def to_segment_summary(self) -> pd.DataFrame:
         """One row per segment with π and N_counts exploded into columns."""
@@ -238,6 +333,10 @@ class Genome:
                 # add bootstrapped summary stats
                 row["boot_mean_effN"] = float(np.nanmean(s.N_counts_boot.sum(axis=1)))
                 row["boot_sd_effN"]   = float(np.nanstd(s.N_counts_boot.sum(axis=1)))
+            if s.gof is not None:
+                row["gof_mean_U"] = float(s.gof.get("mean_U", float("nan")))
+                row["gof_ks_p"]   = float(s.gof.get("ks_p",   float("nan")))
+                row["gof_n"]      = int(s.gof.get("n", 0))
             rows.append(row)
         return pd.DataFrame(rows)
 

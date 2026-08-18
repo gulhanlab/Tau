@@ -40,6 +40,23 @@ Loading routes (fast path for large analyses)
 
 __version__ = "0.1.0"
 
+# Silence third-party deprecation-warning spam that leaks from matplotlib's
+# pyparsing-based font-config parser on import (not a Tau issue). Filter by
+# message so we don't suppress genuine warnings from our own code.
+import warnings as _warnings
+_warnings.filterwarnings(
+    "ignore",
+    message=r".*(deprecated - use|enablePackrat|parseString|resetCache).*",
+    category=Warning,
+    module=r"matplotlib.*",
+)
+try:  # PyparsingDeprecationWarning may not be importable in all envs
+    from pyparsing import PyparsingDeprecationWarning as _PPDW
+    _warnings.filterwarnings("ignore", category=_PPDW)
+    del _PPDW
+except Exception:
+    pass
+
 # Core classes
 from tau.core import Segment, Genome
 
@@ -85,6 +102,9 @@ from tau.pipeline import _genome_run, run_sample
 Genome.run = _genome_run
 del _genome_run
 
+# Simulation (synthetic genomes for the demo / null comparisons)
+from tau.simulation import simulate_demo, simulate_and_write
+
 # Utilities
 from tau.utils import (
     order_t,
@@ -126,6 +146,9 @@ __all__ = [
     "CLOCK_SIGNATURES",
     # Pipeline
     "run_sample",
+    # Simulation
+    "simulate_demo",
+    "simulate_and_write",
     # Timing
     "timing",
     "load_routes",

@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from importlib import resources
 from scipy.stats import poisson as sp_poisson
+from scipy.stats import chi2 as sp_chi2
 from statsmodels.stats.multitest import multipletests
 
 from tau.core import Segment, Genome
@@ -76,10 +77,13 @@ def cluster_times_bottomup(
     identif_range=0.10,
     refine_win=0.10,
     wgd_thresh=0.40,
+    wgd_min_chroms=8,
     wgd_genome_thresh=0.50,
     min_chrom_frac_cand=0.50,
     merge_tol=0.15,
     match_tol=0.15,
+    fdr_alpha=0.05,
+    time_rule="mean",
 ):
     """Cluster timing events using the bottom-up sliding-window Poisson method.
 
@@ -94,9 +98,21 @@ def cluster_times_bottomup(
     t_wgd = N2/2 for each segment.  This makes WGD-timed (2,2) segments
     visible to the Poisson test without relaxing the identif_range threshold.
 
+    `time_rule` selects the per-segment time fed to the Poisson test:
+
+      "mean"   the MEAN over polytope solutions (default, current behaviour). For an underdetermined
+               segment this is an interior point of the polytope and NOT a valid solution -- the same
+               kind of object as the medoid, which scores worse than a random draw (0.1506 vs 0.1291).
+      "preset" the SIMULTANEITY solution -- the polytope point with the tightest total gain span, the
+               rule already used for segment-level scoring. The identifiability gate still uses the
+               original across-solution range, so the same segments enter the test and only the time
+               changes; that isolates the estimator from the gating.
+
     Returns the same 4-tuple as the legacy cluster_times() for compatibility:
       (cluster_times_result, segment_cluster_ids, original_times, cluster_summary_df)
     """
+    if time_rule not in ("mean", "preset"):
+        raise ValueError(f"time_rule must be 'mean' or 'preset', got {time_rule!r}")
     total_genome_len = sum(s.end - s.start for s in g.segments)
     wgd_len = sum(s.end - s.start for s in g.segments
                   if getattr(s, "major_cn", 0) >= 2)
@@ -142,8 +158,13 @@ def cluster_times_bottomup(
             rows_all.append( {**base, "time_point": 0, "time_fraction": t_wgd})
             continue
 
+        # gate on the ORIGINAL spread either way, so switching rule does not also switch which
+        # segments are admitted
         rng = all_cumsums.max(0) - all_cumsums.min(0)
-        mean_tf = all_cumsums.mean(0)
+        if time_rule == "preset" and all_cumsums.shape[0] > 1:
+            mean_tf = all_cumsums[int(np.argmin(all_cumsums[:, -1] - all_cumsums[:, 0]))]
+        else:
+            mean_tf = all_cumsums.mean(0)
         for tp_idx in range(all_cumsums.shape[1]):
             row = {**base, "time_point": tp_idx, "time_fraction": float(mean_tf[tp_idx])}
             rows_all.append(row)
@@ -155,6 +176,23 @@ def cluster_times_bottomup(
                      for s in g.segments if s.seg_id in original_times},
                     original_times,
                     pd.DataFrame(columns=["cluster_id","classification","time","n_segments"]))
+
+    # Refined gf denominator: full autosomal genome MINUS gained-but-untimeable
+    # genome (major_cn>=2 segments that never received a timing estimate — skipped
+    # for low effective N, no route for the CN state, or dist_rel>cut). Diploid /
+    # un-gained genome (major_cn<2) stays in the denominator: that is genuinely
+    # un-amplified genome, which is what makes a partial event partial. Only gained
+    # genome we *could not measure* is removed. (cf. FigWGDPGD/compute_timeable_denom.py)
+    def _is_autosome(c):
+        try:
+            return 1 <= int(c) <= 22
+        except (ValueError, TypeError):
+            return False
+    gained_untimeable_len = sum(
+        s.end - s.start for s in g.segments
+        if _is_autosome(s.chrom) and int(getattr(s, "major_cn", 0)) >= 2
+        and s.seg_id not in original_times)
+    gf_denom = max(GENOME_SIZE - gained_untimeable_len, 1)
 
     if not rows_filt:
         return empty_return
@@ -184,16 +222,18 @@ def cluster_times_bottomup(
         pv  = np.array([sp_poisson.sf(o - 1, expected) for o in obs])
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            rej, _, _, _ = multipletests(pv, method="fdr_bh", alpha=0.05)
-        sig = grid[rej]
+            rej, _, _, _ = multipletests(pv, method="fdr_bh", alpha=fdr_alpha)
+        sig_pairs = list(zip(grid[rej], pv[rej]))           # (center, p-value) for sig grid points
         chrom_clusters = []
-        for c in sig:
-            if chrom_clusters and c - chrom_clusters[-1][-1] <= 0.055:
-                chrom_clusters[-1].append(c)
+        for c, p in sig_pairs:
+            if chrom_clusters and c - chrom_clusters[-1][-1][0] <= 0.055:
+                chrom_clusters[-1].append((c, p))
             else:
-                chrom_clusters.append([c])
+                chrom_clusters.append([(c, p)])
         for cl in chrom_clusters:
-            center  = float(np.mean(cl))
+            centers = [c for c, _ in cl]
+            center  = float(np.mean(centers))
+            min_p   = float(min(p for _, p in cl))          # most significant grid point in cluster
             near    = cdf[np.abs(cdf["time_fraction"] - center) <= half_win + 0.02]
             near_u  = near.drop_duplicates(["start", "end"])
             cf      = near_u["length"].sum() / cs
@@ -201,7 +241,7 @@ def cluster_times_bottomup(
                 continue
             candidates.append({"chrom": chrom, "time": center, "chrom_frac": cf,
                                 "length": near_u["length"].sum(),
-                                "ess_near": float(near_u["ess"].sum())})
+                                "ess_near": float(near_u["ess"].sum()), "min_p": min_p})
 
     print(f"Per-chrom candidates: {len(candidates)} from "
           f"{len({c['chrom'] for c in candidates})} chroms")
@@ -238,19 +278,27 @@ def cluster_times_bottomup(
                                           weights=near_segs["ess"]))
             else:
                 center = center_pre
-            gf       = near_segs["length"].sum() / GENOME_SIZE if not near_segs.empty else \
-                       sum(x["length"] for x in mc) / GENOME_SIZE
+            gf       = (near_segs["length"].sum() / gf_denom if not near_segs.empty else
+                        sum(x["length"] for x in mc) / gf_denom)
+            gf       = min(gf, 1.0)
             n_chroms = int(near_segs["chrom"].nunique()) if not near_segs.empty else n_cand
-            cls      = "WGD" if gf >= wgd_thresh else "PGD"
+            # WGD if it covers a large genome fraction OR spans many chromosomes
+            # (>=8 = a near-whole/degraded doubling); matches the Fig 4 WGD/PGD criteria.
+            cls      = "WGD" if (gf >= wgd_thresh or n_chroms >= wgd_min_chroms) else "PGD"
         else:
             center   = center_pre
-            gf       = sum(x["length"] for x in mc) / GENOME_SIZE
+            gf       = min(sum(x["length"] for x in mc) / gf_denom, 1.0)
             n_chroms = n_cand
             cls      = "chrom_specific"
             cand_chroms = [str(x["chrom"]) for x in mc]
 
+        cand_ps = [x.get("min_p", 1.0) for x in mc]
+        ev_min_p = float(min(cand_ps))                       # best constituent chromosome
+        stat = -2.0 * float(np.sum(np.log(np.clip(cand_ps, 1e-300, 1.0))))
+        comb_p = float(sp_chi2.sf(stat, 2 * len(cand_ps)))   # Fisher-combined across chroms
         events.append({"time": center, "classification": cls,
                         "gf": gf, "n_chroms": n_chroms,
+                        "min_p": ev_min_p, "comb_p": comb_p,
                         "chrom": cand_chroms[0] if cls == "chrom_specific" else None})
 
     event_times = np.array(sorted(e["time"] for e in events))
@@ -283,6 +331,8 @@ def cluster_times_bottomup(
             "n_chroms":                 ev["n_chroms"],
             "n_segments":               n_segs,
             "pct_of_theoretical_genome": round(ev["gf"] * 100, 2),
+            "min_p":                    ev.get("min_p"),
+            "comb_p":                   ev.get("comb_p"),
             "chrom":                    ev.get("chrom"),  # set for chrom_specific only
         })
     cluster_summary_df = pd.DataFrame(rows_summary) if rows_summary else \
@@ -318,54 +368,146 @@ def assign_chrom_arm(chrom, start, end):
         return "centromere"
 
 
-def cluster_segment_multiplicities(genome, output_plot_file=None):
-    """Cluster segments by multiplicity profiles using PCA and DBSCAN."""
-    from sklearn.cluster import DBSCAN
+def _timeable_states():
+    """CN states with a Sage split-solution file (tau/data/solutions/{M}_{m}.sobj) = timeable."""
+    import os
+    import glob as _glob
+    d = os.path.join(os.path.dirname(__file__), "data", "solutions")
+    states = set()
+    for p in _glob.glob(os.path.join(d, "*.sobj")):
+        try:
+            M, m = os.path.splitext(os.path.basename(p))[0].split("_")
+            states.add((int(M), int(m)))
+        except ValueError:
+            pass
+    return states
 
+
+def _shape_only_records(genome, eps, min_samples, weight_by_ess, min_ess):
+    """Per-CN-state DBSCAN on individual segments' multiplicity shape (no adjacency pre-merge)."""
+    from sklearn.cluster import DBSCAN
     records = []
-    for major_cn in range(2, 7):
+    for major_cn in range(2, 8):   # major CN 7 (routes exist up to (7,5)); (7,6/7) have no timing → skip
         for minor_cn in range(0, major_cn + 1):
-            seg_subset = [
-                seg
-                for seg in genome.segments
-                if seg.major_cn == major_cn and seg.minor_cn == minor_cn
-            ]
-            points = []
-            seg_ids = []
+            seg_subset = [s for s in genome.segments
+                          if s.major_cn == major_cn and s.minor_cn == minor_cn]
+            points, seg_ids = [], []
             for seg in seg_subset:
-                seg_id = seg.seg_id
                 N_counts = np.array(seg.N_counts)
                 total = N_counts.sum()
-                if total < 10:
+                if total < min_ess:
                     continue
-
-                norm_counts = N_counts / total
-                eff_N = total
-                points.append(np.concatenate([norm_counts, [eff_N]]))
-                seg_ids.append(seg_id)
-
+                points.append(np.concatenate([N_counts / total, [total]]))
+                seg_ids.append(seg.seg_id)
             if len(points) <= 2:
                 continue
-
             points = np.array(points)
-            X = points[:, : len(seg.N_counts) - 1]  # drop last component (sums to 1)
+            X = points[:, : len(seg.N_counts) - 1]
             weights = points[:, -1]
-            labels = DBSCAN(eps=0.1, min_samples=5).fit_predict(X, sample_weight=weights)
-
+            labels = DBSCAN(eps=eps, min_samples=min_samples).fit_predict(
+                X, sample_weight=(weights if weight_by_ess else None))
             for i, seg_id in enumerate(seg_ids):
                 seg = next((s for s in genome.segments if s.seg_id == seg_id), None)
-                records.append(
-                    {
-                        "seg_id": seg_id,
-                        "major_cn": major_cn,
-                        "minor_cn": minor_cn,
-                        "cluster_label": labels[i],
-                        "x": X[i, 0],
-                        "y": X[i, 1] if X.shape[1] > 1 else 0.0,
-                        "N_counts": seg.N_counts,
-                    }
-                )
+                records.append({"seg_id": seg_id, "major_cn": major_cn, "minor_cn": minor_cn,
+                                "cluster_label": labels[i], "x": X[i, 0],
+                                "y": X[i, 1] if X.shape[1] > 1 else 0.0, "N_counts": seg.N_counts})
+    return records
 
+
+def _two_step_records(genome, eps, min_samples, min_ess):
+    """TWO-STEP: (1) adjacency-merge contiguous same-CN segments into blocks, then (2) DBSCAN the
+    blocks by pooled multiplicity shape. A block is one unit, so shape-clustering can't re-split it and
+    two similar blocks land together — fixing both the fragmented-amplicon under-pooling and the
+    redundant-cluster artifact. Gated to timeable states (route exists) and major>=2 (real gains);
+    low-ESS segments may JOIN a block but a leftover singleton is kept only if ess>=min_ess."""
+    from collections import defaultdict
+    from sklearn.cluster import DBSCAN
+    cn = {s.seg_id: (int(s.major_cn), int(s.minor_cn)) for s in genome.segments}
+    seg_by_id = {s.seg_id: s for s in genome.segments}
+    timeable = _timeable_states()
+
+    def elig(sid):
+        return cn[sid] in timeable and cn[sid][0] >= 2
+
+    # STEP 1 — adjacency blocks (a non-eligible or different-CN neighbour in genomic order breaks a run)
+    block_of, bid, prev = {}, -1, None
+    for s in sorted(genome.segments, key=lambda s: (s.chrom, s.start)):
+        if not elig(s.seg_id):
+            prev = None
+            continue
+        if prev is not None and prev.chrom == s.chrom and cn[prev.seg_id] == cn[s.seg_id]:
+            block_of[s.seg_id] = bid
+        else:
+            bid += 1
+            block_of[s.seg_id] = bid
+        prev = s
+    block_segs = defaultdict(list)
+    for sid, b in block_of.items():
+        block_segs[b].append(sid)
+    block_state, block_pool, block_ess = {}, {}, {}
+    for b, sids in block_segs.items():
+        block_state[b] = cn[sids[0]]
+        pooled = np.sum([np.array(seg_by_id[x].N_counts, float) for x in sids], axis=0)
+        block_ess[b] = float(pooled.sum())
+        block_pool[b] = pooled / pooled.sum() if pooled.sum() > 0 else pooled
+
+    # STEP 2 — DBSCAN blocks per CN state (first major-1 normalized components, as in the raw path)
+    label_of_block = {}
+    for state in {block_state[b] for b in block_segs}:
+        blocks = [b for b in block_segs if block_state[b] == state]
+        major = state[0]
+        db = [b for b in blocks if block_ess[b] >= min_ess]
+        cluster_of = {}
+        if len(db) > 2:
+            X = np.array([block_pool[b][:major - 1] for b in db])
+            for b, L in zip(db, DBSCAN(eps=eps, min_samples=min_samples).fit_predict(X)):
+                cluster_of[b] = int(L)
+        else:
+            for b in db:
+                cluster_of[b] = -1
+        next_lbl = max([L for L in cluster_of.values() if L >= 0], default=-1) + 1
+        for b in blocks:
+            L = cluster_of.get(b, -1)
+            sids = block_segs[b]
+            if L >= 0:
+                lab = L
+            elif len(sids) > 1:                 # real contiguous block → its own merged unit
+                lab = next_lbl; next_lbl += 1
+            elif block_ess[b] >= min_ess:        # timeable singleton → passthrough
+                lab = -1
+            else:
+                continue                          # untimeable leftover → drop
+            label_of_block[b] = lab
+
+    records = []
+    for sid, b in block_of.items():
+        if b not in label_of_block:
+            continue
+        seg = seg_by_id[sid]
+        Nc = np.array(seg.N_counts, float)
+        nn = Nc / Nc.sum() if Nc.sum() > 0 else Nc
+        records.append({"seg_id": sid, "major_cn": cn[sid][0], "minor_cn": cn[sid][1],
+                        "cluster_label": label_of_block[b],
+                        "x": nn[0] if len(nn) else 0.0, "y": nn[1] if len(nn) > 1 else 0.0,
+                        "N_counts": seg.N_counts})
+    return records
+
+
+def cluster_segment_multiplicities(genome, output_plot_file=None,
+                                   eps=0.07, min_samples=3, weight_by_ess=False,
+                                   min_ess=10, adjacency=True):
+    """Cluster segments by multiplicity profiles (per CN state) with DBSCAN.
+
+    adjacency=True (DEFAULT): TWO-STEP clustering — first merge contiguous same-CN segments into blocks
+    (one CN event the caller split), then DBSCAN the blocks by pooled multiplicity shape. Fixes
+    fragmented-amplicon under-pooling and redundant look-alike clusters. adjacency=False: the legacy
+    per-segment shape DBSCAN (no adjacency pre-merge).
+
+    DBSCAN defaults tuned 2026-06-23: eps 0.10→0.07, min_samples 5→3, ESS-weighting OFF (unweighted
+    eps=0.07/min_samples=3 cleanly separates distinct sub-clusters without single-linkage chaining).
+    """
+    records = (_two_step_records(genome, eps, min_samples, min_ess) if adjacency
+               else _shape_only_records(genome, eps, min_samples, weight_by_ess, min_ess))
     seg_cluster_df = pd.DataFrame(records)
 
     if not output_plot_file or seg_cluster_df.empty:

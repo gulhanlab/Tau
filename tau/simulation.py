@@ -18,14 +18,14 @@ import seaborn as sns
 from tqdm import tqdm
 
 from tau.core import Segment, Genome
+from tau.lineage import LineageTracker, class_of
 from tau.preprocessing import preprocess_sample
 
 
 def _get_data_path(filename):
     """Get path to package data file."""
     try:
-        with resources.files("tau.data").joinpath(filename) as p:
-            return str(p)
+        return str(resources.files("tau.data").joinpath(filename))
     except (FileNotFoundError, TypeError):
         data_dir = os.path.join(os.path.dirname(__file__), "data")
         return os.path.join(data_dir, filename)
@@ -111,20 +111,65 @@ which_arm = lambda c, p: "p" if p < ARM_BOUNDARY[c] else "q"
 MUT_DIST = (-5.5, 0)
 
 
-def choose_allele_delta(seg, delta, loss=False):
-    """Choose which allele to modify for gain/loss events."""
+def route_degeneracy_set(t_vals, tags, matrices, tol=1e-6):
+    """Group candidate routes by the N they produce for these t_vals; return the
+    correct compatible set + its N.
+
+    Two routes are indistinguishable for a given history iff MATRIX.T @ t_vals is
+    equal. Co-temporal events (zeroed t-intervals) collapse intermediate
+    multiplicities, so the correct cluster is the one occupying the FEWEST
+    multiplicities (sparsest N). Returns (list_of_tags, normalised_N) when a
+    uniquely-sparsest cluster exists, else (None, None) -> caller falls back."""
+    t_vals = np.asarray(t_vals, float)
+    Ns = {}
+    for tag in tags:
+        N = matrices[tag].T @ t_vals
+        if N.sum() > 0:
+            Ns[tag] = N / N.sum()
+    if not Ns:
+        return None, None
+    clusters = []  # [normalised_N, [tags]]
+    for tag, N in Ns.items():
+        for cl in clusters:
+            if np.allclose(cl[0], N, atol=1e-5):
+                cl[1].append(tag)
+                break
+        else:
+            clusters.append([N, [tag]])
+    nnz = lambda N: int(np.sum(N > tol))
+    clusters.sort(key=lambda cl: nnz(cl[0]))
+    if len(clusters) == 1 or nnz(clusters[0][0]) < nnz(clusters[1][0]):
+        return sorted(clusters[0][1], key=lambda t: int(str(t).split(".")[1])), clusters[0][0]
+    return None, None
+
+
+def choose_allele(seg, loss=False):
+    """Which PHYSICAL allele ("A"/"B") an event lands on.
+
+    Replaces choose_allele_delta, which returned a (d_major, d_minor) pair. Under lineage tracing the
+    major/minor LABEL is emergent — whichever allele ends with more surviving copies is the major one —
+    so the simulator has to name a physical allele rather than a role. Naming a role is precisely what
+    produced the phantom gains: a WGD on (1,1) counted a major and a minor gain, and if the minor allele
+    was later lost the surviving (4,0) kept a gain slot for a copy that no longer existed.
+
+    Probabilities mirror the old behaviour with `hi`/`lo` (current copy counts) standing in for
+    major/minor: losses target an allele in proportion to its copy number, gains land on the larger
+    allele about three times out of four.
+    """
+    n = seg.lin.counts()
+    hi, lo = ("A", "B") if n["A"] >= n["B"] else ("B", "A")
+    tot = n[hi] + n[lo]
+    if tot == 0:
+        return hi
     if loss:
-        if seg.minor > 0:
-            drop = min(delta, seg.minor)
-            return (0, -drop)
-        return (-delta, 0)
-    if seg.minor == 0:
-        return (delta, 0)
-    return (
-        (0, delta)
-        if _rng.random() < seg.minor / (seg.major + seg.minor) * 0.25
-        else (delta, 0)
-    )
+        if n[lo] == 0:
+            return hi
+        if n[hi] == 0:
+            return lo
+        return lo if _rng.random() < n[lo] / tot else hi
+    if n[lo] == 0:
+        return hi
+    return lo if _rng.random() < n[lo] / tot * 0.25 else hi
 
 
 @dataclass
@@ -138,75 +183,62 @@ class Event:
 
 @dataclass
 class SimSegment:
-    """Simulated genomic segment with copy number state history."""
+    """Simulated genomic segment. Its history is a traced lineage, not a list of CN states.
+
+    `major`/`minor` are a CACHE of `lin.final_state()`, refreshed after every event so code reading the
+    current state (and the .cna.txt writer) keeps working. They are OUTPUTS of the tree, never the
+    thing an event mutates.
+    """
     chrom: str
     start: int
     end: int
     major: int
     minor: int
-    state_history: list
     history: list = field(default_factory=list)
     muts: np.ndarray | None = None
+    lin: object = None
+
+    def __post_init__(self):
+        if self.lin is None:
+            self.lin = LineageTracker(rng=_rng)
 
     def copy(self):
-        return SimSegment(
-            self.chrom,
-            self.start,
-            self.end,
-            self.major,
-            self.minor,
-            self.state_history.copy(),
-            self.history.copy(),
-        )
+        return SimSegment(self.chrom, self.start, self.end, self.major, self.minor,
+                          self.history.copy(), lin=self.lin.copy())
 
-    def get_diff_allele_indices(self):
-        """Calculate diff allele indices based on state history."""
-        diff_allele_indices = []
-        path = []
-        sh = self.state_history
-        history = self.history
-        for i in range(len(sh) - 1):
-            major_delta = sh[i + 1][0] - sh[i][0]
-            minor_delta = sh[i + 1][1] - sh[i][1]
-            path.append(["major"] * major_delta + ["minor"] * minor_delta)
+    def refresh(self):
+        """Re-read (major, minor) from the surviving copies."""
+        self.major, self.minor = self.lin.final_state()
 
-        final_state = sh[-1]
-        curr_t_index = 1
-        for step in path:
-            t_change = len(step)
-            both_alleles = "major" in step and "minor" in step
-            if both_alleles:
-                potential_indices_to_zero = np.arange(t_change - 1) + 1
-                t_indices = potential_indices_to_zero + curr_t_index
-                allele_counts = np.unique(step, return_counts=True)[1]
-                diff_allele_indices.append((t_indices, min(allele_counts)))
-            curr_t_index += t_change
+    def finalize(self, matrices):
+        """Read the traced tree into the fields the rest of the pipeline expects.
 
-        self.allele_indices = diff_allele_indices
-
-    def calculate_t_values(self):
-        """Calculate timing values from event history."""
-        t_vals = [0] * (max(self.major - 1, 0) + max(self.minor - 1, 0) + 1)
-        if len(t_vals) == 1:
-            self.t_vals = [1]
+        Sets t_vals, tag, route_class (STRUCTURAL truth — what actually happened) and equiv_class
+        (what a method could have RECOVERED, since co-temporal splits let structurally different
+        routes predict an identical N). Route selection should be scored against equiv_class;
+        route_class is what the simulator did.
+        """
+        self.refresh()
+        _evs, t_vals = self.lin.topology()
+        n_int = max(self.major - 1, 0) + max(self.minor - 1, 0) + 1
+        self.route_class, self.equiv_class, self.route_N = [], [], None
+        if n_int <= 1 or self.major <= 0:
+            self.t_vals, self.tag = [1.0], None
             return
-
-        prev_state = (1, 1)
-        prev_t = 0
-        prev_event_time = 0
-        for i, (state, event) in enumerate(zip(self.state_history[1:], self.history)):
-            if isinstance(event, Loss):
-                continue
-            num_gains_in_event = sum(np.array(state) - np.array(prev_state))
-            curr_t = num_gains_in_event + prev_t
-            t_vals[prev_t] = event.time - prev_event_time
-            t_vals[prev_t + 1 : curr_t] = [0] * (num_gains_in_event - 1)
-            prev_state = state
-            prev_t = curr_t
-            prev_event_time = event.time
-
-        t_vals[-1] = 1 - sum(t_vals[:-1])
+        # A state's interval count is fixed by (major, minor); topology() yields one interval per
+        # split plus the trailing one. They agree whenever the tree is consistent with the state.
+        if len(t_vals) != n_int:
+            self.t_vals, self.tag = None, None
+            return
         self.t_vals = t_vals
+        self.route_class = self.lin.route_class()
+        self.tag = self.route_class[0] if self.route_class else None
+        if self.tag is None or self.tag not in matrices:
+            self.equiv_class = list(self.route_class)
+            return
+        self.equiv_class = class_of(self.tag, t_vals, self.major, self.minor, matrices)
+        N = matrices[self.tag].T @ np.asarray(t_vals, float)
+        self.route_N = (N / N.sum()) if N.sum() > 0 else None
 
     def simulate_N_vals(self, mut_dist, n_mutations=None):
         """Simulate mutation counts per multiplicity."""
@@ -225,8 +257,15 @@ class SimSegment:
         if self.tag not in MATRICES:
             return np.asarray([np.nan])
 
-        matrix = MATRICES[self.tag].T
-        N_vals = matrix @ np.array(self.t_vals)
+        # Prefer the route_set's shared N: when co-temporal events zero a t-interval several routes
+        # collapse to the SAME multiplicity vector, and that cluster's N is the physically correct one.
+        # Falling back to MATRICES[tag] would re-introduce the inconsistency this fixes.
+        route_N = getattr(self, "route_N", None)
+        if route_N is not None:
+            N_vals = np.asarray(route_N, float)
+        else:
+            matrix = MATRICES[self.tag].T
+            N_vals = matrix @ np.array(self.t_vals)
 
         if n_mutations is not None:
             N_vals = N_vals / N_vals.sum() * n_mutations
@@ -247,8 +286,8 @@ class SimGenome:
         for chrom, length in CHR_LEN.items():
             b = int(ARM_BOUNDARY[chrom])
             self.segments += [
-                SimSegment(chrom, 1, b, 1, 1, [(1, 1)]),
-                SimSegment(chrom, b, length, 1, 1, [(1, 1)]),
+                SimSegment(chrom, 1, b, 1, 1),
+                SimSegment(chrom, b, length, 1, 1),
             ]
 
     def _split_at(self, chrom: str, pos: int):
@@ -266,87 +305,39 @@ class SimGenome:
     ):
         self._split_at(chrom, start)
         self._split_at(chrom, end)
-        for seg in self.segments:
-            if seg.chrom == chrom and start < seg.end and end > seg.start:
-                dM, dN = choose_allele_delta(seg, delta, loss)
-                seg.major = max(0, seg.major + dM)
-                seg.minor = max(0, seg.minor + dN)
-                seg.history.append(ev)
-                seg.state_history.append((seg.major, seg.minor))
+        hit = [s for s in self.segments
+               if s.chrom == chrom and start < s.end and end > s.start]
+        if not hit:
+            return
+        # ONE allele for the whole event, not one per segment. A focal gain or loss amplifies or
+        # removes a copy of a single physical chromosome across its whole span, so every segment it
+        # covers must move on the SAME allele; drawing per segment would let one event gain allele A
+        # in one segment and allele B in the next. Chosen from the first covered segment.
+        allele = choose_allele(hit[0], loss)
+        for seg in hit:
+            if loss:
+                for _ in range(max(1, int(delta))):
+                    seg.lin.loss(ev.time, allele)
+            else:
+                seg.lin.gain(ev.time, allele, delta)
+            seg.history.append(ev)
+            seg.refresh()
 
     def apply(self, ev: Event):
         ev.apply(self)
 
-    def swap_minor_major(self):
-        """Ensure major >= minor for all segments."""
+    def finalize(self):
+        """Read every segment's traced tree into t_vals / tag / route_class / equiv_class.
+
+        Replaces the old swap_minor_major + unify_history_per_state + assign_tags +
+        calculate_t_values + assign_route_sets chain. Nothing to swap (final_state returns
+        (max, min), so major >= minor by construction) and nothing to unify (each segment's history
+        is its own tree; forcing neighbours to share one was a way of papering over the fact that
+        state histories could not represent what actually happened).
+        """
+        matrices = _load_matrices()
         for s in self.segments:
-            if s.minor > s.major:
-                s.major, s.minor = s.minor, s.major
-                s_hist = s.state_history
-                minor = [x[0] for x in s_hist]
-                major = [x[1] for x in s_hist]
-                s.state_history = list(zip(minor, major))
-
-    def unify_history_per_state(self):
-        """Unify histories for segments with same CN state on same arm."""
-        buckets = {}
-        for s in self.segments:
-            arm = which_arm(s.chrom, s.start)
-            key = (s.chrom, arm, s.major, s.minor)
-            buckets.setdefault(key, []).append(s)
-        for segs in buckets.values():
-            canon = segs[0].history
-            canon_state_history = segs[0].state_history
-            for s in segs[1:]:
-                s.history = canon.copy()
-                s.state_history = canon_state_history.copy()
-
-    def calculate_t_values(self):
-        for seg in self.segments:
-            seg.calculate_t_values()
-
-    def assign_tags(self):
-        """Assign route tags to all segments."""
-        diff_allele_dict = _load_diff_alleles()
-        segs = self.segments
-        for seg in segs:
-            seg.get_diff_allele_indices()
-            indices = seg.allele_indices
-            tag_str = f"{seg.major}_{seg.minor}."
-            potential_tags = {
-                tag: idx for tag, idx in diff_allele_dict.items() if tag.startswith(tag_str)
-            }
-            final_tags = []
-            multiple_tags = len(potential_tags) > 1
-            if multiple_tags and seg.minor > 1:
-                for tag, idx in potential_tags.items():
-                    satisfied = True
-                    remaining = set(np.array(idx, dtype=int))
-                    for i, (event, num_both_allele) in enumerate(indices):
-                        if any(x in remaining for x in event):
-                            remaining -= set(event)
-                        if len(remaining) == 0 and i < len(indices) - 1:
-                            satisfied = False
-                    if satisfied:
-                        final_tags.append(tag)
-                seg.tag = _rng.choice(final_tags)
-            elif multiple_tags:
-                seg.tag = _rng.choice(list(potential_tags.keys()))
-            else:
-                seg.tag = tag_str + "1"
-
-        self._unify_tags()
-
-    def _unify_tags(self):
-        buckets = {}
-        for s in self.segments:
-            arm = which_arm(s.chrom, s.start)
-            key = (s.chrom, arm, s.major, s.minor)
-            buckets.setdefault(key, []).append(s)
-        for segs in buckets.values():
-            canon = segs[0].tag
-            for s in segs[1:]:
-                s.tag = canon
+            s.finalize(matrices)
 
     def simulate_N_vals(self):
         """Simulate mutation counts for all segments."""
@@ -357,26 +348,40 @@ class SimGenome:
 
 @dataclass
 class WGD(Event):
-    """Whole genome duplication event."""
+    """Whole genome duplication event.
+
+    Every LIVING copy splits in two — which is what makes a doubling a doubling, and why this cannot
+    be written as `major *= 2; minor *= 2`. Under the arithmetic form a doubling of (1,1) booked one
+    major and one minor gain; if the minor allele was lost afterwards the surviving (4,0) still
+    carried a gain slot for a copy that no longer existed (the phantom gain, 180 of 401 v8 (4,0)
+    segments). A copy that dies is simply absent from the tree, so it cannot occupy a slot.
+    """
     def apply(self, g):
         for s in g.segments:
-            s.major *= 2
-            s.minor *= 2
+            s.lin.wgd(self.time)
             s.history.append(self)
-            s.state_history.append((s.major, s.minor))
+            s.refresh()
 
 
 @dataclass
 class PGD(Event):
-    """Partial genome duplication event."""
+    """Partial genome duplication event — one extra copy of one allele on the named chromosomes."""
     chroms: list
 
     def apply(self, g):
-        for s in g.segments:
-            if s.chrom in self.chroms:
-                s.major += 1
+        # One allele per CHROMOSOME, drawn once and applied to every segment on it: a ccPG duplicates
+        # whole chromosomes, so a chromosome cannot gain allele A in one segment and allele B in the
+        # next. Chromosomes are independent physical entities, so the draw is per chromosome rather
+        # than one for the entire event.
+        for chrom in self.chroms:
+            segs = [s for s in g.segments if s.chrom == chrom]
+            if not segs:
+                continue
+            allele = choose_allele(segs[0], loss=False)
+            for s in segs:
+                s.lin.gain(self.time, allele, 1)
                 s.history.append(self)
-                s.state_history.append((s.major, s.minor))
+                s.refresh()
 
 
 @dataclass
@@ -420,8 +425,9 @@ def generate_mutation_dataframe(segment, purity):
     """Generate mutation dataframe from simulated segment."""
     mut_df = []
     mut_counts = segment.muts
-    mut_positions = np.arange(segment.start, segment.end)
-    rng = np.random.default_rng()
+    # Seed this segment's RNG off the (seeded) global stream so VCF positions/depths are
+    # reproducible from the run seed; previously default_rng() was unseeded.
+    rng = np.random.default_rng(np.random.randint(2 ** 31))
     depth_mu, depth_std = 1.69, 0.22
     depth = lambda: max(1, int(round(10 ** rng.normal(depth_mu, depth_std))))
     total_cn = segment.major + segment.minor
@@ -430,7 +436,7 @@ def generate_mutation_dataframe(segment, purity):
         if np.isnan(count):
             continue
         for _ in range(int(count)):
-            pos = rng.choice(mut_positions)
+            pos = int(rng.integers(segment.start, segment.end))   # avoid a per-segment arange (could be ~1.5 GB for whole-chrom segments)
             n = depth()
             alt_count = rng.binomial(
                 n, (multiplicity * purity) / (2 * (1 - purity) + total_cn * purity)
@@ -461,46 +467,172 @@ def generate_mutation_dataframe(segment, purity):
     return pd.DataFrame(mut_df)
 
 
-def simulate_and_write():
-    """Simulate a tumor genome with WGD/PGD events and focal gains/losses."""
-    g = SimGenome()
-    g.purity = _rng.uniform(0.2, 0.9)
-    num_WGD = _rng.choice(2)
-    if num_WGD == 0:
-        num_PGD = _rng.choice([1, 2, 3])
-    else:
-        num_PGD = 0
-    times = _rng.choice(np.arange(0.1, 1, 0.1), num_WGD + num_PGD, replace=False)
-    wgds = [WGD(t) for t in times[:num_WGD]]
-    pgd_times = times[num_WGD:]
-    chroms = list(CHR_LEN)
-    pgds = [
-        PGD(t, _rng.choice(chroms, _rng.integers(4, 8), replace=False).tolist())
-        for t in pgd_times
+def simulate_demo(seed: int = 0, allowed_states=((2, 1), (2, 2), (4, 2))):
+    """Synthesise a small, fast, self-contained demo genome (no external files).
+
+    Builds a SimGenome with a single whole-genome duplication plus a couple of
+    focal gains, restricted to a handful of chromosomes and to a small set of
+    copy-number states so that route loading stays bounded (one WGD at t=0.30,
+    a focal gain producing a (3,1) and a (4,2) state).
+
+    Returns
+    -------
+    mut_df : pd.DataFrame
+        Per-mutation table ready for ``Genome.create`` (same columns the
+        preprocessing pipeline emits, with ``mut_w=1`` so all mutations are
+        weighted equally — equivalent to ``signatures=None``).
+    purity : float
+        The purity used to draw the read counts.
+    truth : dict
+        Ground-truth event times, e.g. ``{"WGD": 0.30}`` — handy for the demo
+        message and for sanity-checking the recovered timing.
+
+    The set of CN states that actually carry simulated mutations is exactly
+    ``allowed_states``; pass these to ``load_routes_for_states`` to keep the
+    Sage load fast.
+    """
+    global _rng
+    _rng = np.random.default_rng(seed)
+    np.random.seed(seed)
+
+    allowed = set(tuple(s) for s in allowed_states)
+    purity = 0.80
+    wgd_time = 0.30
+
+    # Use a subset of chromosomes. Route loading only depends on the (small) set
+    # of CN *states* (allowed_states), not the number of chromosomes, so we keep
+    # enough chromosomes for the WGD signal to cluster cleanly.
+    demo_chroms = [
+        "chr1", "chr2", "chr3", "chr4", "chr5", "chr6",
+        "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr17",
     ]
-    events = wgds + pgds
-    for _ in range(_rng.poisson(20)):
-        c = _rng.choice(AUTOSOMES)
-        s, e = random_arm_span(c, _rng.random() < 0.3)
-        delta = int(_rng.integers(2, 5) if e - s < 1e7 else 1)
-        events.append(Gain(_rng.uniform(0.05, 0.95), c, s, e, delta))
-    for _ in range(_rng.poisson(20)):
-        c = _rng.choice(AUTOSOMES)
-        s, e = random_arm_span(c, False)
-        events.append(Loss(_rng.uniform(0.05, 0.95), c, s, e, 1))
+
+    g = SimGenome()
+    g.purity = purity
+    # Drop chromosomes we don't use so simulate_N_vals stays cheap.
+    g.segments = [s for s in g.segments if s.chrom in demo_chroms]
+
+    events = [WGD(wgd_time)]
+    # Pre-WGD gain on chr17p: (1,1) -> (2,1) at t=0.15, doubled by WGD -> (4,2).
+    events.append(Gain(0.15, "chr17", 1, int(ARM_BOUNDARY["chr17"]), 1))
+    # Post-WGD single-allele loss on chr2p: (2,2) -> (2,1) at t=0.70.
+    events.append(Loss(0.70, "chr2", 1, int(ARM_BOUNDARY["chr2"]), 1))
 
     for ev in sorted(events, key=lambda x: x.time):
         g.apply(ev)
 
-    g.swap_minor_major()
-    g.unify_history_per_state()
-    g.assign_tags()
-    g.calculate_t_values()
+    # One call: lineage tracing yields (major, minor), t_vals and the true route together, so there
+    # is no separate tag lookup to keep consistent with the timing.
+    g.finalize()
+
+    frames = []
+    for s in g.segments:
+        s.seg_id = f"{s.chrom}:{s.start}-{s.end}"
+        if s.t_vals is None or (s.major, s.minor) not in allowed:
+            continue
+        s.muts = s.simulate_N_vals(MUT_DIST)
+        df = generate_mutation_dataframe(s, purity=g.purity)
+        if not df.empty:
+            frames.append(df)
+
+    if not frames:
+        raise RuntimeError("Demo simulation produced no mutations; try a different seed.")
+    mut_df = pd.concat(frames, ignore_index=True)
+    # Match the real preprocessing pipeline, which strips the "chr" prefix
+    # (downstream clustering does int(seg.chrom)).
+    mut_df["chrom"] = mut_df["chrom"].astype(str).str.replace("^chr", "", regex=True)
+    mut_df["segment_id"] = (
+        mut_df["chrom"] + ":"
+        + mut_df["start"].astype(int).astype(str) + "-"
+        + mut_df["end"].astype(int).astype(str)
+    )
+    return mut_df, purity, {"WGD": wgd_time}
+
+
+def simulate_and_write():
+    """Simulate a tumor genome with WGD/PGD events and focal gains/losses.
+
+    WGD count drawn from {0, 1, 2} with probabilities (0.40, 0.40, 0.20).
+    For 2-WGD: times are sampled so they are at least 0.3 apart.
+    """
+    g = SimGenome()
+    g.purity = _rng.uniform(0.2, 0.9)
+    num_WGD = int(_rng.choice([0, 1, 2], p=[0.40, 0.40, 0.20]))
+    if num_WGD == 0:
+        num_PGD = _rng.choice([0, 1, 2, 3], p=[0.40, 0.35, 0.15, 0.10])
+    else:
+        # WGD samples can also carry PGD events (~30% chance of at least one PGD)
+        num_PGD = _rng.choice([0, 1, 2], p=[0.70, 0.20, 0.10])
+
+    # Sample WGD times: for 2 WGDs enforce a minimum gap of 0.6
+    if num_WGD == 2:
+        t1 = _rng.uniform(0.1, 0.60)
+        t2 = _rng.uniform(t1 + 0.30, min(t1 + 0.30 + 0.40, 0.95))
+        wgd_times = [t1, t2]
+    else:
+        # Continuous event times (v7): de-discretized from the old 0.1 grid so the
+        # timing-accuracy and resolution panels are measured continuously.
+        wgd_times = list(_rng.uniform(0.1, 0.9, num_WGD))
+
+    wgds = [WGD(t) for t in wgd_times]
+
+    pgd_times = list(_rng.uniform(0.1, 0.9, num_PGD))
+    chroms = list(CHR_LEN)
+    pgds = [
+        PGD(t, _rng.choice(chroms, _rng.integers(2, 6), replace=False).tolist())
+        for t in pgd_times
+    ]
+    events = wgds + pgds
+    for _ in range(_rng.poisson(10)):
+        c = _rng.choice(AUTOSOMES)
+        s, e = random_arm_span(c, _rng.random() < 0.7)
+        delta = int(_rng.integers(2, 5) if e - s < 1e7 else 1)
+        events.append(Gain(_rng.uniform(0.05, 0.95), c, s, e, delta))
+    for _ in range(_rng.poisson(10)):
+        c = _rng.choice(AUTOSOMES)
+        s, e = random_arm_span(c, False)
+        events.append(Loss(_rng.uniform(0.05, 0.95), c, s, e, 1))
+    # Post-WGD arm-level losses: two independent passes per WGD.
+    # Pass 1 (p=0.45): converts (2,2) → (2,1) — increases LOH, no change to frac_major_ge2.
+    # Pass 2 (p=0.40): applied independently; arms that already lost once go (2,1) → (1,1)
+    #   with 2/3 probability (random major targeting), reducing frac_major_ge2 by ~0.12.
+    # Together these bring simulated WGD=1 frac_major_ge2 from ~0.95 down to ~0.83,
+    # matching the PCAWG WGD cluster.
+    for wgd in wgds:
+        t_wgd = wgd.time
+        t_lo1 = min(t_wgd + 0.05, 0.94)
+        t_lo2 = min(t_wgd + 0.15, 0.94)
+        for chrom in AUTOSOMES:
+            for arm_is_q in [False, True]:
+                a_start = int(ARM_BOUNDARY[chrom]) if arm_is_q else 0
+                a_end = CHR_LEN[chrom] if arm_is_q else int(ARM_BOUNDARY[chrom])
+                if _rng.random() < 0.45:
+                    t = _rng.uniform(t_lo1, 0.95) if t_lo1 < 0.95 else 0.94
+                    events.append(Loss(t, chrom, a_start, a_end, 1))
+                if _rng.random() < 0.40:
+                    t = _rng.uniform(t_lo2, 0.95) if t_lo2 < 0.95 else 0.94
+                    events.append(Loss(t, chrom, a_start, a_end, 1))
+
+    for ev in sorted(events, key=lambda x: x.time):
+        g.apply(ev)
+
+    # The route now comes from the traced lineage, so it IS the simulated history rather than a
+    # lookup that has to agree with it. counts_diagram_As.txt (no minor==0 rows, so every LOH state
+    # fell through to "<M>_<m>.1") is out of the loop entirely.
+    g.finalize()
     print("Simulation of tumor complete!")
     print(f"WGDs: {wgds}")
     print(f"PGDs: {pgds}")
     for s in g.segments:
         s.seg_id = f"{s.chrom}:{s.start}-{s.end}"
+        if s.t_vals is None:
+            # Segment has an over-complex history (gains reversed by losses).
+            # No valid Tau route maps to it; skip mutation simulation.
+            s.muts = np.zeros(1, dtype=int)
+            s.mut_df = pd.DataFrame(columns=["chrom","pos","ref","alt","nalt","nref",
+                                             "start","end","major_cn","minor_cn",
+                                             "segment_id","mut_w","vaf","multiplicity"])
+            continue
         s.muts = s.simulate_N_vals(MUT_DIST)
         s.mut_df = generate_mutation_dataframe(s, purity=g.purity)
     return g, events

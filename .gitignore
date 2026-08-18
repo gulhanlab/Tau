@@ -2,3 +2,34 @@ tau/data/matrices_7_7.h5
 __pycache__/
 CLAUDE.md
 dev/
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+
+# Cluster / run clutter
+slurm-*.out
+snakemake_logs/
+logs/
+core.[0-9]*
+*.coredump
+
+# Papers / screenshots / scratch caches in repo root
+*.pdf
+fig1_screenshot.png
+workflow.png
+gain_timing_oncogene_cache.tsv
+
+# Demo / scratch outputs
+tau_demo_out/
+
+# FigHighCN render caches (regenerate from scripts; FIGHIGHCN_REBUILD=1 to force)
+dev/pcawg/FigHighCN/.treecache/
+dev/pcawg/FigHighCN/.rescache/
+dev/pcawg/misc_data_and_plots/.bcache/
+*.bak
+*.bak_*
+tau_timing.egg-info/
+forJoseph.zip
+notes_site/
+tau/data/solutions/
+tau/data/solutions_analytical/

@@ -37,9 +37,10 @@ def time_matrix(time_list):
 def pick_best_key(seg, rng=None):
     """Pick the best timing key for a segment based on distance.
 
-    When multiple routes share the minimum dist_rel (feasible region overlap),
-    the winner is chosen uniformly at random rather than by dict iteration order.
-    Pass an np.random.Generator via rng for reproducibility.
+    When multiple routes share the minimum dist_rel (feasible region overlap), the winner is chosen
+    DETERMINISTICALLY as the route with the largest inside_margin (counts deepest inside the feasible
+    region), tie-broken by canonical route_key order. Pass an np.random.Generator via rng to instead
+    pick uniformly at random (deprecated; kept for backward compatibility).
     """
     timing = getattr(seg, "timing_result", {}) or {}
     if not timing:
@@ -63,8 +64,14 @@ def pick_best_key(seg, rng=None):
         return None
     if len(candidates) == 1:
         return candidates[0]
-    _rng = rng if rng is not None else np.random.default_rng()
-    return candidates[int(_rng.integers(len(candidates)))]
+    if rng is not None:                                   # explicit random pick (backward-compat / deprecated)
+        return candidates[int(rng.integers(len(candidates)))]
+    # DEFAULT: deterministic, principled tie-break — prefer the route whose observed counts sit DEEPEST
+    # inside the feasible region (max inside_margin), then canonical route_key order for exact margin ties.
+    def _margin(k):
+        qc = timing[k].get("qc", [])
+        return float(qc[0].get("inside_margin", -np.inf)) if qc else -np.inf
+    return max(sorted(candidates), key=_margin)
 
 
 def _sort_draws_for_display(mat, n_free, n_fixed_steps=5):
@@ -141,6 +148,12 @@ def make_time_df(genome):
             k: v["qc"][0]["dist_rel"] if v.get("qc") else np.nan
             for k, v in timing_result.items()
         }
+        # inside_margin is the SECOND key of pick_best_key (deepest inside the feasible region breaks
+        # dist_rel ties). Emitting it makes the deployed selection rule reproducible from the flat table.
+        inside_margins = {
+            k: v["qc"][0].get("inside_margin", np.nan) if v.get("qc") else np.nan
+            for k, v in timing_result.items()
+        }
 
         keys_arr = np.array(list(timing_result.keys()))
         dist_vals = np.array([euclidean_distances[k] for k in keys_arr])
@@ -197,6 +210,7 @@ def make_time_df(genome):
                             "mutation_count": mut_count,
                             "num_draws": num_draws,
                             "distance_from_route_boundary": euclidean_distances[key],
+                            "inside_margin": inside_margins[key],
                             "route_probability": probs.get(key, 0.0),
                             "length": seg_length,
                         })

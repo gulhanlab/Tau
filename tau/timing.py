@@ -41,20 +41,26 @@ def _default_paths() -> tuple[Path, Path]:
 
     Priority:
     1. Environment variables TAU_ROUTES_SAGE and TAU_MATRICES_H5
-    2. Package data files in tau/data/
+    2. tau/data/solutions/ split directory (preferred — per-state .sobj files)
+    3. tau/data/7_5_solutions_updated.sobj monolithic fallback
     """
-    # Check environment variables first
     sage_env = os.environ.get("TAU_ROUTES_SAGE")
     h5_env = os.environ.get("TAU_MATRICES_H5")
 
     if sage_env and h5_env:
         return Path(sage_env), Path(h5_env)
 
-    # Fall back to package data
-    sage_path = sage_env or _get_package_data_path("7_5_solutions_updated.sobj")
     h5_path = h5_env or _get_package_data_path("matrices_7_7.h5")
 
-    return Path(sage_path), Path(h5_path)
+    if sage_env:
+        return Path(sage_env), Path(h5_path)
+
+    # Prefer split directory over monolithic file
+    split_dir = Path(_get_package_data_path("solutions"))
+    if split_dir.is_dir() and any(split_dir.glob("*.sobj")):
+        return split_dir, Path(h5_path)
+
+    return Path(_get_package_data_path("7_5_solutions_updated.sobj")), Path(h5_path)
 
 
 @dataclass
@@ -79,7 +85,12 @@ def load_routes(sol_file: str | Path, matrix_h5: str | Path) -> RouteEnv:
     sol_file = Path(sol_file)
     if sol_file.is_dir():
         SOL = {}
-        for p in sorted(sol_file.glob("*.sobj")):
+        files = sorted(sol_file.glob("*.sobj"))
+        print(
+            f"Loading {len(files)} Sage route files from {sol_file}/ "
+            "(first call also imports Sage, which can take ~1 min)..."
+        )
+        for p in tqdm(files, desc="loading routes", unit="file"):
             SOL.update(sage_load(str(p)))
         print(f"Loaded {len(SOL):,} routes from {sol_file}/")
     else:
@@ -117,8 +128,12 @@ def load_routes_for_states(
         sage_path, _ = _default_paths()
         return load_routes(sage_path, matrix_h5)
 
+    print(
+        f"Loading Sage route solutions for {len(cn_states)} CN state(s) "
+        "(first call also imports Sage, which can take ~1 min)..."
+    )
     SOL: Dict[str, Any] = {}
-    for major, minor in cn_states:
+    for major, minor in tqdm(cn_states, desc="loading routes", unit="state"):
         p = Path(split_dir) / f"{major}_{minor}.sobj"
         if p.exists():
             SOL.update(sage_load(str(p)))
@@ -753,33 +768,26 @@ def _genome_times_to_df(
     if not summarize:
         return df
 
-    # Summarize
+    # Summarize. Build one row per group with the requested quantiles. We iterate
+    # group-by-group rather than use .agg() with an array-returning lambda, which
+    # newer pandas rejects ("Must produce aggregated value").
     qs = sorted(set(ci))
     gcols = ["seg_id", "key", "time_interval", "boot_id", "is_bootstrap"]
-    qdf = (
-        df.groupby(gcols, as_index=False)
-          .agg(
-              time_q=("time", lambda x: np.quantile(x.to_numpy(), qs)),
-              seg_len=("seg_len", "first"),
-              eff_N=("eff_N", "first"),
-              w=("w", "mean"),
-          )
-    )
-
     out_rows = []
-    for _, r in qdf.iterrows():
-        tq = np.asarray(r["time_q"], float)
+    for gkey, sub in df.groupby(gcols, sort=False):
+        seg_id, key, time_interval, boot_id, is_bootstrap = gkey
+        tq = np.quantile(sub["time"].to_numpy(), qs)
         out = dict(
-            seg_id=r["seg_id"],
-            key=r["key"],
-            time_interval=int(r["time_interval"]),
-            boot_id=int(r["boot_id"]),
-            is_bootstrap=bool(r["is_bootstrap"]),
-            seg_len=float(r["seg_len"]),
-            eff_N=float(r["eff_N"]),
-            w=float(r["w"]),
+            seg_id=seg_id,
+            key=key,
+            time_interval=int(time_interval),
+            boot_id=int(boot_id),
+            is_bootstrap=bool(is_bootstrap),
+            seg_len=float(sub["seg_len"].iloc[0]),
+            eff_N=float(sub["eff_N"].iloc[0]),
+            w=float(sub["w"].mean()),
         )
-        for q, val in zip(qs, tq):
+        for q, val in zip(qs, np.asarray(tq, float)):
             out[f"time_q{q:.3f}"] = float(val)
         out_rows.append(out)
 

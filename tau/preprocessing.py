@@ -259,7 +259,8 @@ def preprocess_sample(
     exposures_tsv : str or Path, optional
         Per-sample signature exposures
     apply_subclonal_filter : bool
-        Whether to flag low-VAF subclonal mutations
+        Run the built-in low-CCF test (:func:`flag_lowVAF_subclonal`). Flagged mutations get zero
+        weight in the EM. Combines by UNION with ``subclonal_list`` — the two are independent.
     detect_min_alt : int
         Minimum alt reads for detection
     detect_min_vaf : float, optional
@@ -281,7 +282,10 @@ def preprocess_sample(
         Defaults to None (all mutations weighted equally, equivalent to
         ignoring signature information).
     subclonal_list : str, optional
-        Path to file with mutation IDs to flag as subclonal.
+        Path to a file of mutation IDs to flag as subclonal, one ``{chrom}:{pos}:{ref}/{alt}`` per
+        line (the format ``dev/pyclone/write_subclonal_labels.py`` writes). Use this for an external
+        caller's assignment — PyClone-VI, DPClust, etc. ADDITIVE with ``apply_subclonal_filter``:
+        a mutation is excluded if either source flags it.
     mode : str
         ``"soft"`` (default) or ``"hard"`` — see ``signatures`` above.
 
@@ -307,28 +311,31 @@ def preprocess_sample(
     snv_map['mutation_id'] = snv_map['chrom'] + ':' + snv_map['pos'].astype(str) + ':' + snv_map['ref'] + '/' + snv_map['alt']
     snv_map['vaf'] = snv_map['nalt'] / (snv_map['nalt'] + snv_map['nref'])
 
-    # optional: flag low-CCF subclonal (in-built simple method)
+    # Subclonal flagging — the two sources are INDEPENDENT and COMBINE (union). A mutation is
+    # excluded from the EM if either the built-in test or an external caller says it is subclonal,
+    # so a PyClone/DPClust list can be layered on top of the simple filter rather than replacing it.
+    snv_map["subclonal"] = False
     if apply_subclonal_filter:
         snv_map["subclonal"] = flag_lowVAF_subclonal(
             snv_map, purity=float(purity),
             min_alt=detect_min_alt, min_vaf=detect_min_vaf, alpha=float(subclonal_alpha)
         )
-    else:
-        snv_map["subclonal"] = False
-
-    # if a subclonal list is provided (from an external caller), flag these for downstream processing
     if subclonal_list:
-        subclonal_set = set()
         with open(subclonal_list, 'r') as f:
-            for line in f:
-                subclonal_set.add(line.strip())
-        snv_map["subclonal"] = snv_map["mutation_id"].isin(subclonal_set)
+            subclonal_set = {line.strip() for line in f if line.strip()}
+        snv_map["subclonal"] = (snv_map["subclonal"].fillna(False)
+                                | snv_map["mutation_id"].isin(subclonal_set))
 
     # final column order (stable, easy to read)
     cols = ["chrom","pos","ref","alt","nalt","nref",
             "start","end","major_cn","minor_cn","segment_id","mut_w","subclonal"]
     extra = [c for c in snv_map.columns if c not in cols]
-    return snv_map[cols + extra].copy()
+    out = snv_map[cols + extra].copy()
+    # Carry the sample's signature exposures so Genome.create can store them on
+    # the genome (used later by per-signature re-timing).
+    if exposures is not None:
+        out.attrs["exposures"] = {str(k): float(v) for k, v in exposures.items()}
+    return out
 
 
 def main():

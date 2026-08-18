@@ -42,10 +42,13 @@ dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
 ]
+viz = [
+    "plotly>=6.0",
+]
 
-# CLI entry point - use `python -m scripts.run_tau` instead
-# [project.scripts]
-# tau = "scripts.run_tau:main"
+[project.scripts]
+tau = "tau.cli:main"
+tau-viz = "tau.viz:_cli"
 
 [project.urls]
 Homepage = "https://github.com/parklab/tau"
@@ -75,6 +78,9 @@ default = { solve-group = "default" }
 dev = { features = ["dev"], solve-group = "default" }
 
 [tool.pixi.tasks]
+tau = "tau"
+demo = "tau demo"
+test = "pytest tests/"
 
 [tool.pixi.dependencies]
 python = ">=3.9"
@@ -91,3 +97,4 @@ statsmodels = ">=0.14.0,<0.15"
 sage = ">=10.7,<11"
 snakemake = ">=8.0"
 snakemake-executor-plugin-slurm = ">=0.4"
+plotly = ">=6.8.0,<7"

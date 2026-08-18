@@ -88,6 +88,9 @@ def run_sample(
     normal_cn_map: dict[str, int] | None = None,
     detect_min_alt: int = 3,
     detect_min_vaf: float | None = None,
+    apply_subclonal_filter: bool = False,
+    subclonal_list: str | Path | None = None,
+    subclonal_alpha: float = 0.01,
     **cluster_kwargs,
 ) -> tuple[Genome, pd.DataFrame]:
     """Run the full Tau pipeline from VCF + CNV files to cluster events.
@@ -132,6 +135,16 @@ def run_sample(
     normal_cn_map : dict, optional
         Map chromosome name → normal copy number.
         Pass ``{"X": 1, "Y": 1}`` for male samples to correct hemizygous VAFs.
+    apply_subclonal_filter : bool
+        Run Tau's built-in low-CCF test; flagged mutations get zero weight in the EM.
+        Defaults to False, matching the CLI and every published Tau run. Its power scales
+        with purity, so enabling it applies a purity-dependent correction across a cohort.
+    subclonal_list : str or Path, optional
+        File of mutation IDs (``{chrom}:{pos}:{ref}/{alt}``, one per line) from an external
+        caller such as PyClone-VI. ADDITIVE with ``apply_subclonal_filter`` — a mutation is
+        excluded if either source flags it.
+    subclonal_alpha : float
+        Confidence level for the built-in test (default 0.01 = 99% upper bound).
     **cluster_kwargs
         Extra keyword arguments forwarded to cluster_times_bottomup().
 
@@ -173,6 +186,9 @@ def run_sample(
         mode=mode,
         detect_min_alt=detect_min_alt,
         detect_min_vaf=detect_min_vaf,
+        apply_subclonal_filter=apply_subclonal_filter,
+        subclonal_list=subclonal_list,
+        subclonal_alpha=subclonal_alpha,
     )
 
     g = Genome.create(
