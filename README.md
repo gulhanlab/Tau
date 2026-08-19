@@ -102,7 +102,6 @@ Check it worked:
 
 ```bash
 tau --help
-pytest tests/          # expect: 40 passed
 ```
 
 `tau` now works from any directory, so you can run it wherever your data lives.
@@ -179,6 +178,12 @@ tau run \
 
 Add clock-signature weighting (recommended) by specifying a mutational signature exposure file and a reference genome for trinucleotide contexts:
 `--exposures exposures.tsv --ref_fasta hg19.fa`.
+
+The COSMIC signature definitions themselves ship with Tau (COSMIC v3.2 SBS, WGS), so
+there is nothing to download. To use a different set — a newer COSMIC release, or
+signatures fitted for your own cohort — pass `--cosmic_csv your_signatures.csv`. Official
+releases are at <https://cancer.sanger.ac.uk/signatures/downloads/>; the file needs a
+first column of the 96 mutation types and one column per signature (`SBS1`, `SBS5`, ...).
 
 ### Input formats
 
