@@ -160,7 +160,7 @@ One directory per sample. `{sample}` is the `--sample` value.
 | `{sample}.genome.pkl.gz` | the full result object, for the Python API |
 | `{sample}.clustered_genome.pkl.gz` | the pooled result object |
 
-Times run from **0 (early)** to **1 (late)** as a fraction of the sample's mutation burden.
+Times run from **0 (early)** to **1 (late)**.
 
 ### Common options
 
