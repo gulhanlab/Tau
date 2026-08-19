@@ -177,7 +177,7 @@ tau run \
   --output_dir results/
 ```
 
-Add clock-signature weighting (recommended — see [Background](#background)) with
+Add clock-signature weighting (recommended) by specifying a mutational signature exposure file and a reference genome for trinucleotide contexts:
 `--exposures exposures.tsv --ref_fasta hg19.fa`.
 
 ### Input formats
