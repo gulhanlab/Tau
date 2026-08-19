@@ -8,6 +8,7 @@
 - [Usage and Installation](#usage-and-installation)
 	- [Installation](#installation)
 	- [Try it](#try-it)
+	- [Step through it yourself](#step-through-it-yourself)
 	- [Running on your own data](#running-on-your-own-data)
 		- [Input formats](#input-formats)
 		- [Output](#output)
@@ -108,6 +109,46 @@ It runs the full pipeline and prints the recovered event against the known truth
 26/26 segments timed | 1 event(s): WGD t=0.29
 Ground truth: WGD @ t=0.30
 ```
+
+Look through the output directory before going further — it contains every file a real
+run produces. `DEMO.tau_events.tsv` is the answer (one row per detected event) and
+`DEMO.overview_interactive.html` opens in a browser.
+
+## Step through it yourself
+
+`tau demo` is just `tau run` on data that ships with the package. Running it yourself is
+the quickest way to see what Tau expects. The two input files are in the repo:
+
+```bash
+$ zcat tau/data/demo/DEMO.snv_table.tsv.gz | head -3
+Chromosome  Position  Ref  Alt  Tumor_Ref_Count  Tumor_Alt_Count
+1           43147441  A    T    48               10
+1           38216075  A    T    11               4
+
+$ head -3 tau/data/demo/DEMO.cn_table.tsv
+Chromosome  Segment_Start  Segment_End  Major_CN  Minor_CN
+1           1              125000000    2         2
+1           125000000      249250621    2         2
+```
+
+One row per somatic SNV with its read counts, and one row per copy-number segment. That
+is all Tau needs, plus the sample's purity:
+
+```bash
+tau run \
+  --sample DEMO \
+  --snv_table tau/data/demo/DEMO.snv_table.tsv.gz \
+  --cn_table  tau/data/demo/DEMO.cn_table.tsv \
+  --purity    0.8 \
+  --signatures none \
+  --output_dir demo_manual/
+```
+
+This reproduces `pixi run demo` exactly. `--signatures none` asks for equal-weight
+mutations because no signature exposures ship with the demo; drop it and Tau will say
+so and fall back to the same thing.
+
+Now swap in your own three inputs and you are running Tau on real data.
 
 ## Running on your own data
 
