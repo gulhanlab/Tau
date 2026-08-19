@@ -1,5 +1,0 @@
-/n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/all_exposures_aligned_0.01_0.05_0.05_0.001_0.001_0.001_0.001_0.001_sub0.005.txt
-/n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/COSMIC_v3p2_SBS_WGS_MuSiCal.csv
-/n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_cn
-/n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/INFORM_snv
-/n/data1/hms/dbmi/park/jbrew/Tau/Tau_github/examples/inform_run/inform_data/purity_ploidy_inform.txt
