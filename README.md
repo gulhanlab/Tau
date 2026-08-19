@@ -7,7 +7,6 @@
 	- [Solving for time when there is no exact solution](#solving-for-time-when-there-is-no-exact-solution)
 - [Usage and Installation](#usage-and-installation)
 	- [Installation](#installation)
-		- [Using `tau` from anywhere](#using-tau-from-anywhere)
 	- [Try it](#try-it)
 	- [Step through it yourself](#step-through-it-yourself)
 	- [Running on your own data](#running-on-your-own-data)
@@ -85,48 +84,39 @@ Another important observation is the lack of a unique diagram for each final cop
 
 Tau depends on [SageMath](https://www.sagemath.org/) (and Singular) for its route
 solutions. `pip install` does **not** provide SageMath, so timing will fail — use
-[pixi](https://pixi.sh), which builds a complete environment including Sage on `$PATH`:
+[pixi](https://pixi.sh), which builds a complete environment including Sage:
 
 ```bash
 git clone https://github.com/gulhanlab/Tau.git
 cd Tau
-pixi install      # creates .pixi/envs/default with Sage + all dependencies
-pixi run test     # sanity check
+pixi install
+
+# put tau (and Sage) on your PATH -- add this line to ~/.bashrc to make it permanent
+export PATH="$PWD/.pixi/envs/default/bin:$PATH"
 ```
 
-`pixi install` downloads a full SageMath stack — expect roughly **20 minutes** and
-about 6 GB on first use, longer on a slow connection. It is a one-off; later commands
-start immediately.
+`pixi install` downloads a full SageMath stack — expect roughly **20 minutes** and about
+6 GB on first use, longer on a slow connection. It is a one-off.
 
-### Using `tau` from anywhere
-
-Pixi keeps the environment inside the project (`.pixi/envs/default/`), so by default you
-run things through it:
+Check it worked:
 
 ```bash
-pixi run tau --help          # works from inside the repo
+tau --help
+pytest tests/          # expect: 40 passed
 ```
 
-To use `tau` like any other command, from any directory, put the environment's `bin` on
-your `PATH` — this also puts Sage and Singular there, which Tau needs:
+`tau` now works from any directory, so you can run it wherever your data lives.
 
-```bash
-export PATH="/path/to/Tau/.pixi/envs/default/bin:$PATH"   # add to ~/.bashrc to make it stick
-tau --help                                                 # now works anywhere
-```
-
-Or, without touching `PATH`, point at the manifest from wherever you are:
-
-```bash
-pixi run --manifest-path /path/to/Tau/pyproject.toml tau run --sample ...
-```
+> Prefer not to change `PATH`? Every command below also works as `pixi run <cmd>` from
+> inside the repo (e.g. `pixi run tau demo`), or from anywhere with
+> `pixi run --manifest-path /path/to/Tau/pyproject.toml tau ...`.
 
 ## Try it
 
 A small simulated dataset ships with Tau, so this needs no input files:
 
 ```bash
-pixi run demo
+tau demo
 ```
 
 It runs the full pipeline and prints the recovered event against the known truth:
@@ -170,7 +160,7 @@ tau run \
   --output_dir demo_manual/
 ```
 
-This reproduces `pixi run demo` exactly. `--signatures none` asks for equal-weight
+This reproduces `tau demo` exactly. `--signatures none` asks for equal-weight
 mutations because no signature exposures ship with the demo; drop it and Tau will say
 so and fall back to the same thing.
 
