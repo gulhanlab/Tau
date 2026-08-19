@@ -60,7 +60,7 @@ packages = ["tau"]
 package-dir = {"" = "."}
 
 [tool.setuptools.package-data]
-tau = ["data/*.tsv", "data/*.sobj", "data/*.h5", "data/solutions/*.sobj", "data/solutions_analytical/*.sobj"]
+tau = ["data/*.tsv", "data/*.tsv.gz", "data/*.csv", "data/*.json.gz", "data/*.npz", "data/demo/*", "data/*.sobj", "data/*.h5", "data/solutions/*.sobj", "data/solutions_analytical/*.sobj"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -13,6 +13,7 @@ Both are also reachable as ``pixi run tau ...`` / ``pixi run demo``.
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 import gzip
 import json
 import os
@@ -34,11 +35,30 @@ def get_default_data_path(filename):
 
 
 # Default data file paths - can be overridden via environment variables or CLI args
-DEFAULT_ROUTES_SAGE = os.environ.get(
-    "TAU_ROUTES_SAGE", get_default_data_path("7_5_solutions_updated.sobj")
-)
+def _default_routes_sage():
+    """Prefer the per-state solutions/ directory, matching timing._default_paths().
+
+    The split directory is loaded lazily one CN state at a time, so it is far faster
+    than the monolithic file; the monolithic file remains the fallback.
+    """
+    env = os.environ.get("TAU_ROUTES_SAGE")
+    if env:
+        return env
+    split = get_default_data_path("solutions")
+    if os.path.isdir(split) and any(f.endswith(".sobj") for f in os.listdir(split)):
+        return split
+    return get_default_data_path("7_5_solutions_updated.sobj")
+
+
+DEFAULT_ROUTES_SAGE = _default_routes_sage()
 DEFAULT_MATRICES_H5 = os.environ.get(
     "TAU_MATRICES_H5", get_default_data_path("matrices_7_7.h5")
+)
+
+# COSMIC SBS definitions ship with the package, so --signatures works without pointing at one.
+_packaged_cosmic = get_default_data_path("cosmic_sbs_v3.2.csv")
+DEFAULT_COSMIC_CSV = os.environ.get(
+    "TAU_COSMIC_CSV", _packaged_cosmic if os.path.exists(_packaged_cosmic) else None
 )
 
 
@@ -73,20 +93,33 @@ def _check_purity(purity):
 
 def _add_run_args(parser):
     parser.add_argument("--sample", type=str, required=True, help="Sample ID to process")
-    parser.add_argument("--vcf", type=str, required=True, help="Path to the VCF file")
-    parser.add_argument("--cnv", type=str, required=True, help="Path to the CNV segment TSV")
-    parser.add_argument("--purity", type=float, default=None, help="Tumor purity in (0, 1]")
     parser.add_argument(
-        "--purity_file", type=str, default=None,
-        help="Tab-separated purity file with 'samplename' and 'purity' columns",
+        "--snv_table", "--vcf", dest="snv_table", type=str, required=True,
+        help="Somatic SNVs: either a VCF, or a plain table (tab/comma/whitespace) with "
+             "chromosome, position and per-mutation read counts — column names are matched "
+             "case-insensitively (e.g. Chromosome/Position/Tumor_Ref_Count/Tumor_Alt_Count). "
+             "ref/alt columns are optional and only needed for signature weighting. "
+             "--vcf is accepted as an alias.",
+    )
+    parser.add_argument(
+        "--cn_table", "--cnv", dest="cn_table", type=str, required=True,
+        help="Allele-specific copy-number table (tab/comma/whitespace) with chromosome, "
+             "segment start/end and major/minor CN — column names matched case-insensitively "
+             "(e.g. Chromosome/Segment_Start/Segment_End/Major_CN/Minor_CN).",
+    )
+    parser.add_argument(
+        "--purity", type=float, required=True,
+        help="Tumour purity in (0, 1]. If you keep purities in a table, look the value up "
+             "in your submit script and pass it here.",
     )
     parser.add_argument(
         "--ref_fasta", type=str, default=None,
         help="Reference genome FASTA (required only when --cosmic_csv/--exposures are given)",
     )
     parser.add_argument(
-        "--cosmic_csv", type=str, default=None,
-        help="COSMIC SBS signature definitions CSV (optional; omit for equal-weight mutations)",
+        "--cosmic_csv", type=str, default=DEFAULT_COSMIC_CSV,
+        help="COSMIC SBS signature definitions CSV. Ships with Tau — override only to use "
+             "a different signature set.",
     )
     parser.add_argument(
         "--exposures", type=str, default=None,
@@ -109,9 +142,11 @@ def _add_run_args(parser):
     parser.add_argument("--output_cluster_gpkl", type=str, default=None,
                         help="Path for the pooled/clustered genome pickle")
     parser.add_argument(
-        "--signatures", type=str, nargs="+", default=None,
-        help="Clock signatures to weight by, e.g. SBS1 SBS5. "
-             "Omit (default) for equal-weight mutations; requires --cosmic_csv + --exposures if given.",
+        "--signatures", type=str, nargs="+", default=["SBS1", "SBS5"],
+        help="Clock signatures to weight mutations by (default: SBS1 SBS5). Needs --exposures "
+             "and --ref_fasta (or an sbs96/context column in --snv_table); if those are absent "
+             "Tau warns and falls back to equal-weight mutations. Pass --signatures none to "
+             "request equal weighting explicitly.",
     )
     parser.add_argument(
         "--bootstrap_B", type=int, default=10,
@@ -120,6 +155,13 @@ def _add_run_args(parser):
     parser.add_argument(
         "--detect_min_alt", type=int, default=3,
         help="Minimum alt reads to consider a mutation detectable (default: 3)",
+    )
+    parser.add_argument(
+        "--mode", dest="mode", type=str, default="soft", choices=["soft", "hard"],
+        help="Signature weighting when --signatures is given (default: soft). "
+             "'soft' weights each mutation by P(clock | context, exposures); "
+             "'hard' keeps a mutation whole (weight 1) only if its most-likely signature is a "
+             "clock signature, else drops it. No effect without --signatures.",
     )
     parser.add_argument(
         "--sex", type=str, default=None, choices=["male", "female"],
@@ -132,13 +174,13 @@ def _add_run_args(parser):
     )
     parser.add_argument(
         "--interactive", dest="interactive", action="store_true",
-        help="Also write the self-contained interactive HTML viewer "
-             "(<sample>.overview_interactive.html). Off by default because it costs a per-route tree "
-             "precompute; see --tree-top-k.",
+        help=argparse.SUPPRESS,      # on by default; kept so existing command lines keep working
     )
     parser.add_argument(
         "--no-interactive", dest="interactive", action="store_false",
-        help=argparse.SUPPRESS,      # kept so existing command lines keep working
+        help="Skip the self-contained interactive HTML viewer "
+             "(<sample>.overview_interactive.html), which is written by default. The viewer "
+             "costs a per-route tree precompute and is a few MB per sample; see --tree-top-k.",
     )
     parser.add_argument(
         "--tree-top-k", dest="tree_top_k", type=int, default=5,
@@ -146,15 +188,21 @@ def _add_run_args(parser):
              "(0 = skip trees → faster generation, no Sage needed for the viewer step)",
     )
     parser.add_argument(
-        "--include-signatures", dest="include_signatures", action="store_true",
-        help="Also build the per-signature timing cache (<sample>.sig_timing.json.gz) "
+        "--signature-analysis", "--include-signatures", dest="include_signatures",
+        action="store_true",
+        help="Re-time the genome under every active signature (exposure share above "
+             "--signature-threshold) and write the per-signature analysis: sig_summary / "
+             "sig_activity / tau_sig_intervals / tau_sig_states, plus the viewer cache "
+             "(<sample>.sig_timing.json.gz) "
              "so the viewer gets the signature toggle + activity-over-time curve. "
              "Adds a re-time per active signature (~minutes); needs signature exposures "
              "on the genome (falls back to hard-assignment fractions).",
     )
     parser.add_argument(
-        "--sig-thresh", dest="sig_thresh", type=float, default=0.15,
-        help="Exposure-share gate for --include-signatures (default 0.15)",
+        "--signature-threshold", "--sig-thresh", dest="sig_thresh", type=float, default=0.15,
+        help="Exposure-share gate for --signature-analysis (default 0.15). Signatures are "
+             "grouped first (SBS17a+SBS17b -> SBS17, APOBEC family -> APOBEC), so the gate "
+             "applies to the group's summed share; the clock is always included.",
     )
     parser.add_argument(
         "--subclonal-filter", dest="subclonal_filter", action="store_true",
@@ -186,37 +234,40 @@ def _add_run_args(parser):
              "plus the merged level). They are a cheap reshape of results already computed, "
              "and are what `tau aggregate` consumes.",
     )
-    parser.set_defaults(interactive=False, include_signatures=False, tables=True,
+    parser.set_defaults(interactive=True, include_signatures=False, tables=True,
                         subclonal_filter=False)
 
 
 def run_from_args(args):
     """Execute the `tau run` pipeline from parsed args."""
     # --- Input validation (before any heavy import or work) ---
-    _require_file(args.vcf, "--vcf")
-    _require_file(args.cnv, "--cnv")
+    _require_file(args.snv_table, "--snv_table/--vcf")
+    _require_file(args.cn_table, "--cn_table/--cnv")
     _require_file(args.ref_fasta, "--ref_fasta")
     _require_file(args.cosmic_csv, "--cosmic_csv")
     _require_file(args.exposures, "--exposures")
-    _require_file(args.purity_file, "--purity_file")
     _check_purity(args.purity)
 
     # Signatures default to equal-weight (None). If signatures are requested,
     # the COSMIC + exposures + reference inputs are all required.
     signatures = args.signatures
+    if signatures and len(signatures) == 1 and str(signatures[0]).lower() in ("none", "off"):
+        signatures = None
     if signatures:
+        # ref_fasta is only needed when the SNV table does not already carry the
+        # trinucleotide context, so it is checked later, once the table is read.
         missing = [
             name for name, val in (
                 ("--cosmic_csv", args.cosmic_csv),
                 ("--exposures", args.exposures),
-                ("--ref_fasta", args.ref_fasta),
             ) if val is None
         ]
         if missing:
-            _die(
-                "--signatures requires " + ", ".join(missing)
-                + ". Omit --signatures for equal-weight mutations."
+            print(
+                f"  [warn] signature weighting needs {', '.join(missing)} — "
+                f"falling back to equal-weight mutations."
             )
+            signatures = None
 
     # Everything lands in --output_dir: the 11 tau_* tables + the overview. One directory per sample,
     # chosen by the caller; `tau aggregate` searches recursively, so pointing it at the parent of many
@@ -233,18 +284,7 @@ def run_from_args(args):
         if getattr(args, arg_name) is None:
             setattr(args, arg_name, os.path.join(sample_dir, default_filename))
 
-    # Resolve purity
-    if args.purity is not None:
-        purity = args.purity
-    elif args.purity_file is not None:
-        purity_df = pd.read_csv(args.purity_file, sep="\t")
-        match = purity_df.loc[purity_df["samplename"] == args.sample, "purity"]
-        if match.empty:
-            _die(f"sample {args.sample!r} not found in purity file {args.purity_file}")
-        purity = float(match.iloc[0])
-        _check_purity(purity)
-    else:
-        _die("either --purity or --purity_file must be provided")
+    purity = args.purity
 
     # Heavy imports (Sage etc.) deferred until after validation passes.
     from tau.core import Genome
@@ -260,8 +300,8 @@ def run_from_args(args):
 
     mut_df = preprocess_sample(
         sample=args.sample,
-        vcf_path=args.vcf,
-        cnv_tsv=args.cnv,
+        vcf_path=args.snv_table,
+        cnv_tsv=args.cn_table,
         purity=purity,
         ref_fasta=args.ref_fasta,
         cosmic_csv=args.cosmic_csv,
@@ -270,7 +310,7 @@ def run_from_args(args):
         subclonal_alpha=float(getattr(args, "subclonal_alpha", 0.01)),
         detect_min_alt=args.detect_min_alt,
         signatures=signatures,
-        mode="soft",
+        mode=getattr(args, "mode", "soft"),
         subclonal_list=getattr(args, "subclonal_list", None),
     )
 
@@ -424,59 +464,48 @@ def run_from_args(args):
 # ---------------------------------------------------------------------------
 
 def demo_from_args(args):
-    """Run Tau end-to-end on a synthetic genome — no external files needed."""
-    from tau.core import Genome
-    from tau import timing
-    from tau.simulation import simulate_demo
-    from tau.plotting import plot_overview
+    """Run the real `tau run` pipeline on the small simulated dataset that ships with Tau.
+
+    The inputs are ordinary SNV/CN tables under ``tau/data/demo/`` — simulated, no patient
+    data — so the demo exercises exactly the code path a user's own data takes, and its
+    output is the full set of files a real run produces. Ground truth ships alongside, so
+    the demo also checks itself.
+    """
+    import json
+
+    demo_dir = Path(get_default_data_path("demo"))
+    snv = demo_dir / "DEMO.snv_table.tsv.gz"
+    cn = demo_dir / "DEMO.cn_table.tsv"
+    truth_f = demo_dir / "DEMO.truth.json"
+    for f in (snv, cn, truth_f):
+        if not f.exists():
+            _die(f"demo data missing: {f}. Reinstall Tau, or pass your own data to `tau run`.")
+    meta = json.loads(truth_f.read_text())
 
     out_dir = args.output_dir
     os.makedirs(out_dir, exist_ok=True)
+    print(f"Tau demo — {meta['n_mutations']:,} simulated mutations over "
+          f"{meta['n_segments']} segments (purity {meta['purity']:.2f}); "
+          f"running the full `tau run` pipeline...")
 
-    allowed_states = [(2, 1), (2, 2), (4, 2)]
+    # Build the same args `tau run` would see, so the demo cannot drift from it.
+    run_parser = argparse.ArgumentParser()
+    _add_run_args(run_parser)
+    run_args = run_parser.parse_args([
+        "--sample", "DEMO",
+        "--snv_table", str(snv),
+        "--cn_table", str(cn),
+        "--purity", str(meta["purity"]),
+        "--output_dir", out_dir,
+        "--bootstrap_B", str(args.bootstrap_B),
+        "--signatures", "none",          # the demo ships no exposures
+        "--tumor_type", "DEMO",
+    ])
+    run_from_args(run_args)
 
-    print("Tau demo — synthesising a small WGD genome (no external files)...")
-    mut_df, purity, truth = simulate_demo(seed=args.seed, allowed_states=allowed_states)
-    print(
-        f"  simulated {len(mut_df):,} mutations across "
-        f"{mut_df['segment_id'].nunique()} segments "
-        f"(ground-truth WGD at t={truth['WGD']:.2f}, purity={purity:.2f})"
-    )
-
-    print(
-        f"  loading Sage routes for {len(allowed_states)} CN states "
-        "(this can take ~1-2 min the first time; please wait)..."
-    )
-    env = timing.load_routes_for_states(allowed_states)
-
-    print("  running EM -> timing -> clustering...")
-    g = Genome.create(mut_df, purity=purity, detect_min_alt=3, detect_min_vaf=0)
-    cluster_df = g.run(env, bootstrap_B=args.bootstrap_B)
-    event_times, seg_cluster_ids, orig_times, _ = g._cluster_result
-
-    sample = "DEMO"
-    times_path = os.path.join(out_dir, f"{sample}.segment_times.tsv")
-    events_path = os.path.join(out_dir, f"{sample}.events.tsv")
-    fig_path = os.path.join(out_dir, f"{sample}.overview.svg")
-
-    g.times_to_df(sample).to_csv(times_path, sep="\t", index=False)
-    cluster_df.to_csv(events_path, sep="\t", index=False)
-    plot_overview(
-        g, cluster_times=event_times, segment_cluster_ids=seg_cluster_ids,
-        original_times=orig_times, output_file=fig_path,
-    )
-
-    print("\nDemo complete ->")
-    print(f"  segment timing : {os.path.abspath(times_path)}")
-    print(f"  detected events: {os.path.abspath(events_path)}")
-    print(f"  overview plot  : {os.path.abspath(fig_path)}")
-    if not cluster_df.empty and "time" in cluster_df.columns:
-        evs = ", ".join(
-            f"{c} @ t={t:.2f}"
-            for c, t in zip(cluster_df["classification"], cluster_df["time"])
-        )
-        print(f"\nRecovered events: {evs}")
-        print(f"(ground truth: WGD @ t={truth['WGD']:.2f})")
+    truth = meta.get("truth", {})
+    if truth:
+        print("\nGround truth: " + ", ".join(f"{k} @ t={v:.2f}" for k, v in truth.items()))
 
 
 # ---------------------------------------------------------------------------

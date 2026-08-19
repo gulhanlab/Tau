@@ -7,6 +7,8 @@ Loads SNVs from VCF, extracts SBS96 context, and applies COSMIC signature weight
 from __future__ import annotations
 from pathlib import Path
 import argparse
+import gzip
+import warnings
 import os
 import numpy as np
 import pandas as pd
@@ -49,10 +51,27 @@ def _load_cosmic(cosmic_csv: str | Path) -> pd.DataFrame:
     return C[sig_cols].copy()
 
 
+EXPOSURE_SAMPLE_ALIASES = (
+    "sample", "aliquot_id", "samplename", "sample_name", "sample_id", "sampleid",
+    "id", "name", "tumor", "tumour", "donor_id", "icgc_donor_id",
+)
+
+
 def _load_exposures(exposures_tsv: str | Path, sample: str) -> pd.Series:
-    E = pd.read_csv(exposures_tsv, sep="\t")
-    key = "sample" if "sample" in E.columns else ("aliquot_id" if "aliquot_id" in E.columns else None)
-    row = E.loc[E[key] == sample]
+    """Per-sample signature exposures. Delimiter is sniffed and the sample-ID column
+    is matched case-insensitively; signature columns are any starting with "SBS"."""
+    E = _read_table_any(exposures_tsv)
+    norm = {}
+    for c in E.columns:
+        norm.setdefault(_norm_col(c), c)
+    key = next((norm[a] for a in EXPOSURE_SAMPLE_ALIASES if a in norm), None)
+    if key is None:
+        raise ValueError(
+            f"exposures table {exposures_tsv} has no sample-ID column.\n"
+            f"  found columns: {list(E.columns)[:12]}\n"
+            f"  accepted: {', '.join(EXPOSURE_SAMPLE_ALIASES[:6])}, ..."
+        )
+    row = E.loc[E[key].astype(str).str.strip() == str(sample).strip()]
     if row.empty: raise ValueError(f"Sample {sample} not found in exposures.")
     s = row.iloc[0]
     sig_cols = [c for c in s.index if str(c).startswith("SBS")]
@@ -75,6 +94,18 @@ def attach_signature_weights(
         snv["sbs96"] = _fetch_sbs96(snv, ref_fasta)
 
     if not (cosmic_csv and exposures is not None and signatures is not None):
+        out = snv.copy(); out["mut_w"] = 1.0; return out
+
+    # Signature weighting needs a trinucleotide context per mutation. Without a reference
+    # to derive it from, and without one supplied in the SNV table, degrade to equal weight
+    # rather than failing — the timing itself does not depend on signatures.
+    if "sbs96" not in snv.columns:
+        warnings.warn(
+            "signature weighting requested but no trinucleotide context is available "
+            "(pass --ref_fasta, or include an sbs96/context column in the SNV table); "
+            "falling back to equal-weight mutations.",
+            RuntimeWarning, stacklevel=2,
+        )
         out = snv.copy(); out["mut_w"] = 1.0; return out
 
     C = _load_cosmic(cosmic_csv)
@@ -179,6 +210,141 @@ def read_vcf_counts(vcf_path: str | Path) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+# ---------------------------------------------------------------------------
+# Tolerant tabular input
+# ---------------------------------------------------------------------------
+# Tau's own names come first; the rest are what other callers/tools emit, so a table
+# from GRITIC, PURPLE, a MAF export or a hand-written TSV works without editing.
+SNV_COLUMN_ALIASES = {
+    "chrom": ("chrom", "chromosome", "chr", "#chrom", "contig", "seqnames"),
+    "pos":   ("pos", "position", "start", "start_position", "posn"),
+    "ref":   ("ref", "reference", "ref_allele", "reference_allele", "ref_base"),
+    "alt":   ("alt", "alternate", "alt_allele", "alternate_allele", "tumor_seq_allele2",
+              "var_allele", "alt_base"),
+    "nalt":  ("nalt", "alt_count", "tumor_alt_count", "t_alt_count", "alt_counts",
+              "altreadcount", "alt_reads", "ad_alt", "var_count"),
+    "nref":  ("nref", "ref_count", "tumor_ref_count", "t_ref_count", "ref_counts",
+              "refreadcount", "ref_reads", "ad_ref"),
+}
+
+CNV_COLUMN_ALIASES = {
+    "chrom":    ("chrom", "chromosome", "chr", "#chrom", "contig", "seqnames"),
+    "start":    ("start", "segment_start", "seg_start", "startpos", "start_position", "begin"),
+    "end":      ("end", "segment_end", "seg_end", "endpos", "end_position", "stop"),
+    "major_cn": ("major_cn", "majorallelecopynumber", "major", "major_copy_number",
+                 "nmajor", "cn_major", "a1"),
+    "minor_cn": ("minor_cn", "minorallelecopynumber", "minor", "minor_copy_number",
+                 "nminor", "cn_minor", "a2"),
+}
+
+
+def _norm_col(c):
+    return str(c).strip().lower().replace(" ", "_").replace("-", "_").lstrip("#")
+
+
+def resolve_columns(df, aliases, required, label, path):
+    """Map a DataFrame's columns onto Tau's canonical names via `aliases`.
+
+    Returns {canonical: actual}. Raises ValueError naming the missing field, the
+    columns that were found and the names accepted — the format requirement is only
+    discoverable at the point of failure, so it is stated there.
+    """
+    norm = {}
+    for c in df.columns:
+        norm.setdefault(_norm_col(c), c)
+    out = {}
+    for canon, names in aliases.items():
+        for n in names:
+            if n in norm:
+                out[canon] = norm[n]
+                break
+    missing = [c for c in required if c not in out]
+    if missing:
+        raise ValueError(
+            f"{label} {path} is missing required column(s): {', '.join(missing)}\n"
+            f"  found columns: {list(df.columns)}\n"
+            + "\n".join(f"  accepted for {m}: {', '.join(aliases[m])}" for m in missing)
+        )
+    return out
+
+
+def _read_table_any(path):
+    """Read a delimited table, sniffing tab / comma / whitespace."""
+    df = pd.read_csv(path, sep=None, engine="python", comment="#")
+    if df.shape[1] == 1:      # sniffing fell back to one column -- retry on whitespace
+        df = pd.read_csv(path, sep=r"\s+", engine="python", comment="#")
+    return df
+
+
+def looks_like_vcf(path):
+    """True if *path* is a VCF, by extension or by its first line."""
+    name = str(path).lower()
+    if name.endswith((".vcf", ".vcf.gz", ".vcf.bgz", ".bcf")):
+        return True
+    try:
+        opener = gzip.open if name.endswith((".gz", ".bgz")) else open
+        with opener(path, "rt", errors="ignore") as f:
+            for line in f:
+                if line.strip():
+                    return line.startswith("##fileformat=VCF")
+    except Exception:
+        return False
+    return False
+
+
+def read_snv_table(path) -> pd.DataFrame:
+    """Read SNV counts from a plain delimited table.
+
+    Requires chromosome, position and the two read counts. ref/alt are optional —
+    they are only needed for signature weighting (trinucleotide context) and for
+    mutation IDs; absent, they are filled with "N" and signature weighting will not
+    produce meaningful contexts.
+    """
+    df = _read_table_any(path)
+    cols = resolve_columns(df, SNV_COLUMN_ALIASES, ("chrom", "pos", "nalt", "nref"),
+                           "SNV table", path)
+    out = pd.DataFrame({
+        "chrom": df[cols["chrom"]].astype(str).str.replace("^chr", "", regex=True).str.strip(),
+        "pos": pd.to_numeric(df[cols["pos"]], errors="coerce"),
+        "ref": df[cols["ref"]].astype(str).str.strip() if "ref" in cols else "N",
+        "alt": df[cols["alt"]].astype(str).str.strip() if "alt" in cols else "N",
+        "nalt": pd.to_numeric(df[cols["nalt"]], errors="coerce"),
+        "nref": pd.to_numeric(df[cols["nref"]], errors="coerce"),
+    }).dropna(subset=["pos", "nalt", "nref"])
+    out["pos"] = out["pos"].astype(int)
+    # An already-computed trinucleotide context makes --ref_fasta unnecessary.
+    ctx = next((c for c in df.columns
+                if _norm_col(c) in ("sbs96", "context", "trinucleotide", "tri_context",
+                                    "mutation_type", "sbs_96")), None)
+    if ctx is not None:
+        out["sbs96"] = df.loc[out.index, ctx].astype(str).str.strip()
+    # SNVs only, matching the VCF reader's behaviour
+    if "ref" in cols and "alt" in cols:
+        out = out[(out["ref"].str.len() == 1) & (out["alt"].str.len() == 1)]
+    if out.empty:
+        raise ValueError(
+            f"SNV table {path} yielded no usable rows (after dropping non-numeric "
+            f"positions/counts and non-SNV rows)."
+        )
+    return out.reset_index(drop=True)
+
+
+def read_snvs(path) -> pd.DataFrame:
+    """Read SNV counts from either a VCF or a delimited table (auto-detected)."""
+    if looks_like_vcf(path):
+        snv = read_vcf_counts(path)
+        if snv.empty:
+            raise ValueError(
+                f"VCF {path} yielded no usable SNVs. Tau reads read counts from either the "
+                f"INFO fields t_alt_count/t_ref_count (PCAWG-style) or the FORMAT field AD of "
+                f"the tumour sample (PURPLE-style); records with neither are skipped. "
+                f"If your VCF carries counts elsewhere, pass a plain SNV table instead "
+                f"(columns: chromosome, position, ref_count, alt_count)."
+            )
+        return snv
+    return read_snv_table(path)
+
+
 def map_snvs_to_cnv(snv: pd.DataFrame, cnv_tsv: str | Path) -> pd.DataFrame:
     """Map SNVs to copy number segments.
 
@@ -186,12 +352,12 @@ def map_snvs_to_cnv(snv: pd.DataFrame, cnv_tsv: str | Path) -> pd.DataFrame:
     PURPLE-style (majorAlleleCopyNumber/minorAlleleCopyNumber float columns).
     Float CN values are rounded to the nearest integer.
     """
-    cnv = pd.read_csv(cnv_tsv, sep="\t").rename(columns={
-        "chromosome": "chrom",
-        "majorAlleleCopyNumber": "major_cn",
-        "minorAlleleCopyNumber": "minor_cn",
-    })
-    cnv["chrom"] = cnv["chrom"].astype(str).str.replace("^chr","", regex=True)
+    raw = _read_table_any(cnv_tsv)
+    cols = resolve_columns(raw, CNV_COLUMN_ALIASES,
+                           ("chrom", "start", "end", "major_cn", "minor_cn"),
+                           "copy-number table", cnv_tsv)
+    cnv = raw.rename(columns={v: k for k, v in cols.items()})
+    cnv["chrom"] = cnv["chrom"].astype(str).str.replace("^chr","", regex=True).str.strip()
     # Round float CN values (e.g. from PURPLE) to nearest integer; drop rows with NaN CN
     cn_cols = [c for c in ("major_cn", "minor_cn") if c in cnv.columns]
     for col in cn_cols:
@@ -294,7 +460,7 @@ def preprocess_sample(
     pd.DataFrame
         Preprocessed mutation table
     """
-    snv = read_vcf_counts(vcf_path)
+    snv = read_snvs(vcf_path)
     if snv.empty: return pd.DataFrame()
 
     snv_map = map_snvs_to_cnv(snv, cnv_tsv)

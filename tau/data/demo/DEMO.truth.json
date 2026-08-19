@@ -1,0 +1,9 @@
+{
+ "purity": 0.8,
+ "truth": {
+  "WGD": 0.3
+ },
+ "n_mutations": 6889,
+ "n_segments": 26,
+ "note": "Simulated with tau.simulation.simulate_demo(seed=0, allowed_states=[(2,1),(2,2),(4,2)]). No patient data."
+}
