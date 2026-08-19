@@ -10,6 +10,6 @@ Quick pointers:
 - **Install:** `pixi install` (provides SageMath). `pip install -e .` does **not**
   install Sage and will not be able to run timing.
 - **Try it with no data:** `pixi run demo` (or `tau demo`).
-- **Run on your data:** `tau run --sample S --vcf ... --cnv ... --purity 0.8`.
+- **Run on your data:** `tau run --sample S --snv_table ... --cn_table ... --purity 0.8`.
 - **Python API:** `from tau import run_sample`.
 - **Tests:** `pixi run test` (or `pytest tests/`).
