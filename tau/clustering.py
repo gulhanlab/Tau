@@ -2,6 +2,7 @@
 """Event clustering functions for Tau timing analysis."""
 
 import warnings
+from functools import lru_cache
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -107,12 +108,18 @@ def cluster_times_bottomup(
                rule already used for segment-level scoring. The identifiability gate still uses the
                original across-solution range, so the same segments enter the test and only the time
                changes; that isolates the estimator from the gating.
+      "random" ONE uniformly chosen solution per segment. Each is a valid solution, unlike the mean.
+               It carries the same late bias as the mean on average (+0.100 vs +0.104 on the last gain
+               in double-WGD samples), but INDEPENDENTLY per segment, so a bias that is coherent under
+               "mean" -- every segment displaced the same way, stacking into a genome-wide peak the
+               Poisson test reads as a doubling -- is scattered instead.
 
     Returns the same 4-tuple as the legacy cluster_times() for compatibility:
       (cluster_times_result, segment_cluster_ids, original_times, cluster_summary_df)
     """
-    if time_rule not in ("mean", "preset"):
-        raise ValueError(f"time_rule must be 'mean' or 'preset', got {time_rule!r}")
+    if time_rule not in ("mean", "preset", "random"):
+        raise ValueError(f"time_rule must be 'mean', 'preset' or 'random', got {time_rule!r}")
+    _tr_rng = np.random.default_rng(0)
     total_genome_len = sum(s.end - s.start for s in g.segments)
     wgd_len = sum(s.end - s.start for s in g.segments
                   if getattr(s, "major_cn", 0) >= 2)
@@ -163,6 +170,8 @@ def cluster_times_bottomup(
         rng = all_cumsums.max(0) - all_cumsums.min(0)
         if time_rule == "preset" and all_cumsums.shape[0] > 1:
             mean_tf = all_cumsums[int(np.argmin(all_cumsums[:, -1] - all_cumsums[:, 0]))]
+        elif time_rule == "random" and all_cumsums.shape[0] > 1:
+            mean_tf = all_cumsums[int(_tr_rng.integers(all_cumsums.shape[0]))]
         else:
             mean_tf = all_cumsums.mean(0)
         for tp_idx in range(all_cumsums.shape[1]):
@@ -368,19 +377,50 @@ def assign_chrom_arm(chrom, start, end):
         return "centromere"
 
 
+@lru_cache(maxsize=1)
 def _timeable_states():
-    """CN states with a Sage split-solution file (tau/data/solutions/{M}_{m}.sobj) = timeable."""
+    """CN states Tau can time.
+
+    Derived from the shipped free-variable table, which lists every route that has a
+    Sage solution. The split ``tau/data/solutions/`` directory is used when present
+    (it is the faster loader), but it is an optional, often-absent optimisation — an
+    install without it still times normally, so it must not define this set. Falls
+    back to the split directory, then the monolithic solutions file.
+    """
     import os
     import glob as _glob
+
+    def _from_keys(keys):
+        out = set()
+        for k in keys:
+            try:
+                M, m = str(k).split(".")[0].split("_")
+                out.add((int(M), int(m)))
+            except ValueError:
+                pass
+        return out
+
+    try:
+        from tau.timing import _load_free_var_table
+        states = _from_keys(_load_free_var_table())
+        if states:
+            return states
+    except Exception:
+        pass
+
     d = os.path.join(os.path.dirname(__file__), "data", "solutions")
-    states = set()
-    for p in _glob.glob(os.path.join(d, "*.sobj")):
-        try:
-            M, m = os.path.splitext(os.path.basename(p))[0].split("_")
-            states.add((int(M), int(m)))
-        except ValueError:
-            pass
-    return states
+    states = {s for s in (
+        _from_keys([os.path.splitext(os.path.basename(p))[0] + ".1"]
+                   ) for p in _glob.glob(os.path.join(d, "*.sobj")))
+        for s in s}
+    if states:
+        return states
+
+    try:
+        from tau.timing import _get_route_env
+        return _from_keys(_get_route_env().SOL)
+    except Exception:
+        return set()
 
 
 def _shape_only_records(genome, eps, min_samples, weight_by_ess, min_ess):
