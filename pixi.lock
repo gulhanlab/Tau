@@ -7034,7 +7034,7 @@ packages:
 - pypi: ./
   name: tau-timing
   version: 0.1.0
-  sha256: d0ecc6c2d0a3522a125d3d3225785951a5cd05ea20fdfd0f002bd453b51db565
+  sha256: 9919ef52d90399d47794eee16d70050e05082223ef2caeb82fe0ed2efb2f378c
   requires_dist:
   - numpy>=1.21
   - pandas>=1.3
