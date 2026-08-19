@@ -99,6 +99,18 @@ def _load_matrices(path=None):
         return _MATRICES
 
     path = path or DEFAULT_MATRIX_H5
+    if not os.path.exists(path):
+        # Normal installs ship only the ~3 MB packed matrices for solution-backed
+        # routes; the full HDF5 is a build-time artifact.
+        from tau.timing import load_packed_matrices
+        packed = load_packed_matrices()
+        if packed:
+            _MATRICES = dict(packed)
+            return _MATRICES
+        raise FileNotFoundError(
+            f"No route matrices found: neither {path} nor the packaged "
+            f"route_matrices.npz is available."
+        )
     with h5py.File(path, "r") as h5:
         _MATRICES = {k: h5[k][()] for k in h5}
     return _MATRICES

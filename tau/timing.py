@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from collections.abc import Mapping
 from typing import Dict, Any, Iterable, List, Tuple, Optional
 import importlib.resources
 
@@ -63,6 +64,167 @@ def _default_paths() -> tuple[Path, Path]:
     return Path(_get_package_data_path("7_5_solutions_updated.sobj")), Path(h5_path)
 
 
+FREE_VAR_TABLE = "route_free_vars.tsv.gz"
+
+
+@lru_cache(maxsize=1)
+def _load_free_var_table() -> Dict[str, int]:
+    """Precomputed free-variable count per route key.
+
+    The constraint matrices are only ever consumed to derive this one integer per
+    route (a rank), so shipping the table lets the timing path skip the ~390 MB
+    HDF5 entirely. Returns {} if the table is absent, in which case the ranks are
+    computed from the matrices on demand exactly as before.
+    """
+    try:
+        path = _get_package_data_path(FREE_VAR_TABLE)
+    except Exception:
+        return {}
+    if not Path(path).exists():
+        return {}
+    df = pd.read_csv(path, sep="\t")
+    return dict(zip(df["route"].astype(str), df["free_vars"].astype(int)))
+
+
+class _LazySOL(Mapping):
+    """Read-only view of a split solutions directory that loads one CN state at a time.
+
+    Route keys are grouped per state (``4_2.sobj`` holds every ``4_2.*`` route), and a
+    given sample only touches the handful of states its segments occupy. Loading the
+    whole directory costs ~23 s; loading the states actually needed costs ~0.03 s.
+    Iterating the mapping still loads everything, so dict-like semantics are preserved.
+    """
+
+    def __init__(self, split_dir: str | Path):
+        self._dir = Path(split_dir)
+        self._data: Dict[str, Any] = {}
+        self._states: set[str] = set()
+        self._all_loaded = False
+
+    def _ensure_state(self, state: str) -> None:
+        if state in self._states or self._all_loaded:
+            return
+        p = self._dir / f"{state}.sobj"
+        if p.exists():
+            self._data.update(sage_load(str(p)))
+        self._states.add(state)
+
+    def _ensure_all(self) -> None:
+        if self._all_loaded:
+            return
+        for f in sorted(self._dir.glob("*.sobj")):
+            if f.stem not in self._states:
+                self._data.update(sage_load(str(f)))
+                self._states.add(f.stem)
+        self._all_loaded = True
+
+    def keys_for_state(self, major: int, minor: int) -> List[str]:
+        state = f"{int(major)}_{int(minor)}"
+        self._ensure_state(state)
+        prefix = state + "."
+        return [k for k in self._data if str(k).startswith(prefix)]
+
+    def __getitem__(self, key: str):
+        if key not in self._data:
+            self._ensure_state(str(key).split(".")[0])
+        return self._data[key]
+
+    def __contains__(self, key) -> bool:
+        if key in self._data:
+            return True
+        self._ensure_state(str(key).split(".")[0])
+        return key in self._data
+
+    def __iter__(self):
+        self._ensure_all()
+        return iter(self._data)
+
+    def __len__(self) -> int:
+        self._ensure_all()
+        return len(self._data)
+
+
+PACKED_MATRICES = "route_matrices.npz"
+
+
+@lru_cache(maxsize=1)
+def load_packed_matrices() -> Dict[str, np.ndarray]:
+    """Constraint matrices for every route that ships with a Sage solution.
+
+    A uint8 .npz of ~3 MB, versus the ~373 MB build-time HDF5 that holds all 121k
+    routes. This is what a normal install uses; the HDF5 is only needed to work with
+    routes that have no shipped solution. Returns {} if the file is absent.
+    """
+    try:
+        path = Path(_get_package_data_path(PACKED_MATRICES))
+    except Exception:
+        return {}
+    if not path.exists():
+        return {}
+    with np.load(path) as z:
+        return {k: z[k] for k in z.files}
+
+
+class _LazyMatrices(Mapping):
+    """Read-only view of the matrices HDF5 that opens the file only when indexed.
+
+    Behaves like the eagerly-built ``{key: array}`` dict it replaces, but a run
+    whose free-variable counts all come from the table never touches the file.
+    """
+
+    def __init__(self, matrix_h5: str | Path):
+        self._path = Path(matrix_h5)
+        self._cache: Dict[str, np.ndarray] = {}
+        self._keys: Optional[Tuple[str, ...]] = None
+
+    def _load_keys(self) -> Tuple[str, ...]:
+        if self._keys is None:
+            if not self._path.exists():
+                packed = load_packed_matrices()
+                if packed:
+                    self._keys = tuple(packed)
+                    return self._keys
+                raise FileNotFoundError(
+                    f"Route matrices not found at {self._path}. This file is only needed "
+                    f"for routes missing from {FREE_VAR_TABLE}; set TAU_MATRICES_H5 to point at it."
+                )
+            with h5py.File(str(self._path), "r") as h5:
+                self._keys = tuple(h5.keys())
+        return self._keys
+
+    def __getitem__(self, key: str) -> np.ndarray:
+        if key not in self._cache:
+            packed = load_packed_matrices()
+            if key in packed:
+                self._cache[key] = packed[key]
+                return self._cache[key]
+            if not self._path.exists():
+                raise FileNotFoundError(
+                    f"Route matrices not found at {self._path}, needed for route {key!r} "
+                    f"(absent from {FREE_VAR_TABLE})."
+                )
+            with h5py.File(str(self._path), "r") as h5:
+                if key not in h5:
+                    raise KeyError(key)
+                self._cache[key] = h5[key][()]
+        return self._cache[key]
+
+    def __iter__(self):
+        return iter(self._load_keys())
+
+    def __len__(self) -> int:
+        return len(self._load_keys())
+
+    def __contains__(self, key) -> bool:
+        if key in self._cache:
+            return True
+        if key in load_packed_matrices():
+            return True
+        if not self._path.exists():
+            return False
+        return key in self._load_keys()
+
+
 @dataclass
 class RouteEnv:
     """Container for route solutions and constraint matrices."""
@@ -84,23 +246,18 @@ def load_routes(sol_file: str | Path, matrix_h5: str | Path) -> RouteEnv:
     """
     sol_file = Path(sol_file)
     if sol_file.is_dir():
-        SOL = {}
-        files = sorted(sol_file.glob("*.sobj"))
-        print(
-            f"Loading {len(files)} Sage route files from {sol_file}/ "
-            "(first call also imports Sage, which can take ~1 min)..."
-        )
-        for p in tqdm(files, desc="loading routes", unit="file"):
-            SOL.update(sage_load(str(p)))
-        print(f"Loaded {len(SOL):,} routes from {sol_file}/")
+        # Per-state files are loaded on demand -- see _LazySOL.
+        SOL = _LazySOL(sol_file)
     else:
         print(f"Loading route solutions from {sol_file}...")
         SOL = sage_load(str(sol_file))
 
-    print(f"Loading route matrices from {matrix_h5}...")
-    with h5py.File(str(matrix_h5), "r") as h5:
-        MATRICES = {k: h5[k][()] for k in h5}
-    return RouteEnv(SOL=SOL, MATRICES=MATRICES, free_var_cache={}, route_cache={})
+    return RouteEnv(
+        SOL=SOL,
+        MATRICES=_LazyMatrices(matrix_h5),
+        free_var_cache=dict(_load_free_var_table()),
+        route_cache={},
+    )
 
 
 def load_routes_for_states(
@@ -141,9 +298,12 @@ def load_routes_for_states(
             print(f"  Warning: no split file for ({major},{minor}), skipping")
 
     print(f"Loaded {len(SOL):,} routes for {len(cn_states)} CN states")
-    with h5py.File(str(matrix_h5), "r") as h5:
-        MATRICES = {k: h5[k][()] for k in h5}
-    return RouteEnv(SOL=SOL, MATRICES=MATRICES, free_var_cache={}, route_cache={})
+    return RouteEnv(
+        SOL=SOL,
+        MATRICES=_LazyMatrices(matrix_h5),
+        free_var_cache=dict(_load_free_var_table()),
+        route_cache={},
+    )
 
 
 @lru_cache(maxsize=1)
@@ -455,6 +615,9 @@ def _segment_fail(self, reason: str, **extra) -> None:
 
 
 def _route_keys_for_state(env, major_cn: int, minor_cn: int) -> list[str]:
+    kfs = getattr(env.SOL, "keys_for_state", None)
+    if kfs is not None:                      # lazy split dir: loads just this state
+        return kfs(major_cn, minor_cn)
     prefix = f"{int(major_cn)}_{int(minor_cn)}."
     return [k for k in env.SOL.keys() if str(k).startswith(prefix)]
 
@@ -484,7 +647,7 @@ def _segment_time_segment(
     try:
         route_keys = _route_keys_for_state(env, self.major_cn, self.minor_cn)
     except NameError:
-        route_keys = [k for k in env.SOL.keys() if str(k).startswith(f"{self.major_cn}_{self.minor_cn}.")]
+        route_keys = _route_keys_for_state(env, self.major_cn, self.minor_cn)
     if not route_keys:
         _segment_fail(self, "no_routes_for_state")
         return
@@ -917,7 +1080,7 @@ def summarize_constraint_violations(
         Nvec = _counts_from(seg)
         sumN = float(np.sum(Nvec))
         effN = _effective_n(seg)
-        keys = [k for k in env.SOL.keys() if str(k).startswith(f"{seg.major_cn}_{seg.minor_cn}.")]
+        keys = _route_keys_for_state(env, seg.major_cn, seg.minor_cn)
         if routes == "timed_only" and getattr(seg, "timing_result", None):
             keys = [k for k in keys if k in seg.timing_result]
         for key in keys:

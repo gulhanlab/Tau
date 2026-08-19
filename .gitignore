@@ -31,5 +31,19 @@ dev/pcawg/misc_data_and_plots/.bcache/
 tau_timing.egg-info/
 forJoseph.zip
 notes_site/
-tau/data/solutions/
+# tau/data/solutions/ IS tracked: the per-state Sage solutions are what Tau times with,
+# and the lazy per-state loader needs them (a monolithic .sobj cannot be loaded lazily).
 tau/data/solutions_analytical/
+
+# Legacy runs and example data from the pre-package era. Not needed to build or run Tau.
+old_stuff/
+
+# Local working files, not part of the package
+# Manuscript working directory (1.3 GB of figures, caches and data tables)
+paper/
+# Local Claude Code settings and skills
+.claude/
+MEETING_PREP.md
+tau_primer.md
+resume.sh
+submit_all_persig.sh
