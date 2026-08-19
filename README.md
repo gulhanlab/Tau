@@ -93,6 +93,9 @@ pixi install      # creates .pixi/envs/default with Sage + all dependencies
 pixi run test     # sanity check
 ```
 
+`pixi install` downloads a full SageMath stack — expect **20-40 minutes** and about
+6 GB on first use. It is a one-off; later commands start immediately.
+
 Run anything inside the environment with `pixi run <cmd>` (e.g. `pixi run tau --help`).
 
 ## Try it

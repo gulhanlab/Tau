@@ -47,3 +47,6 @@ MEETING_PREP.md
 tau_primer.md
 resume.sh
 submit_all_persig.sh
+
+# conda alternative to pixi -- resolves a different (untested) Sage/Python stack
+environment.yml
