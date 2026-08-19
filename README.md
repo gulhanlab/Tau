@@ -7,6 +7,7 @@
 	- [Solving for time when there is no exact solution](#solving-for-time-when-there-is-no-exact-solution)
 - [Usage and Installation](#usage-and-installation)
 	- [Installation](#installation)
+		- [Using `tau` from anywhere](#using-tau-from-anywhere)
 	- [Try it](#try-it)
 	- [Step through it yourself](#step-through-it-yourself)
 	- [Running on your own data](#running-on-your-own-data)
@@ -93,10 +94,32 @@ pixi install      # creates .pixi/envs/default with Sage + all dependencies
 pixi run test     # sanity check
 ```
 
-`pixi install` downloads a full SageMath stack — expect **20-40 minutes** and about
-6 GB on first use. It is a one-off; later commands start immediately.
+`pixi install` downloads a full SageMath stack — expect roughly **20 minutes** and
+about 6 GB on first use, longer on a slow connection. It is a one-off; later commands
+start immediately.
 
-Run anything inside the environment with `pixi run <cmd>` (e.g. `pixi run tau --help`).
+### Using `tau` from anywhere
+
+Pixi keeps the environment inside the project (`.pixi/envs/default/`), so by default you
+run things through it:
+
+```bash
+pixi run tau --help          # works from inside the repo
+```
+
+To use `tau` like any other command, from any directory, put the environment's `bin` on
+your `PATH` — this also puts Sage and Singular there, which Tau needs:
+
+```bash
+export PATH="/path/to/Tau/.pixi/envs/default/bin:$PATH"   # add to ~/.bashrc to make it stick
+tau --help                                                 # now works anywhere
+```
+
+Or, without touching `PATH`, point at the manifest from wherever you are:
+
+```bash
+pixi run --manifest-path /path/to/Tau/pyproject.toml tau run --sample ...
+```
 
 ## Try it
 
