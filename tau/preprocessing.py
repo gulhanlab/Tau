@@ -374,8 +374,14 @@ def map_snvs_to_cnv(snv: pd.DataFrame, cnv_tsv: str | Path) -> pd.DataFrame:
             continue
         iv_chrom = ivx[mask]; abs_rows = np.flatnonzero(mask)
         loc = iv_chrom.get_indexer(sub["pos"])
-        mapped = sub.assign(seg_ix = abs_rows[loc])
-        parts.append(mapped[mapped["seg_ix"] != -1])
+        # get_indexer returns -1 where a position falls in no segment (a gap in the CN
+        # profile, or a region dropped for missing CN). Mask BEFORE indexing: abs_rows[-1]
+        # would silently resolve to the last segment on the chromosome, quietly moving
+        # those SNVs onto a real segment and corrupting its multiplicity distribution.
+        hit = loc >= 0
+        if not hit.any():
+            continue
+        parts.append(sub[hit].assign(seg_ix=abs_rows[loc[hit]]))
     if not parts:
         return pd.DataFrame(columns=list(snv.columns)+["start","end","major_cn","minor_cn","segment_id"])
     snv_map = pd.concat(parts, ignore_index=True).merge(
