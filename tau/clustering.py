@@ -4,6 +4,11 @@
 import warnings
 from functools import lru_cache
 import numpy as np
+
+
+# Cross-chromosomal punctuated gain. Written as "PGD" in outputs produced before this
+# rename; both spellings are accepted when READING so older genomes and tables still load.
+CCPG_ALIASES = ("ccPG", "PGD")
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -92,7 +97,7 @@ def cluster_times_bottomup(
     window (±half_win) tests whether ESS concentration significantly exceeds
     a uniform null via Poisson test with BH FDR correction.  Significant
     windows are merged into per-chromosome candidates, then candidates are
-    merged across chromosomes into events (WGD/PGD/chrom_specific).
+    merged across chromosomes into events (WGD/ccPG/chrom_specific).
 
     For genomes where >wgd_genome_thresh of bases have major_cn >= 2, (2,2)
     segments are treated as fully determined by enforcing t2=0, giving
@@ -292,8 +297,10 @@ def cluster_times_bottomup(
             gf       = min(gf, 1.0)
             n_chroms = int(near_segs["chrom"].nunique()) if not near_segs.empty else n_cand
             # WGD if it covers a large genome fraction OR spans many chromosomes
-            # (>=8 = a near-whole/degraded doubling); matches the Fig 4 WGD/PGD criteria.
-            cls      = "WGD" if (gf >= wgd_thresh or n_chroms >= wgd_min_chroms) else "PGD"
+            # (>=8 = a near-whole/degraded doubling); matches the Fig 4 WGD/ccPG criteria.
+            # "ccPG" (cross-chromosomal punctuated gain) is the published name for this class;
+            # it was called "PGD" internally. Readers accept both -- see CCPG_ALIASES.
+            cls      = "WGD" if (gf >= wgd_thresh or n_chroms >= wgd_min_chroms) else "ccPG"
         else:
             center   = center_pre
             gf       = min(sum(x["length"] for x in mc) / gf_denom, 1.0)

@@ -3800,7 +3800,7 @@ def genome_to_html(genome, cluster_df=None, output_html=None, sample=None,
     if cluster_df is not None and not cluster_df.empty:
         for _, _row in cluster_df.iterrows():
             _cls = str(_row.get("classification", ""))
-            if _cls not in ("WGD", "PGD"):
+            if _cls not in ("WGD", "ccPG", "PGD"):
                 continue
             _t = _row.get("time")
             if _t is None or (isinstance(_t, float) and _t != _t):

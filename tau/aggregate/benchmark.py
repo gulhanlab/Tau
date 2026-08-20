@@ -37,7 +37,7 @@ def sim_truth_rows(truth: dict) -> list[dict]:
     0.05 of the event and that are amplified (major>=2) — i.e. how much genome the event visibly affects.
     min_dist   = molecular-time distance to the nearest OTHER true event in the sample (NaN if only one).
     """
-    wgd_pgd = [e for e in truth.get("genome_events", []) if e["type"] in ("WGD", "PGD")]
+    wgd_pgd = [e for e in truth.get("genome_events", []) if e["type"] in ("WGD", "ccPG", "PGD")]
     ev_times = [float(e["time"]) for e in wgd_pgd]
     n_true = len(wgd_pgd)
 
@@ -94,7 +94,7 @@ def build_bench_tables(sim_run_dir: Path, recovered_tsv: Path, out_dir: Path) ->
     calls.to_csv(calls_path, sep="\t", index=False)
 
     # ── bench_truth_events: every true event + whether Tau detected it ────────────────────────
-    matched = calls[(calls["is_matched"] == True) & calls["classification"].isin(["WGD", "PGD"])].copy()
+    matched = calls[(calls["is_matched"] == True) & calls["classification"].isin(["WGD", "ccPG", "PGD"])].copy()
     matched["true_time_frac"] = pd.to_numeric(matched["true_time_frac"], errors="coerce")
     matched["event_time_frac"] = pd.to_numeric(matched["event_time_frac"], errors="coerce")
     trecs = []

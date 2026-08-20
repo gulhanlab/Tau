@@ -97,14 +97,15 @@ def _lw_for_ess(ess):
 
 
 def _row_color(cls):   # chrom_specific = dark red, distinct from grey unassigned timing
-    return {"WGD": "#0b6979", "PGD": "#cd9f2c", "chrom_specific": "#9b2226"}.get(cls, "#8c8c8c")
+    return {"WGD": "#0b6979", "ccPG": "#cd9f2c", "PGD": "#cd9f2c",
+            "chrom_specific": "#9b2226"}.get(cls, "#8c8c8c")
 
 
 def _ev_label(r, prefix=""):   # concise: chrom_specific -> chrN, PGD shown as ccPG, else WGD; + time
     cls = r["classification"]
     if cls == "chrom_specific" and pd.notna(r.get("chrom")):
         return f"{prefix}chr{int(float(r['chrom']))} {r['event_time_frac']:.2f}"
-    disp = "ccPG" if cls == "PGD" else cls
+    disp = "ccPG" if cls == "PGD" else cls   # legacy outputs
     return f"{prefix}{disp} {r['event_time_frac']:.2f}"
 
 
