@@ -308,13 +308,18 @@ def build_all_tables(raw_genome, sample, tumor_type="NA", *, seg_cluster_df=None
     mc["event_id"] = pd.array([_unit_evt(sid) for sid in mc["seg_id"]], dtype="Int64")
 
     # pooled gains: per-gain event via a representative constituent (all constituents share the timing)
-    rc = {sid: next((c for c in constituents.get(sid, [sid]) if c in per_gain_pool), None)
-          for sid in tc["gains"]["seg_id"].unique()}
+    # As at the individual level, a pooled genome can carry no gains at all; an empty reshape has
+    # no columns, so guard the lookups rather than indexing them.
     pg = tc["gains"].drop(columns=[c for c in _MERGED_GAIN_DROP if c in tc["gains"].columns]).copy()
-    pg["event_id"] = [
-        (per_gain_pool[rc[sid]][gi - 1] if rc.get(sid) and gi - 1 < len(per_gain_pool[rc[sid]])
-         and per_gain_pool[rc[sid]][gi - 1] >= 0 else pd.NA)
-        for sid, gi in zip(pg["seg_id"], pg["gain_index"])]
+    if len(pg):
+        rc = {sid: next((c for c in constituents.get(sid, [sid]) if c in per_gain_pool), None)
+              for sid in tc["gains"]["seg_id"].unique()}
+        pg["event_id"] = [
+            (per_gain_pool[rc[sid]][gi - 1] if rc.get(sid) and gi - 1 < len(per_gain_pool[rc[sid]])
+             and per_gain_pool[rc[sid]][gi - 1] >= 0 else pd.NA)
+            for sid, gi in zip(pg["seg_id"], pg["gain_index"])]
+    else:
+        pg["event_id"] = pd.Series(dtype="object")
     pg["event_id"] = pg["event_id"].astype("Int64")
 
     tables.update({
