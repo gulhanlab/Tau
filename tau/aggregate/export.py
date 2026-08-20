@@ -249,10 +249,16 @@ def build_all_tables(raw_genome, sample, tumor_type="NA", *, seg_cluster_df=None
     seg["merged_id"] = seg["seg_id"].map(mult_id).astype("string")
     seg["event_id"] = seg["seg_id"].map(rep_evt).astype("Int64")          # representative (unique) event
     gains = t["gains"]
-    gains["event_id"] = [                                                 # PER-GAIN event (precise mapping)
-        (per_gain[sid][gi - 1] if sid in per_gain and gi - 1 < len(per_gain[sid]) and per_gain[sid][gi - 1] >= 0
-         else pd.NA)
-        for sid, gi in zip(gains["seg_id"], gains["gain_index"])]
+    # A sample can legitimately have no gains at all -- e.g. no segment reaches major_cn >= 2,
+    # so nothing is amplified and nothing is timed. An empty reshape carries no columns, so
+    # index it only when there is something to index; the table is still emitted, empty.
+    if len(gains):
+        gains["event_id"] = [                                             # PER-GAIN event (precise mapping)
+            (per_gain[sid][gi - 1] if sid in per_gain and gi - 1 < len(per_gain[sid]) and per_gain[sid][gi - 1] >= 0
+             else pd.NA)
+            for sid, gi in zip(gains["seg_id"], gains["gain_index"])]
+    else:
+        gains["event_id"] = pd.Series(dtype="object")
     gains["event_id"] = gains["event_id"].astype("Int64")
 
     # tumor_type / n_events are known only here (not inside the per-genome reshape), and the schema
