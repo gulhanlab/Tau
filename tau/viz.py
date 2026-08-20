@@ -3607,6 +3607,12 @@ _POST_SCRIPT = r"""
 """
 
 
+def _html_escape(t):
+    """Minimal escaping for text placed in <title>."""
+    return (str(t).replace("&", "&amp;").replace("<", "&lt;")
+            .replace(">", "&gt;").replace('"', "&quot;"))
+
+
 def genome_to_html(genome, cluster_df=None, output_html=None, sample=None,
                    clustered_genome=None, ess_thresh=10, tree_top_k=5, env=None,
                    show_spectra=True, sig_timing=None):
@@ -3875,6 +3881,12 @@ def genome_to_html(genome, cluster_df=None, output_html=None, sample=None,
         config={"responsive": True, "displaylogo": False,
                 "modeBarButtonsToAdd": ["select2d", "lasso2d"]},
     )
+
+    # Plotly's full_html emits <head><meta charset="utf-8" /></head> with no <title>, so every
+    # browser tab shows the bare filename. Name the page after the sample.
+    if "<title>" not in html[:1000]:
+        _t = _html_escape(str(sample)) if sample else "Tau"
+        html = html.replace("<head>", f"<head><title>{_t} \u2014 Tau</title>", 1)
 
     out = Path(output_html)
     out.parent.mkdir(parents=True, exist_ok=True)
