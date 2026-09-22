@@ -466,7 +466,8 @@ def _two_step_records(genome, eps, min_samples, min_ess):
     blocks by pooled multiplicity shape. A block is one unit, so shape-clustering can't re-split it and
     two similar blocks land together — fixing both the fragmented-amplicon under-pooling and the
     redundant-cluster artifact. Gated to timeable states (route exists) and major>=2 (real gains);
-    low-ESS segments may JOIN a block but a leftover singleton is kept only if ess>=min_ess."""
+    low-ESS segments may JOIN a block, but any leftover block DBSCAN did not cluster -- single- or
+    multi-segment -- is kept only if its pooled ess>=min_ess."""
     from collections import defaultdict
     from sklearn.cluster import DBSCAN
     cn = {s.seg_id: (int(s.major_cn), int(s.minor_cn)) for s in genome.segments}
@@ -518,12 +519,19 @@ def _two_step_records(genome, eps, min_samples, min_ess):
             sids = block_segs[b]
             if L >= 0:
                 lab = L
+            elif block_ess[b] < min_ess:
+                continue                          # too little power to time → drop, single or not.
+                                                  # The ESS gate is tested BEFORE the multi-segment
+                                                  # branch: previously a contiguous run below the
+                                                  # floor was promoted to its own merged unit, and
+                                                  # _segment_time_segment then rejected every one of
+                                                  # them as low_effective_N. That minted ~18.9k units
+                                                  # cohort-wide that carry a cluster_label and a
+                                                  # merged_id but no timing and no tree.
             elif len(sids) > 1:                 # real contiguous block → its own merged unit
                 lab = next_lbl; next_lbl += 1
-            elif block_ess[b] >= min_ess:        # timeable singleton → passthrough
+            else:                                # timeable singleton → passthrough
                 lab = -1
-            else:
-                continue                          # untimeable leftover → drop
             label_of_block[b] = lab
 
     records = []
