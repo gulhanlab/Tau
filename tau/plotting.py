@@ -333,7 +333,7 @@ def timepoint_cluster_plotting(
 
 
 def segment_cluster_plotting(ax, clustered_genome, segments_ordered, offsets,
-                             final_clusters=None):
+                             final_clusters=None, label_fontsize=7):
     """Plot segment cluster assignments above the main axis.
 
     Each row is a unique CN state (major, minor).  Within a row, different
@@ -358,7 +358,8 @@ def segment_cluster_plotting(ax, clustered_genome, segments_ordered, offsets,
     # Map original segment ids back to their cluster name
     seg_by_cluster = {}
     for cluster_name, seg in final_segment_clusters.items():
-        for original_seg_id in getattr(seg, "seg_ids", []):
+        # a unit that was never merged (singleton) has no seg_ids: it IS its own member
+        for original_seg_id in (getattr(seg, "seg_ids", None) or [seg.seg_id]):
             seg_by_cluster[original_seg_id] = cluster_name
 
     # Collect unique CN states (in display order) and cluster index within each
@@ -390,6 +391,10 @@ def segment_cluster_plotting(ax, clustered_genome, segments_ordered, offsets,
     inset_height = 0.06 * n_rows  # scale with number of CN states
     fig_inset = ax.inset_axes([0, 1.02, 1, inset_height])
 
+    # a unit is shown at least MIN_BAR_FRAC of the axis width (~0.2 mm on a 100 mm track), so a
+    # single-segment high-CN cluster of a couple of Mb does not vanish
+    MIN_BAR_FRAC = 0.002
+    xr = ax.get_xlim(); min_w = MIN_BAR_FRAC * (xr[1] - xr[0])
     for seg in segments_ordered:
         xoff = offsets[seg.seg_id]
         x0 = int(seg.start) + xoff
@@ -397,6 +402,8 @@ def segment_cluster_plotting(ax, clustered_genome, segments_ordered, offsets,
 
         if seg.seg_id not in seg_by_cluster:
             continue
+        if x1 - x0 < min_w:
+            c = 0.5 * (x0 + x1); x0, x1 = c - min_w / 2, c + min_w / 2
 
         cluster_name = seg_by_cluster[seg.seg_id]
         cn = (int(seg.major_cn), int(seg.minor_cn))
@@ -423,7 +430,7 @@ def segment_cluster_plotting(ax, clustered_genome, segments_ordered, offsets,
     fig_inset.set_yticks(list(range(n_rows)))
     fig_inset.set_yticklabels(
         [f"({maj},{mn})" for maj, mn in cn_states],
-        fontsize=7,
+        fontsize=label_fontsize,
     )
     fig_inset.yaxis.set_ticks_position("left")
     fig_inset.yaxis.set_label_position("left")

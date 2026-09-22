@@ -88,12 +88,13 @@ def _doubling_blocks():
     return out
 
 
-def _lw_for_ess(ess):
+def _lw_for_ess(ess, lw_range=(LW_MIN, LW_MAX)):
+    lo, hi = lw_range
     if not ess or ess <= 0:
-        return LW_MIN
+        return lo
     f = (np.log10(max(ess, LW_ESS_LO)) - np.log10(LW_ESS_LO)) / (
         np.log10(LW_ESS_HI) - np.log10(LW_ESS_LO))
-    return LW_MIN + (LW_MAX - LW_MIN) * float(np.clip(f, 0.0, 1.0))
+    return lo + (hi - lo) * float(np.clip(f, 0.0, 1.0))
 
 
 def _row_color(cls):   # chrom_specific = dark red, distinct from grey unassigned timing
@@ -255,7 +256,8 @@ def _pick_draw_wgd_preset(seg, n_wgd, wgd_times, tol=SNAP_TOL, min_ess=MIN_ESS):
     return cums[i], i, f"wgd x{len(combo)} (tie-broken)"
 
 
-def _cn_legend_above_trees(fig, tree_axes, states, nbands, fontsize=4.6, h_frac=0.235, aspect=3.0):
+def _cn_legend_above_trees(fig, tree_axes, states, nbands, fontsize=4.6, h_frac=0.235, aspect=3.0, y_off=0.235,
+                           x_off=0.0):
     """CN-state colour key as ONE self-contained landscape block, floated above the tree area.
 
     `tau.plotting._add_cn_timing_legend` draws it portrait and to the LEFT of the overview: one row per
@@ -279,8 +281,8 @@ def _cn_legend_above_trees(fig, tree_axes, states, nbands, fontsize=4.6, h_frac=
         return None
     fw, fh = fig.get_size_inches()
     w_frac = aspect * h_frac * fh / fw          # fixed display aspect, independent of the tree block
-    x0 = tree_axes[0].get_position().x0
-    y0 = max(a.get_position().y1 for a in tree_axes) + 0.235
+    x0 = tree_axes[0].get_position().x0 + x_off
+    y0 = max(a.get_position().y1 for a in tree_axes) + y_off
     lg = fig.add_axes([x0, y0, w_frac, h_frac])
     lg.set_xlim(-0.5, n - 0.5); lg.set_ylim(0, 1)
     lg.set_xticks([]); lg.set_yticks([])
@@ -292,10 +294,16 @@ def _cn_legend_above_trees(fig, tree_axes, states, nbands, fontsize=4.6, h_frac=
             lg.add_patch(Rect((i - 0.46, j / len(shades)), 0.92, 1.0 / len(shades),
                               facecolor=c, edgecolor="none"))
         lg.text(i, -0.10, lab, ha="center", va="top", fontsize=fontsize, rotation=90, clip_on=False)
-    lg.text(-0.85, 0.0, "$t_{early}$", ha="right", va="bottom", fontsize=fontsize,
-            color="0.35", clip_on=False)
-    lg.text(-0.85, 1.0, "$t_{late}$", ha="right", va="top", fontsize=fontsize,
-            color="0.35", clip_on=False)
+    # t_early / t_late as REAL text (mathtext would export as outlines): an italic "t" plus a smaller,
+    # lowered subscript word, both right-aligned to the key
+    fs = fontsize * 1.3
+    for y, word in ((0.0, "early"), (1.0, "late")):
+        # both anchored on the BASELINE at y: the subscript's baseline sits 0.12 below t's
+        lg.text(-0.7, y - 0.12, word, ha="right", va="baseline", fontsize=fs * 0.75, color="0.35", clip_on=False)
+        fig.canvas.draw()
+        w = lg.texts[-1].get_window_extent(fig.canvas.get_renderer()).transformed(lg.transData.inverted())
+        lg.text(w.x0 - 0.05, y, "t", ha="right", va="baseline", fontsize=fs, color="0.35", clip_on=False,
+                style="italic")
     return lg
 
 
@@ -361,12 +369,32 @@ def build_timing_hist(ax, tree_times, flip=False):
 
 def overview_figure(genome, clustered_genome, events, merged_events, *, n_trees=None,
                     show_chrom_specific=False, blur=False, min_ess=MIN_ESS, preset="sim",
+                    track_max_per_state=2, figsize=None, margins=(0.055, 0.945, 0.10, 0.76),
+                    tree_lw=(LW_MIN, LW_MAX), width_ratios=None, track_label_fontsize=7, track_min_span=0.0,
                     verbose=False):
     """Build the two-level overview. Returns (fig, info).
 
     genome / clustered_genome : the raw and pooled `tau.core.Genome` objects.
     events / merged_events    : the `tau_events` / `tau_merged_events` tables (DataFrames).
-    n_trees                   : cap on the number of pooled units drawn (None = all that qualify).
+    n_trees                   : cap on the number of pooled units drawn as trees (None = all that
+                                qualify), taken by genome span; one unit per high-CN state (major 5-7)
+                                is added back if the cap excluded it.
+    track_min_span            : a unit NOT drawn as a tree enters the track only if its genome span (bp) is
+                                at least this; hatched C2 bars narrower than a few points render as dots.
+    track_max_per_state       : the cluster track above the overview shows at most this many units per
+                                CN state (largest by genome span, drawn trees first); None = all
+                                qualifying units. Default 2 keeps the track and its key (C1, C2) simple.
+    figsize                   : (w, h) in inches. None = the default rule (183 mm wide, or wider when
+                                many trees are drawn). Pass a fixed size for a paper panel.
+    width_ratios              : (overview, gap, trees_total, hist) relative widths of the four blocks;
+                                None = the default (9, 1.05, 0.62 per tree, 0.55), which gives the tree
+                                block more room as trees are added.
+    tree_lw                   : (min, max) line-weight scale for the trees (stroke = 2x scale, in pt),
+                                mapped from the unit's weighted mutation count on a log scale. Narrow
+                                tree columns (many trees on a fixed canvas) want a smaller range.
+    margins                   : (left, right, bottom, top) figure fractions for the axes block. The CN
+                                track sits ABOVE the overview as an inset (0.06 x axes height per
+                                CN-state row), so `top` must leave room for it.
     preset                    : which solution each tree displays --
                                 "sim"    tightest gain span, escalating to the doublings only where
                                          that explains none (:func:`_pick_draw_sim_span`). Default.
@@ -385,9 +413,13 @@ def overview_figure(genome, clustered_genome, events, merged_events, *, n_trees=
 
     g, cg = genome, clustered_genome
 
-    # ---- pooled units with a drawable route (top-N by size only if n_trees), shown in CN order ----
-    allsegs = [s for s in cg.segments if pick_best_key(s) is not None and _ess(s) >= min_ess]
-    allsegs.sort(key=lambda s: -getattr(s, "num_segs", 1))
+    # ---- pooled units with a drawable route (top-N by GENOME FRACTION if n_trees), shown in CN order ----
+    # Ranked by the genome span the unit covers, not by its member-segment count: a two-segment unit
+    # spanning 30 Mb of 2p outranks five slivers on chr 3 (member count once put the slivers first).
+    def _span(s):
+        return float(getattr(s, "total_length", s.end - s.start))
+    qualifying = [s for s in cg.segments if pick_best_key(s) is not None and _ess(s) >= min_ess]
+    allsegs = sorted(qualifying, key=lambda s: -_span(s))
     if n_trees:
         top = allsegs[:n_trees]
         top_ids = {id(s) for s in top}
@@ -402,28 +434,48 @@ def overview_figure(genome, clustered_genome, events, merged_events, *, n_trees=
                     and cn5 not in hi_by_state and cn5 not in top_states):
                 hi_by_state[cn5] = s
         allsegs = top + list(hi_by_state.values())
-    allsegs.sort(key=lambda s: (int(s.major_cn), int(s.minor_cn), -getattr(s, "num_segs", 1)))
+    allsegs.sort(key=lambda s: (int(s.major_cn), int(s.minor_cn), -_span(s)))
     fc, counts = {}, {}
     for s in allsegs:
         cn = (int(s.major_cn), int(s.minor_cn)); counts[cn] = counts.get(cn, 0) + 1
         fc[f"({cn[0]},{cn[1]}) #{counts[cn]}"] = s
     labels = list(fc.keys()); ntree = len(labels)
+    # The cluster track shows the largest units of each CN state (up to track_max_per_state; drawn
+    # trees first, then by genome span), so a unit that did not make the tree cut can still be seen
+    # but small fragments do not clutter the track. Row order = CN-state order (dict order).
+    drawn = {id(s) for s in allsegs}
+    track, tcounts = {}, {}
+    for s in sorted(qualifying, key=lambda s: (int(s.major_cn), int(s.minor_cn), id(s) not in drawn, -_span(s))):
+        cn = (int(s.major_cn), int(s.minor_cn))
+        if cn[0] > 7 and id(s) not in drawn:          # beyond the CN key's range: only if drawn as a tree
+            continue
+        if track_max_per_state is not None and tcounts.get(cn, 0) >= track_max_per_state:
+            continue
+        if id(s) not in drawn and _span(s) < track_min_span:   # too narrow to read as a hatched bar
+            continue
+        tcounts[cn] = tcounts.get(cn, 0) + 1
+        track[f"({cn[0]},{cn[1]}) #{tcounts[cn]}"] = s
 
     with mpl.rc_context({"font.size": FS, "axes.linewidth": 0.5, "svg.fonttype": "none"}):
         # layout: overview | gap | trees... | hist(pooled). The segment-level histogram is gone — the
         # pooled-cluster histogram is the one that matters, and dropping it buys width for the trees.
-        width_ratios = [W_OVERVIEW, W_GAP] + [W_TREE] * ntree + [W_HIST]
+        if width_ratios is None:
+            width_ratios = [W_OVERVIEW, W_GAP] + [W_TREE] * ntree + [W_HIST]
+        else:
+            ov, gap, trees, hist = width_ratios
+            width_ratios = [ov, gap] + [trees / max(ntree, 1)] * ntree + [hist]
         fig_w = max(FIG_W_IN, sum(width_ratios) * 0.52)   # scale width with #trees
-        fig = plt.figure(figsize=(fig_w, FIG_H))
+        fig = plt.figure(figsize=figsize if figsize is not None else (fig_w, FIG_H))
         gs = fig.add_gridspec(1, 2 + ntree + 1, width_ratios=width_ratios, wspace=0.0)
-        fig.subplots_adjust(left=0.055, right=0.945, bottom=0.10, top=0.76)
+        fig.subplots_adjust(left=margins[0], right=margins[1], bottom=margins[2], top=margins[3])
 
         # ---- overview (individual segment timing) ----
         ax_ov = fig.add_subplot(gs[0]); ax_ov.set_ylim(0, 1)
         segs_ord, offsets = compute_offsets(g.segments)
         plot_tau_stack(ax_ov, segs_ord, offsets, ess_thresh=0, cluster_times=[],
                        segment_cluster_ids={}, color_by_cluster=False)
-        segment_cluster_plotting(ax_ov, cg, segs_ord, offsets, final_clusters=fc)
+        segment_cluster_plotting(ax_ov, cg, segs_ord, offsets, final_clusters=track,
+                                 label_fontsize=track_label_fontsize)
         states = sorted({(int(s.major_cn), int(s.minor_cn)) for s in g.segments
                          if pick_best_key(s) is not None and int(s.major_cn) != 1})
         nbands = {}
@@ -447,7 +499,7 @@ def overview_figure(genome, clustered_genome, events, merged_events, *, n_trees=
         for ci, label in enumerate(labels):
             seg = fc[label]; ax_t = fig.add_subplot(gs[2 + ci], sharey=ax_ov); tree_axes.append(ax_t)
             key = pick_best_key(seg); cn = (int(seg.major_cn), int(seg.minor_cn))
-            _lw = _lw_for_ess(_ess(seg))
+            _lw = _lw_for_ess(_ess(seg), tree_lw)
             ev_tpl = _events_for_route(key)
             collapse_22 = (label == dominant_22)
             if preset == "blocks":
@@ -489,9 +541,14 @@ def overview_figure(genome, clustered_genome, events, merged_events, *, n_trees=
                 ax_t.spines[sp].set_visible(False)
 
         fig.canvas.draw()   # positions must be final before the key is anchored to the tree block
-        lg = _cn_legend_above_trees(fig, tree_axes, states, nbands)
+        # key geometry in mm of the canvas (not figure fractions), so it lands the same on any canvas:
+        # 18 mm above the tree axes (tree titles + section title + the key's own rotated labels), 9 mm tall
+        fh_mm = fig.get_size_inches()[1] * 25.4
+        fw_mm = fig.get_size_inches()[0] * 25.4
+        lg = _cn_legend_above_trees(fig, tree_axes, states, nbands, h_frac=9.0 / fh_mm, y_off=18.0 / fh_mm,
+                                    x_off=8.0 / fw_mm)     # 8 mm in from the tree block: room for the t labels
         if lg is not None:
-            _cluster_fill_key(fig, lg, max(counts.values()) if counts else 1)
+            _cluster_fill_key(fig, lg, max(tcounts.values()) if tcounts else 1)
 
         # ---- pooled timing histogram, to the RIGHT of the trees ----
         ax_h2 = fig.add_subplot(gs[-1], sharey=ax_ov)
