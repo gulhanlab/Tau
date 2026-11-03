@@ -251,9 +251,7 @@ tau aggregate results/ --out cohort/
 
 ## Citation
 
-If you use Tau in your research, please cite:
-
-[Citation to be added]
+Biorxiv preprint: https://www.biorxiv.org/content/10.64898/2026.09.23.753832v1
 
 ## License
 
