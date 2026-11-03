@@ -69,7 +69,7 @@ The decomposition into branching and propagation matrices makes the calculation 
 
 *Propagation matrices*: are constructed by selecting different permutations of how gains will be distributed among major and minor allele across the different time points. They exist in pairs for major and minor alleles as one defines the other.
 
-Note that branching, propagation and composite A matrices have already been calculated and are saved in the package for major copy number of 7 and minor copy number of 7 and above this value for major copy number of 10 and minor copy number of 2 for capturing focal amplifications. These copy number states cover 99.8% of the genome on average and 81% of all segments in the consesnsus copy number calls in WGS data from Pancancer Analysis of Whole Genomes (PCAWG) project. See below the functions on how to access these matrices.
+Note that branching, propagation and composite A matrices have already been calculated and are saved in the package for major copy number of 7 and minor copy number of 5. These copy number states cover 99.7% of the genome on average and 81% of all segments in the consensus copy number calls in WGS data from Pancancer Analysis of Whole Genomes (PCAWG) project. See below the functions on how to access these matrices.
 
 ## Solving for time when there is no exact solution
 
