@@ -118,7 +118,7 @@ A small simulated dataset ships with Tau, so this needs no input files:
 tau demo
 ```
 
-It runs the full pipeline and prints the recovered event against the known truth:
+It runs the full pipeline (expected run time 2 minutes) and prints the recovered event against the known truth:
 
 ```
 26/26 segments timed | 1 event(s): WGD t=0.29
