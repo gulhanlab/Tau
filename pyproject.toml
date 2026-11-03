@@ -51,9 +51,9 @@ tau = "tau.cli:main"
 tau-viz = "tau.viz:_cli"
 
 [project.urls]
-Homepage = "https://github.com/parklab/tau"
-Documentation = "https://github.com/parklab/tau"
-Repository = "https://github.com/parklab/tau"
+Homepage = "https://github.com/gulhanlab/tau"
+Documentation = "https://github.com/gulhanlab/tau"
+Repository = "https://github.com/gulhanlab/tau"
 
 [tool.setuptools]
 packages = ["tau"]
