@@ -87,7 +87,7 @@ solutions. `pip install` does **not** provide SageMath, so timing will fail — 
 [pixi](https://pixi.sh), which builds a complete environment including Sage:
 
 ```bash
-git clone .git
+git clone https://github.com/gulhanlab/Tau.git
 cd Tau
 pixi install
 
