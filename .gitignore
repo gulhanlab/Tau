@@ -39,8 +39,61 @@ tau/data/solutions_analytical/
 old_stuff/
 
 # Local working files, not part of the package
-# Manuscript working directory (1.3 GB of figures, caches and data tables)
-paper/
+# Manuscript reproduction package: scripts and docs are tracked; data tables, caches, rendered panels
+# and working material are not (the data bundle is distributed separately -- see paper/README.md).
+paper/*
+!paper/README.md
+!paper/config.py
+!paper/data_bundle.py
+!paper/DATA_BUNDLE.tsv
+!paper/data_tables/
+!paper/batch_scripts/
+!paper/upstream/
+!paper/figures/
+paper/data_tables/*
+!paper/data_tables/tables.py
+!paper/data_tables/SCHEMA.md
+!paper/data_tables/DATA_TABLES.md
+paper/batch_scripts/*
+!paper/batch_scripts/README.md
+!paper/batch_scripts/backfill_chunk.py
+!paper/batch_scripts/merge_backfill.py
+!paper/batch_scripts/submit_backfill.sh
+!paper/batch_scripts/build_cheap_base_tables.py
+!paper/batch_scripts/build_ref_and_bench.py
+!paper/batch_scripts/build_ref_cytoband.py
+!paper/batch_scripts/build_sig_timing.py
+!paper/batch_scripts/build_sig_ratio_tables.py
+!paper/batch_scripts/export_sim_chunk.py
+!paper/batch_scripts/submit_sim_export.sh
+!paper/batch_scripts/recluster_sample.py
+!paper/batch_scripts/emit_sample_v2.py
+!paper/batch_scripts/emit_signature_tables.py
+paper/figures/export/
+paper/figures/main/**/*.md
+paper/figures/supp/**/*.md
+paper/figures/main/**/*.tex
+paper/figures/reference/
+paper/figures/_attic/
+paper/figures/_verify_logs/
+# alternative that shells out to an analysis script outside this package
+paper/figures/main/signatures/alt_sbs17_of_b_tracks.py
+paper/figures/main/burst/ASSEMBLY.py
+paper/figures/**/*.png
+paper/figures/**/*.svg
+paper/figures/**/*.pdf
+paper/figures/**/*.tsv
+paper/figures/**/*.gz
+paper/figures/**/*.npz
+paper/figures/**/*.pkl
+paper/figures/**/*.json
+paper/figures/**/*.ipynb
+paper/figures/**/.gitkeep
+paper/figures/**/output/
+paper/figures/**/cache_tables/
+paper/figures/**/treecache/
+paper/figures/main/signatures/signatures_arrows/run/
+paper/figures/main/signatures/signatures_arrows/clustered_signature_input/
 # Local Claude Code settings and skills
 .claude/
 MEETING_PREP.md

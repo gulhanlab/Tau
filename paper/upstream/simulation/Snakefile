@@ -1,0 +1,97 @@
+"""Snakemake workflow: simulate tumor genomes and run Tau timing pipeline.
+
+Usage:
+    snakemake all --configfile config.yaml --executor slurm ...
+"""
+
+import os
+
+configfile: "config.yaml"
+
+# Path to diff-allele lookup table required by tau.simulation._load_diff_alleles().
+# Override by setting TAU_DIFF_ALLELES in the environment before calling Snakemake.
+TAU_DIFF_ALLELES = os.environ.get(
+    "TAU_DIFF_ALLELES",
+    os.path.join(os.environ.get("TAU_MATRIX_CODE_DIR", "."), "counts_diagram_As.txt"),
+)
+
+N_SAMPLES   = config.get("n_samples", 1000)
+SEED_BASE   = config.get("seed_base", 1000)
+OUTDIR      = config.get("outdir", "output")
+
+SAMPLES = [f"SIM_{i}" for i in range(1, N_SAMPLES + 1)]
+
+# Absolute paths so rules work regardless of working directory
+BASEDIR     = workflow.basedir
+SCRIPTS_DIR = os.path.join(BASEDIR, "scripts")
+PCAWG_RUNNER = os.path.join(BASEDIR, "..", "pcawg", "pcawg_utils", "run_tau_sample.py")
+
+
+rule all:
+    input:
+        expand(f"{OUTDIR}/{{sample}}/{{sample}}.segment_times.tsv",   sample=SAMPLES),
+        expand(f"{OUTDIR}/{{sample}}/{{sample}}.time_clusters.tsv",   sample=SAMPLES),
+        expand(f"{OUTDIR}/{{sample}}/{{sample}}.time_clusters2.tsv",  sample=SAMPLES),
+
+
+rule simulate:
+    output:
+        vcf    = f"{OUTDIR}/{{sample}}/{{sample}}.vcf",
+        cna    = f"{OUTDIR}/{{sample}}/{{sample}}.cna.txt",
+        purity = f"{OUTDIR}/{{sample}}/{{sample}}.purity.txt",
+        truth  = f"{OUTDIR}/{{sample}}/{{sample}}.truth.json",
+    params:
+        seed         = lambda wc: SEED_BASE + int(wc.sample.split("_")[1]),
+        outdir       = lambda wc: f"{OUTDIR}/{wc.sample}",
+        script       = os.path.join(SCRIPTS_DIR, "simulate_sample.py"),
+        diff_alleles = TAU_DIFF_ALLELES,
+    resources:
+        mem_mb  = 4000,
+        runtime = 30,
+    shell:
+        "TAU_DIFF_ALLELES={params.diff_alleles} "
+        "python {params.script} "
+        "--sample {wildcards.sample} "
+        "--seed {params.seed} "
+        "--outdir {params.outdir}"
+
+
+rule run_tau:
+    input:
+        vcf    = f"{OUTDIR}/{{sample}}/{{sample}}.vcf",
+        cna    = f"{OUTDIR}/{{sample}}/{{sample}}.cna.txt",
+        purity = f"{OUTDIR}/{{sample}}/{{sample}}.purity.txt",
+    output:
+        times        = f"{OUTDIR}/{{sample}}/{{sample}}.segment_times.tsv",
+        fig          = f"{OUTDIR}/{{sample}}/{{sample}}.overview.png",
+        gpkl         = f"{OUTDIR}/{{sample}}/{{sample}}.genome.pkl.gz",
+        cluster_tsv  = f"{OUTDIR}/{{sample}}/{{sample}}.segment_clusters.tsv",
+        cluster_plot = f"{OUTDIR}/{{sample}}/{{sample}}.segment_clusters.png",
+        cluster_gpkl = f"{OUTDIR}/{{sample}}/{{sample}}.clustered_genome.pkl.gz",
+        tclust_plot  = f"{OUTDIR}/{{sample}}/{{sample}}.time_clusters.png",
+        tclust_df    = f"{OUTDIR}/{{sample}}/{{sample}}.time_clusters.tsv",
+        tclust2_plot = f"{OUTDIR}/{{sample}}/{{sample}}.time_clusters2.png",
+        tclust2_df   = f"{OUTDIR}/{{sample}}/{{sample}}.time_clusters2.tsv",
+    params:
+        purity = lambda wc, input: open(input.purity).read().strip(),
+        runner = PCAWG_RUNNER,
+    resources:
+        mem_mb  = lambda wc, attempt: 16000 * attempt,
+        runtime = 720,
+    shell:
+        "python {params.runner} "
+        "--sample {wildcards.sample} "
+        "--vcf {input.vcf} "
+        "--cnv {input.cna} "
+        "--purity {params.purity} "
+        "--signatures none "
+        "--output_times {output.times} "
+        "--output_fig {output.fig} "
+        "--output_gpkl {output.gpkl} "
+        "--output_cluster_tsv {output.cluster_tsv} "
+        "--output_cluster_plot {output.cluster_plot} "
+        "--output_cluster_gpkl {output.cluster_gpkl} "
+        "--output_time_cluster_plot {output.tclust_plot} "
+        "--output_time_cluster_df {output.tclust_df} "
+        "--output_time_cluster2_plot {output.tclust2_plot} "
+        "--output_time_cluster2_df {output.tclust2_df}"
