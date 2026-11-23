@@ -28,8 +28,7 @@ def _get_package_data_path(filename: str) -> Path:
     """Get the path to a package data file."""
     try:
         # Python 3.9+
-        with importlib.resources.files("tau.data").joinpath(filename) as p:
-            return Path(p)
+        return Path(importlib.resources.files("tau.data").joinpath(filename))
     except (AttributeError, TypeError):
         # Fallback for older Python
         import pkg_resources
