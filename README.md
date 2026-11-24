@@ -211,7 +211,7 @@ One directory per sample. `{sample}` is the `--sample` value.
 | File | Contents |
 |---|---|
 | `{sample}.tau_samples.tsv` | one row for the sample: purity, ploidy, SNV/segment counts, number of events |
-| `{sample}.tau_events.tsv` | **the main result** — one row per detected event: time, classification (WGD/PGD/chrom_specific), genome fraction, chromosomes |
+| `{sample}.tau_events.tsv` | one row per detected event: time, classification (WGD/PGD/chrom_specific), genome fraction, chromosomes |
 | `{sample}.tau_segments.tsv` | per segment: coordinates, CN state, mutation weight, assigned event, or why it was not timed |
 | `{sample}.tau_routes.tsv` | per candidate gain ordering: free variables, fit distance, whether it was chosen |
 | `{sample}.tau_gains.tsv.gz` | per individual gain: its time, one row per polytope solution |
